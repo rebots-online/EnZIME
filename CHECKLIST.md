@@ -163,46 +163,339 @@
 
 ---
 
-## Phase 5: Core Implementation (Future)
+## Phase 5: Tauri 2 Project Scaffolding (Week 1)
 
-### 5.1 ZIM Reader Core
-
-| Task | Owner | Due | Status | Acceptance Criteria |
-|------|-------|-----|--------|---------------------|
-| Integrate AnZimmermanLib TypeScript | Dev | TBD | [ ] | ZIM reading functional |
-| Implement content rendering | Dev | TBD | [ ] | HTML/images display correctly |
-| Implement search indexing | Dev | TBD | [ ] | Full-text search works |
-
-### 5.2 UI Implementation (Based on UI-Samples)
+### 5.1 Project Initialization
 
 | Task | Owner | Due | Status | Acceptance Criteria |
 |------|-------|-----|--------|---------------------|
-| Implement theme system | Dev | TBD | [ ] | All themes working (Synaptic, Brutalist, Prismatic, Spectral) |
-| Implement LibraryView | Dev | TBD | [ ] | ZIM archive management |
-| Implement ReaderView | Dev | TBD | [ ] | Article display |
-| Implement SemanticMeshView | Dev | TBD | [ ] | Knowledge graph viz |
-| Implement SearchView | Dev | TBD | [ ] | Title + full-text search |
+| Run `npm create tauri-app@latest` with React+TS | Dev | Day 1 | [ ] | `src-tauri/` created |
+| Configure `tauri.conf.json` for EnZIM | Dev | Day 1 | [ ] | App name, identifier, window config |
+| Setup `Cargo.toml` with Tauri 2 + plugins | Dev | Day 1 | [ ] | fs, shell, http, dialog plugins |
+| Install frontend deps: React 18, Zustand, TailwindCSS | Dev | Day 1 | [ ] | `package.json` configured |
+| Install Lucide icons, shadcn/ui components | Dev | Day 1 | [ ] | UI toolkit ready |
 
-### 5.3 Platform Builds
+### 5.2 Version & Build System (Per Global Rules)
 
 | Task | Owner | Due | Status | Acceptance Criteria |
 |------|-------|-----|--------|---------------------|
-| Desktop build (Tauri) | Dev | TBD | [ ] | Windows/Linux/macOS |
-| Web build (PWA) | Dev | TBD | [ ] | Offline-capable |
-| Mobile build (Tauri Mobile) | Dev | TBD | [ ] | Android/iOS |
+| Create `build.sh` / `build.ps1` scripts | Dev | Day 2 | [ ] | Cross-platform build automation |
+| Implement epoch-based build number | Dev | Day 2 | [ ] | `floor(epoch/60) % 100000` |
+| Configure executable naming | Dev | Day 2 | [ ] | `enzim_v{ver}.{build}.{ext}` |
+| Add version to `tauri.conf.json` bundle | Dev | Day 2 | [ ] | Installer shows version |
+
+### 5.3 Copyright & Branding (Per Global Rules)
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Create splash screen with copyright | Dev | Day 2 | [ ] | Shows on app launch |
+| Add `File → About` dialog | Dev | Day 2 | [ ] | Copyright, License, Version+Build |
+| Add version to status bar (bottom-right) | Dev | Day 2 | [ ] | `v0.1a.XXXXX` visible |
+| Implement menu: File \| Edit \| View \| Help | Dev | Day 2 | [ ] | Platform-native menus |
+
+### 5.4 GitHub Actions CI/CD
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Create `.github/workflows/build.yml` | Dev | Day 3 | [ ] | Multi-platform trigger |
+| Configure Linux job (ubuntu-latest) | Dev | Day 3 | [ ] | .deb, .AppImage artifacts |
+| Configure Windows job (windows-latest) | Dev | Day 3 | [ ] | .msi, .exe (NSIS) artifacts |
+| Configure macOS job (macos-latest) | Dev | Day 3 | [ ] | .dmg, .app artifacts |
+| Add artifact upload with version naming | Dev | Day 3 | [ ] | `enzim_v{ver}.{build}_linux.AppImage` |
+| Create release workflow (on tag push) | Dev | Day 3 | [ ] | Auto-publish to GitHub Releases |
+
+### 5.5 Mobile Targets (Tauri Mobile)
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Run `npm run tauri android init` | Dev | Day 4 | [ ] | Android project scaffolded |
+| Configure Android signing | Dev | Day 4 | [ ] | Release keystore setup |
+| Add Android build to CI/CD | Dev | Day 4 | [ ] | .apk artifact generated |
+| Run `npm run tauri ios init` (macOS only) | Dev | Day 4 | [ ] | iOS project scaffolded |
 
 ---
 
-## Phase 6: Auth & Billing Implementation (Future)
+## Phase 6: Theme System & Core UI Shell (Week 1-2)
+
+### 6.1 Theme Infrastructure
 
 | Task | Owner | Due | Status | Acceptance Criteria |
 |------|-------|-----|--------|---------------------|
-| Implement Auth Service | Dev | TBD | [ ] | OAuth + email/password |
-| Implement Session Manager | Dev | TBD | [ ] | JWT/session handling |
-| Implement Billing Service | Dev | TBD | [ ] | Stripe integration |
-| Implement Feature Gate | Dev | TBD | [ ] | Entitlement checking |
-| Implement Auth UI components | Dev | TBD | [ ] | Login/signup modals |
-| Implement Billing UI components | Dev | TBD | [ ] | Subscription management |
+| Create `src/themes/` directory structure | Dev | Day 5 | [ ] | Theme files organized |
+| Implement CSS custom properties system | Dev | Day 5 | [ ] | `--bg-primary`, `--accent`, etc. |
+| Create `ThemeProvider` React context | Dev | Day 5 | [ ] | Theme state managed |
+| Implement `useTheme()` hook | Dev | Day 5 | [ ] | Components access theme |
+| Persist theme choice to localStorage | Dev | Day 5 | [ ] | Theme survives reload |
+
+### 6.2 Light/Dark/System Toggle (Required)
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Implement Light mode variant | Dev | Day 5 | [ ] | All themes have light variant |
+| Implement Dark mode variant | Dev | Day 5 | [ ] | All themes have dark variant |
+| Implement System Auto detection | Dev | Day 5 | [ ] | `prefers-color-scheme` respected |
+| Create `ThemeToggle` component | Dev | Day 5 | [ ] | 3-way toggle UI |
+
+### 6.3 Theme Implementations (UI-Samples Based)
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Implement **Synaptic Cartography Veil** | Dev | Day 6 | [ ] | Neon, glassmorphic, particles |
+| Implement **Brutalist Archive Monolith** | Dev | Day 6 | [ ] | Concrete, hard shadows, grid |
+| Implement **Prismatic Swiss Utility** | Dev | Day 6 | [ ] | Clean Swiss, cyan/magenta/gold |
+| Implement **Spectral ZIM Reader** | Dev | Day 6 | [ ] | Dark, vibrant, refraction |
+
+### 6.4 Additional Themes (Per Global Rules)
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Implement **Kinetic** theme | Dev | Day 7 | [ ] | Colorful, dynamic, Gumroad-inspired |
+| Implement **Retro** theme | Dev | Day 7 | [ ] | CRT terminal, scanlines |
+| Implement **Neumorphism** theme | Dev | Day 7 | [ ] | Soft shadows, extruded surfaces |
+| Implement **Glassmorphism** theme | Dev | Day 7 | [ ] | Frosted glass with depth |
+| Implement **Y2K** theme | Dev | Day 7 | [ ] | Early 2000s web maximalism |
+| Implement **Cyberpunk** theme | Dev | Day 7 | [ ] | Neon-soaked dystopian |
+| Implement **Minimal** theme | Dev | Day 7 | [ ] | Clean Swiss design (default) |
+
+### 6.5 App Shell Components
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Implement `AppShell` layout component | Dev | Day 8 | [ ] | 3-column responsive grid |
+| Implement `Header` component | Dev | Day 8 | [ ] | Logo, search, status, avatar |
+| Implement `Sidebar` component | Dev | Day 8 | [ ] | Navigation, archive list |
+| Implement `MainContent` container | Dev | Day 8 | [ ] | View router outlet |
+| Implement `RightPanel` (mesh sidebar) | Dev | Day 8 | [ ] | Collapsible panel |
+| Implement `StatusBar` component | Dev | Day 8 | [ ] | Version, build, status |
+
+---
+
+## Phase 7: Core Feature UI Components (Week 2)
+
+### 7.1 Library Management
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Implement `LibraryView` container | Dev | Week 2 | [ ] | Grid/list view toggle |
+| Implement `ZimCard` component | Dev | Week 2 | [ ] | Archive display card |
+| Implement `ZimDropzone` component | Dev | Week 2 | [ ] | Drag-drop .zim files |
+| Implement `ArchiveDetails` modal | Dev | Week 2 | [ ] | Metadata, size, count |
+| Wire to `useAppStore.archives` state | Dev | Week 2 | [ ] | State bindings working |
+
+### 7.2 Reader View
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Implement `ReaderView` container | Dev | Week 2 | [ ] | Article display area |
+| Implement `ArticleHeader` component | Dev | Week 2 | [ ] | Title, breadcrumb, actions |
+| Implement `ArticleContent` (WebView) | Dev | Week 2 | [ ] | Renders ZIM HTML |
+| Implement `BookmarkButton` component | Dev | Week 2 | [ ] | Add/remove bookmark |
+| Implement `TTSControls` component | Dev | Week 2 | [ ] | Play/pause, speed, voice |
+| Implement `AnnotationToolbar` component | Dev | Week 2 | [ ] | Highlight, note actions |
+
+### 7.3 Search Interface
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Implement `SearchBar` component | Dev | Week 2 | [ ] | ⌘K shortcut, autocomplete |
+| Implement `SearchResults` list | Dev | Week 2 | [ ] | Result items with snippets |
+| Implement `SearchFilters` component | Dev | Week 2 | [ ] | Archive, date filters |
+| Wire to search state & service | Dev | Week 2 | [ ] | Real-time results |
+
+### 7.4 Semantic Mesh
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Implement `SemanticMeshView` container | Dev | Week 2 | [ ] | Graph visualization |
+| Implement `GraphNode` component | Dev | Week 2 | [ ] | Interactive nodes |
+| Implement `GraphEdge` SVG component | Dev | Week 2 | [ ] | Connection lines |
+| Implement force-directed layout | Dev | Week 2 | [ ] | Auto-positioning |
+| Implement `RelatedArticles` list | Dev | Week 2 | [ ] | Text list fallback |
+
+### 7.5 Navigation & History
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Implement `HistoryView` component | Dev | Week 2 | [ ] | Recent articles list |
+| Implement `BookmarksView` component | Dev | Week 2 | [ ] | Saved bookmarks |
+| Implement `SettingsView` component | Dev | Week 2 | [ ] | Preferences UI |
+| Implement routing (React Router) | Dev | Week 2 | [ ] | View navigation |
+
+---
+
+## Phase 8: ZIM Core Integration (Week 2-3)
+
+### 8.1 AnZimmermanLib Integration
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Import `zimlib.ts` from AnZimmermanLib | Dev | Week 2 | [ ] | Library available |
+| Create `ZimService` wrapper | Dev | Week 2 | [ ] | API abstraction |
+| Implement `loadArchive(file)` | Dev | Week 2 | [ ] | Opens .zim file |
+| Implement `getArticle(url)` | Dev | Week 2 | [ ] | Returns HTML content |
+| Implement `getMetadata()` | Dev | Week 2 | [ ] | Archive info |
+
+### 8.2 Search Engine
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Create `SearchService` class | Dev | Week 3 | [ ] | Search abstraction |
+| Implement title index building | Dev | Week 3 | [ ] | Fast title search |
+| Implement full-text indexing | Dev | Week 3 | [ ] | Web Worker background |
+| Implement search result ranking | Dev | Week 3 | [ ] | Relevance sorting |
+| Target: < 1s title, < 2s full-text | Dev | Week 3 | [ ] | Performance met |
+
+### 8.3 Semantic Engine
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Create `SemanticEngine` class | Dev | Week 3 | [ ] | Mesh generation |
+| Implement link extraction | Dev | Week 3 | [ ] | Parse article links |
+| Implement graph building | Dev | Week 3 | [ ] | Nodes + edges |
+| Implement layout algorithm | Dev | Week 3 | [ ] | Force-directed |
+
+---
+
+## Phase 9: Auth & Billing Implementation (Week 3)
+
+### 9.1 Auth Service
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Implement `AuthService` class | Dev | Week 3 | [ ] | Per `api_contracts.md` |
+| Implement email/password login | Dev | Week 3 | [ ] | JWT returned |
+| Implement OAuth (Google, GitHub, Apple) | Dev | Week 3 | [ ] | Redirect flow works |
+| Implement session persistence | Dev | Week 3 | [ ] | Token in localStorage |
+| Implement token refresh | Dev | Week 3 | [ ] | Auto-refresh |
+
+### 9.2 Auth UI Components
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Implement `LoginModal` component | Dev | Week 3 | [ ] | Email + OAuth buttons |
+| Implement `SignupModal` component | Dev | Week 3 | [ ] | Registration form |
+| Implement `UserAvatar` dropdown | Dev | Week 3 | [ ] | Profile menu |
+| Implement `AuthGuard` HOC | Dev | Week 3 | [ ] | Route protection |
+| Wire to `useAuthStore` | Dev | Week 3 | [ ] | State bindings |
+
+### 9.3 Billing Service (Stripe)
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Implement `BillingService` class | Dev | Week 3 | [ ] | Per `api_contracts.md` |
+| Integrate Stripe.js / Elements | Dev | Week 3 | [ ] | Card input component |
+| Implement subscription creation | Dev | Week 3 | [ ] | Checkout flow |
+| Implement subscription management | Dev | Week 3 | [ ] | Upgrade/downgrade/cancel |
+| Implement webhook handler | Dev | Week 3 | [ ] | Payment events |
+
+### 9.4 Billing UI Components
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Implement `PricingTable` component | Dev | Week 3 | [ ] | Plan comparison |
+| Implement `SubscriptionCard` component | Dev | Week 3 | [ ] | Current plan display |
+| Implement `PaymentMethodForm` | Dev | Week 3 | [ ] | Stripe Elements |
+| Implement `InvoiceHistory` component | Dev | Week 3 | [ ] | Past payments |
+| Wire to `useSubscriptionStore` | Dev | Week 3 | [ ] | State bindings |
+
+### 9.5 Feature Gating
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Implement `FeatureGate` component | Dev | Week 3 | [ ] | Per flow diagram |
+| Implement `useFeature()` hook | Dev | Week 3 | [ ] | Feature checks |
+| Implement `UpgradePrompt` component | Dev | Week 3 | [ ] | Upsell modal |
+| Gate AI Assistant (Starter+) | Dev | Week 3 | [ ] | Gating works |
+| Gate Cloud Sync (Pro+) | Dev | Week 3 | [ ] | Gating works |
+| Gate Custom Themes (Pro+) | Dev | Week 3 | [ ] | Gating works |
+
+---
+
+## Phase 10: Testing & QA (Week 4)
+
+### 10.1 Unit Tests
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Setup Vitest test runner | Dev | Week 4 | [ ] | `npm test` works |
+| Test ZimService methods | Dev | Week 4 | [ ] | 80%+ coverage |
+| Test SearchService methods | Dev | Week 4 | [ ] | 80%+ coverage |
+| Test AuthService methods | Dev | Week 4 | [ ] | 80%+ coverage |
+| Test BillingService methods | Dev | Week 4 | [ ] | 80%+ coverage |
+| Test Zustand stores | Dev | Week 4 | [ ] | State logic verified |
+
+### 10.2 Integration Tests
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Setup Playwright | Dev | Week 4 | [ ] | E2E configured |
+| Test archive loading flow | Dev | Week 4 | [ ] | File → display |
+| Test search flow | Dev | Week 4 | [ ] | Query → results |
+| Test auth flow | Dev | Week 4 | [ ] | Login/logout |
+| Test billing flow | Dev | Week 4 | [ ] | Subscription |
+
+### 10.3 Cross-Platform Testing
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Test on Windows 10/11 | Dev | Week 4 | [ ] | All features work |
+| Test on macOS (Intel + ARM) | Dev | Week 4 | [ ] | All features work |
+| Test on Ubuntu 22.04+ | Dev | Week 4 | [ ] | All features work |
+| Test on Android (API 26+) | Dev | Week 4 | [ ] | Core features work |
+| Test PWA in Chrome/Firefox/Safari | Dev | Week 4 | [ ] | Offline works |
+
+### 10.4 Theme Testing
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Visual test all 11 themes | Dev | Week 4 | [ ] | No layout breaks |
+| Test light/dark/system toggle | Dev | Week 4 | [ ] | Mode switching works |
+| Test theme persistence | Dev | Week 4 | [ ] | Survives restart |
+| Test responsive breakpoints | Dev | Week 4 | [ ] | Mobile/tablet/desktop |
+
+---
+
+## Phase 11: Release Preparation (Week 4)
+
+### 11.1 Documentation
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Update README.md with install instructions | Dev | Week 4 | [ ] | User-ready docs |
+| Create CHANGELOG.md | Dev | Week 4 | [ ] | Version history |
+| Create CONTRIBUTING.md | Dev | Week 4 | [ ] | Dev guidelines |
+| Update ARCHITECTURE.md | Dev | Week 4 | [ ] | Reflects final impl |
+
+### 11.2 Release Artifacts
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Generate Linux packages | Dev | Week 4 | [ ] | .deb, .AppImage |
+| Generate Windows packages | Dev | Week 4 | [ ] | .msi, .exe |
+| Generate macOS package | Dev | Week 4 | [ ] | .dmg |
+| Generate Android APK | Dev | Week 4 | [ ] | .apk |
+| Deploy PWA to hosting | Dev | Week 4 | [ ] | URL accessible |
+
+### 11.3 Store Submissions (Post-Release)
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Submit to Microsoft Store | Dev | Post | [ ] | Listed |
+| Submit to Mac App Store | Dev | Post | [ ] | Listed |
+| Submit to Flathub/Snapcraft | Dev | Post | [ ] | Listed |
+| Submit to Google Play | Dev | Post | [ ] | Listed |
+| Submit to Apple App Store | Dev | Post | [ ] | Requires iOS build |
+
+### 11.4 Launch Checklist
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Version set to `v1.0.0` | Dev | Release | [ ] | No alpha/beta |
+| All tests passing | Dev | Release | [ ] | CI green |
+| No critical/high bugs | Dev | Release | [ ] | Issue tracker clean |
+| Copyright notice verified | Dev | Release | [ ] | Shows on launch |
+| Build numbers in filenames | Dev | Release | [ ] | Per global rules |
+| Create GitHub Release | Dev | Release | [ ] | Tag + notes |
 
 ---
 
@@ -260,7 +553,7 @@
 | Session | Date | Focus | Outcome |
 |---------|------|-------|---------|
 | 1 | 2026-01-16 | Architecture foundation, UI analysis, auth/billing placeholders | 15 diagrams, 4 docs created |
-| 2 | 2026-01-17 | Auth/billing UI flows, wireframes, state bindings | 7 UI artifacts created, no blockers |
+| 2 | 2026-01-17 | Auth/billing UI flows, wireframes, state bindings | 7 UI artifacts, comprehensive checklist |
 
 ---
 
@@ -278,4 +571,22 @@
 
 ---
 
-*Last updated: 2026-01-17T15:25:00-05:00*
+## Global Rules Compliance Summary
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| Tauri 2 for Desktop/Mobile | Phase 5 | [ ] Planned |
+| Epoch-based build number (`floor(epoch/60) % 100000`) | Phase 5.2 | [ ] Planned |
+| Executable naming with version | Phase 5.2 | [ ] Planned |
+| Copyright splash on launch | Phase 5.3 | [ ] Planned |
+| `File → About` with version | Phase 5.3 | [ ] Planned |
+| Version in status bar | Phase 5.3 | [ ] Planned |
+| Menu: File \| Edit \| View \| Help | Phase 5.3 | [ ] Planned |
+| GitHub Actions CI/CD | Phase 5.4 | [ ] Planned |
+| Light/Dark/System toggle | Phase 6.2 | [ ] Planned |
+| 11 themes (4 UI-Samples + 7 global) | Phase 6.3-6.4 | [ ] Planned |
+| PWA installable | Phase 11.2 | [ ] Planned |
+
+---
+
+*Last updated: 2026-01-17T15:18:00-05:00*
