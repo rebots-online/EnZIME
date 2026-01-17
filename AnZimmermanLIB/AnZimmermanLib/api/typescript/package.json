@@ -1,0 +1,30 @@
+{
+  "name": "zim-api-typescript",
+  "version": "1.0.0",
+  "description": "ZIM Library REST API with Express and Swagger UI",
+  "main": "zim_api.ts",
+  "scripts": {
+    "start": "ts-node zim_api.ts",
+    "dev": "nodemon --exec ts-node zim_api.ts",
+    "build": "tsc",
+    "serve": "node dist/zim_api.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/multer": "^1.4.11",
+    "@types/node": "^20.10.0",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.6",
+    "nodemon": "^3.0.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.2"
+  }
+}

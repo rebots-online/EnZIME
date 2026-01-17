@@ -1,0 +1,86 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "ZIM Downloader",
+  "version": "0.1.0",
+  "identifier": "com.anzimmerman.zim-downloader",
+  "build": {
+    "beforeBuildCommand": "npm run build",
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:5173",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "ZIM Downloader",
+        "width": 1200,
+        "height": 800,
+        "resizable": true,
+        "fullscreen": false,
+        "center": true
+      }
+    ],
+    "trayIcon": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true,
+      "menuOnLeftClick": false
+    },
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["deb", "appimage", "msi", "nsis"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "resources": [],
+    "category": "Utility",
+    "shortDescription": "Browse and download ZIM files with annotations",
+    "longDescription": "A cross-platform application for browsing, downloading, and annotating ZIM files from Kiwix and other public repositories. Features voice notes, ink annotations, and typed post-it notes.",
+    "publisher": "Robin L. M. Cheung, MBA",
+    "copyright": "Copyright © 2025 Robin L. M. Cheung, MBA. All rights reserved.",
+    "linux": {
+      "appimage": {
+        "bundleMediaFramework": true
+      },
+      "deb": {
+        "depends": ["libwebkit2gtk-4.1-0", "libgtk-3-0"]
+      }
+    },
+    "macOS": {
+      "minimumSystemVersion": "10.15"
+    },
+    "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper"
+      },
+      "wix": null,
+      "nsis": {
+        "installMode": "currentUser",
+        "displayLanguageSelector": true
+      }
+    }
+  },
+  "plugins": {
+    "shell": {
+      "open": true
+    },
+    "fs": {
+      "scope": ["$APPDATA/**", "$DOWNLOAD/**", "$HOME/**", "$DOCUMENT/**"]
+    },
+    "http": {
+      "scope": [
+        "https://download.kiwix.org/**",
+        "https://library.kiwix.org/**",
+        "https://dumps.wikimedia.org/**",
+        "https://*.archive.org/**"
+      ]
+    }
+  }
+}

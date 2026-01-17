@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Canvas for ink annotations */
+.ink-canvas {
+  touch-action: none;
+  cursor: crosshair;
+}
+
+/* Post-it note styles */
+.post-it {
+  background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+  transform: rotate(-1deg);
+}
+
+.post-it.blue {
+  background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%);
+}
+
+.post-it.green {
+  background: linear-gradient(135deg, #86efac 0%, #4ade80 100%);
+}
+
+.post-it.pink {
+  background: linear-gradient(135deg, #f9a8d4 0%, #f472b6 100%);
+}

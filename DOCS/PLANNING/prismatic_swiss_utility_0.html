@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnZimmerman Reader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --prism-1: #00f0ff;
+            --prism-2: #ff00aa;
+            --prism-3: #ffdd00;
+            --bg-color: #f7f7f9;
+            --surface-color: #ffffff;
+            --text-main: #0a0a0a;
+            --text-muted: #666666;
+            --border-color: #e5e5e5;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .font-mono { font-family: 'Space Mono', monospace; }
+        .font-display { font-family: 'Space Grotesk', sans-serif; }
+
+        /* Prismatic Utilities */
+        .prism-border-bottom {
+            position: relative;
+        }
+        .prism-border-bottom::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, var(--prism-1), var(--prism-2), var(--prism-3));
+            opacity: 0.3;
+        }
+
+        .prism-glow {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
+                        inset 0 0 10px rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+        }
+
+        .mesh-node {
+            position: absolute;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .mesh-node:hover {
+            transform: scale(1.1);
+            z-index: 20;
+            box-shadow: 0 0 15px var(--prism-1);
+            border-color: var(--prism-1);
+        }
+
+        .mesh-line {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, #ccc, transparent);
+            transform-origin: left center;
+            z-index: 1;
+            opacity: 0.4;
+        }
+
+        /* Swiss Layout Utilities */
+        .grid-swiss {
+            display: grid;
+            grid-template-columns: 260px 1fr 340px;
+            height: 100vh;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .hover-prism:hover {
+            background: linear-gradient(90deg, rgba(0,240,255,0.05), rgba(255,0,170,0.05));
+            border-left: 2px solid var(--prism-2);
+        }
+        
+        .zim-card-active {
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border-left: 2px solid var(--prism-1);
+        }
+
+        /* Text selection */
+        ::selection {
+            background: var(--prism-1);
+            color: black;
+        }
+
+        /* Animations */
+        @keyframes drift {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-drift { animation: drift 6s ease-in-out infinite; }
+        .delay-1 { animation-delay: 1s; }
+        .delay-2 { animation-delay: 2s; }
+
+    </style>
+</head>
+<body class="selection:bg-cyan-200 selection:text-black">
+
+    <div class="grid-swiss">
+        <!-- LEFT COLUMN: LIBRARY & NAV -->
+        <aside class="flex flex-col border-r border-gray-200 bg-[#FBFBFD] relative z-20">
+            <!-- App Header -->
+            <div class="h-16 flex items-center px-6 prism-border-bottom bg-white/50 backdrop-blur-md">
+                <div class="w-4 h-4 rounded-sm bg-black flex items-center justify-center mr-3">
+                    <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
+                </div>
+                <span class="font-display font-bold tracking-tight text-lg">AnZimmerman</span>
+                <span class="ml-2 text-[10px] font-mono text-gray-400 px-1.5 py-0.5 border border-gray-200 rounded">v0.9.2</span>
+            </div>
+
+            <!-- Library Navigation -->
+            <div class="flex-1 overflow-y-auto scrollbar-hide py-6 px-3 space-y-6">
+                
+                <!-- Section: Local Library -->
+                <div>
+                    <h3 class="px-3 text-[10px] font-mono uppercase tracking-widest text-gray-400 mb-3">Local Archives</h3>
+                    <ul class="space-y-1">
+                        <li class="zim-card-active group flex flex-col p-3 rounded-md cursor-pointer transition-all">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="font-semibold text-sm">Wikipedia (En)</span>
+                                <i data-lucide="hard-drive" class="w-3 h-3 text-emerald-500"></i>
+                            </div>
+                            <div class="flex items-center justify-between text-xs text-gray-500 font-mono">
+                                <span>12.4M Articles</span>
+                                <span>82 GB</span>
+                            </div>
+                        </li>
+                        <li class="hover-prism group flex flex-col p-3 rounded-md cursor-pointer transition-all">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-sm text-gray-700">StackOverflow</span>
+                                <div class="w-2 h-2 rounded-full bg-gray-300 group-hover:bg-pink-400 transition-colors"></div>
+                            </div>
+                            <div class="flex items-center justify-between text-xs text-gray-400 font-mono">
+                                <span>3.2M Q&A</span>
+                                <span>14 GB</span>
+                            </div>
+                        </li>
+                        <li class="hover-prism group flex flex-col p-3 rounded-md cursor-pointer transition-all">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-sm text-gray-700">Project Gutenberg</span>
+                                <div class="w-2 h-2 rounded-full bg-gray-300"></div>
+                            </div>
+                            <div class="flex items-center justify-between text-xs text-gray-400 font-mono">
+                                <span>70k Books</span>
+                                <span>8 GB</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Section: Bookmarks -->
+                <div>
+                    <h3 class="px-3 text-[10px] font-mono uppercase tracking-widest text-gray-400 mb-3">Bookmarks</h3>
+                    <ul class="space-y-2">
+                        <li class="px-3 py-1 flex items-center text-sm text-gray-600 hover:text-black cursor-pointer group">
+                            <i data-lucide="bookmark" class="w-3 h-3 mr-2 text-gray-400 group-hover:text-cyan-500"></i>
+                            Swiss Style
+                        </li>
+                        <li class="px-3 py-1 flex items-center text-sm text-gray-600 hover:text-black cursor-pointer group">
+                            <i data-lucide="bookmark" class="w-3 h-3 mr-2 text-gray-400 group-hover:text-pink-500"></i>
+                            Prism (Optics)
+                        </li>
+                        <li class="px-3 py-1 flex items-center text-sm text-gray-600 hover:text-black cursor-pointer group">
+                            <i data-lucide="bookmark" class="w-3 h-3 mr-2 text-gray-400 group-hover:text-yellow-500"></i>
+                            Rust (Language)
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom: Settings / Add -->
+            <div class="p-4 border-t border-gray-200 bg-white/50 backdrop-blur-sm">
+                <button class="w-full flex items-center justify-center space-x-2 py-2 border border-dashed border-gray-300 rounded-md hover:border-black hover:bg-white transition-all text-xs font-mono uppercase tracking-wider">
+                    <i data-lucide="plus" class="w-3 h-3"></i>
+                    <span>Add ZIM Archive</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MIDDLE COLUMN: READER -->
+        <main class="relative bg-white flex flex-col h-full overflow-hidden shadow-2xl z-10">
+            <!-- Utility Bar -->
+            <header class="h-16 flex items-center justify-between px-8 border-b border-gray-100 bg-white/90 backdrop-blur sticky top-0 z-30">
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-black">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    </button>
+                    <button class="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-black disabled">
+                        <i data-lucide="arrow-right" class="w-5 h-5 opacity-50"></i>
+                    </button>
+                    <div class="h-4 w-px bg-gray-200 mx-2"></div>
+                    <button class="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-600">
+                        <i data-lucide="home" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- Search Input -->
+                <div class="relative w-96 group">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="search" class="w-4 h-4 text-gray-400 group-focus-within:text-cyan-600 transition-colors"></i>
+                    </div>
+                    <input type="text" 
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-md leading-5 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 sm:text-sm transition-all font-mono"
+                        placeholder="Search Wikipedia..." value="International Typographic Style">
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <span class="text-gray-400 text-xs font-mono">⌘K</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <button class="p-2 hover:bg-gray-50 rounded text-gray-400 hover:text-yellow-600 transition-colors">
+                        <i data-lucide="star" class="w-5 h-5"></i>
+                    </button>
+                    <button class="p-2 hover:bg-gray-50 rounded text-gray-400 hover:text-black transition-colors">
+                        <i data-lucide="type" class="w-5 h-5"></i>
+                    </button>
+                    <button class="p-2 hover:bg-gray-50 rounded text-gray-400 hover:text-black transition-colors">
+                        <i data-lucide="share" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Article Content -->
+            <article class="flex-1 overflow-y-auto px-12 py-10 max-w-4xl mx-auto w-full">
+                <!-- Breadcrumb -->
+                <div class="flex items-center space-x-2 text-xs font-mono text-gray-400 mb-6">
+                    <span>ZIM: Wikipedia (En)</span>
+                    <span>/</span>
+                    <span>Design</span>
+                    <span>/</span>
+                    <span class="text-black">Swiss Style</span>
+                </div>
+
+                <h1 class="text-5xl font-display font-bold tracking-tight text-black mb-6 leading-[1.1]">
+                    International Typographic Style
+                </h1>
+
+                <div class="flex items-center space-x-4 mb-10 pb-6 border-b border-gray-100">
+                    <div class="flex items-center space-x-2 text-sm text-gray-500">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                        <span>Cached locally</span>
+                    </div>
+                    <span class="text-gray-300">|</span>
+                    <div class="text-sm text-gray-500 font-mono">Updated: 2023-10-12</div>
+                </div>
+
+                <div class="prose prose-lg prose-slate max-w-none text-gray-800 font-light">
+                    <p class="lead text-xl leading-relaxed text-gray-600 mb-8">
+                        The <strong class="text-black font-semibold">International Typographic Style</strong>, also known as the <span class="bg-gradient-to-r from-cyan-100 to-transparent px-1">Swiss Style</span>, is a graphic design style that emerged in Russia, the Netherlands, and Germany in the 1920s and was further developed by designers in Switzerland during the 1950s.
+                    </p>
+
+                    <div class="float-right ml-8 mb-8 w-64 p-4 border border-gray-100 bg-gray-50 rounded-lg">
+                        <div class="w-full h-40 bg-gray-200 mb-3 overflow-hidden relative group">
+                            <!-- Placeholder visual for an image -->
+                            <div class="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300"></div>
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/10">
+                                <i data-lucide="maximize-2" class="text-white w-6 h-6"></i>
+                            </div>
+                            <!-- Artistic minimal grid rep -->
+                            <div class="absolute top-4 left-4 w-8 h-8 border border-gray-400"></div>
+                            <div class="absolute top-4 left-14 w-24 h-2 bg-black"></div>
+                            <div class="absolute top-8 left-14 w-16 h-2 bg-gray-400"></div>
+                        </div>
+                        <p class="text-[10px] font-mono text-gray-500 uppercase tracking-wide">Fig 1. Grid Systems</p>
+                        <p class="text-xs text-gray-600 mt-1 italic">Josef Müller-Brockmann's grid system visual structure.</p>
+                    </div>
+
+                    <p class="mb-6">
+                        The style is characterized by a preference for <a href="#" class="text-cyan-700 underline decoration-cyan-300 decoration-1 underline-offset-2 hover:bg-cyan-50 transition-colors">simplicity</a>, legibility and objectivity. Of central importance is the use of a grid for structuring information. 
+                    </p>
+
+                    <h2 class="text-2xl font-display font-bold text-black mt-12 mb-4 flex items-center group">
+                        <span class="text-cyan-500 mr-2 opacity-0 group-hover:opacity-100 transition-opacity -ml-6">#</span>
+                        Characteristics
+                    </h2>
+                    <p class="mb-6">
+                        Designers of this style defined design as a socially useful and important activity. Personal expression and eccentric solutions were rejected in favor of a more universal and scientific approach to design problems.
+                    </p>
+                    <ul class="list-disc list-outside ml-5 space-y-2 mb-6 marker:text-cyan-500">
+                        <li>Asymmetric layouts</li>
+                        <li>Use of a grid</li>
+                        <li>Sans-serif typefaces like Akzidenz-Grotesk</li>
+                        <li>Flush left, ragged right text</li>
+                    </ul>
+
+                    <div class="my-10 p-6 bg-gray-50 border-l-4 border-black relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-gray-200 to-transparent opacity-50 -mr-10 -mt-10 rounded-full"></div>
+                        <p class="text-lg font-serif italic text-gray-700 relative z-10">
+                            "Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away."
+                        </p>
+                        <p class="text-sm font-bold mt-2 text-black">— Antoine de Saint-Exupéry</p>
+                    </div>
+
+                    <h2 class="text-2xl font-display font-bold text-black mt-12 mb-4 flex items-center group">
+                        <span class="text-cyan-500 mr-2 opacity-0 group-hover:opacity-100 transition-opacity -ml-6">#</span>
+                        Related Movements
+                    </h2>
+                    <p class="mb-12">
+                         The International Typographic Style had a profound influence on graphic design as a part of the modernist movement, impacting many design-related fields including architecture and art.
+                    </p>
+                </div>
+            </article>
+        </main>
+
+        <!-- RIGHT COLUMN: SEMANTIC MESH & CONTEXT -->
+        <aside class="relative bg-[#F4F4F5] border-l border-gray-200 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <div class="h-16 flex items-center justify-between px-4 border-b border-gray-200 bg-white/50 backdrop-blur-md z-20">
+                <span class="font-mono text-xs font-bold uppercase tracking-widest text-gray-500">Semantic Mesh</span>
+                <div class="flex space-x-1">
+                    <button class="w-6 h-6 flex items-center justify-center rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all">
+                        <i data-lucide="maximize" class="w-3 h-3 text-gray-500"></i>
+                    </button>
+                    <button class="w-6 h-6 flex items-center justify-center rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all">
+                        <i data-lucide="settings-2" class="w-3 h-3 text-gray-500"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Visualization Area -->
+            <div class="flex-1 relative overflow-hidden bg-[#F0F0F2]">
+                <!-- Subtle Grid Background -->
+                <div class="absolute inset-0 opacity-20" 
+                     style="background-image: radial-gradient(#999 1px, transparent 1px); background-size: 20px 20px;">
+                </div>
+
+                <!-- Mesh Visualization Container -->
+                <div class="absolute inset-0 flex items-center justify-center">
+                    
+                    <!-- Connection Lines (Simulated SVG) -->
+                    <svg class="absolute inset-0 w-full h-full pointer-events-none">
+                        <defs>
+                            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:rgb(0,0,0);stop-opacity:0.1" />
+                                <stop offset="100%" style="stop-color:rgb(0,240,255);stop-opacity:0.4" />
+                            </linearGradient>
+                        </defs>
+                        <!-- Center to Top Right -->
+                        <line x1="50%" y1="50%" x2="80%" y2="25%" stroke="url(#grad1)" stroke-width="1" />
+                        <!-- Center to Bottom Left -->
+                        <line x1="50%" y1="50%" x2="20%" y2="75%" stroke="black" stroke-opacity="0.1" stroke-width="1" />
+                        <!-- Center to Bottom Right -->
+                        <line x1="50%" y1="50%" x2="70%" y2="65%" stroke="black" stroke-opacity="0.1" stroke-width="1" />
+                        <!-- Center to Top Left -->
+                        <line x1="50%" y1="50%" x2="25%" y2="35%" stroke="black" stroke-opacity="0.1" stroke-width="1" />
+                    </svg>
+
+                    <!-- Central Node (Current Article) -->
+                    <div class="mesh-node w-24 h-24 bg-white border-2 border-black z-30 shadow-xl flex flex-col items-center justify-center text-center animate-drift">
+                        <span class="text-[10px] text-gray-400 font-mono mb-1">CURRENT</span>
+                        <span class="font-bold text-xs leading-tight px-2">Swiss<br>Style</span>
+                    </div>
+
+                    <!-- Surrounding Nodes -->
+                    <!-- Bauhaus -->
+                    <div class="mesh-node w-16 h-16 bg-white border border-gray-300 text-[10px] text-gray-600 hover:text-black hover:border-cyan-500" style="top: 20%; left: 70%;">
+                        Bauhaus
+                    </div>
+
+                    <!-- Typography -->
+                    <div class="mesh-node w-14 h-14 bg-white border border-gray-300 text-[9px] text-gray-600 hover:text-black hover:border-pink-500 animate-drift delay-1" style="top: 60%; left: 65%;">
+                        Typography
+                    </div>
+
+                    <!-- Grid -->
+                    <div class="mesh-node w-18 h-18 bg-white border border-gray-300 text-[10px] text-gray-600 hover:text-black hover:border-yellow-500 animate-drift delay-2" style="top: 30%; left: 20%;">
+                        Grid Systems
+                    </div>
+
+                    <!-- Modernism -->
+                    <div class="mesh-node w-12 h-12 bg-white border border-gray-300 text-[9px] text-gray-500 hover:text-black" style="top: 70%; left: 20%;">
+                        Modernism
+                    </div>
+
+                </div>
+                
+                <!-- Floating Info Card -->
+                <div class="absolute bottom-4 left-4 right-4 glass-panel p-4 rounded-lg border border-white/40">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 rounded bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-bold text-xs shadow-lg">
+                            <i data-lucide="network" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-black">Network Density</h4>
+                            <p class="text-[10px] text-gray-500 font-mono mt-1">
+                                5 direct connections<br>
+                                24 second-degree nodes
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- "See Also" List -->
+            <div class="h-1/3 border-t border-gray-200 bg-white z-20 flex flex-col">
+                <div class="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
+                    <h3 class="text-[10px] font-mono uppercase font-bold text-gray-500 tracking-wider">Neighbors</h3>
+                </div>
+                <ul class="flex-1 overflow-y-auto">
+                    <li class="px-4 py-3 border-b border-gray-50 hover:bg-cyan-50/30 cursor-pointer flex items-center justify-between group transition-colors">
+                        <div>
+                            <p class="text-sm font-medium text-gray-800 group-hover:text-cyan-700">Akzidenz-Grotesk</p>
+                            <p class="text-[10px] text-gray-400 font-mono">Typeface • 1896</p>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-cyan-500"></i>
+                    </li>
+                    <li class="px-4 py-3 border-b border-gray-50 hover:bg-pink-50/30 cursor-pointer flex items-center justify-between group transition-colors">
+                        <div>
+                            <p class="text-sm font-medium text-gray-800 group-hover:text-pink-700">De Stijl</p>
+                            <p class="text-[10px] text-gray-400 font-mono">Movement • Dutch</p>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-pink-500"></i>
+                    </li>
+                    <li class="px-4 py-3 hover:bg-yellow-50/30 cursor-pointer flex items-center justify-between group transition-colors">
+                        <div>
+                            <p class="text-sm font-medium text-gray-800 group-hover:text-yellow-700">Paul Rand</p>
+                            <p class="text-[10px] text-gray-400 font-mono">Designer • USA</p>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-yellow-500"></i>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- Initialize Icons -->
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

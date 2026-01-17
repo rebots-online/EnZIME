@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnZimmerman | Spectral ZIM Reader</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-void: #030407;
+            --filament-cyan: #00f2ff;
+            --filament-pink: #ff00e1;
+            --filament-amber: #ffaa00;
+            --glass-surface: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #e0e6ed;
+            --text-secondary: #94a3b8;
+            --font-main: 'Inter', sans-serif;
+            --font-data: 'JetBrains Mono', monospace;
+            --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background: var(--bg-void);
+            color: var(--text-primary);
+            font-family: var(--font-main);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+        }
+
+        /* Spectral Refraction Background */
+        .refraction-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 50% 50%, rgba(0, 242, 255, 0.02) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 0, 225, 0.02) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Sidebar: The Filament Spine */
+        aside {
+            width: 72px;
+            height: 100%;
+            border-right: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 0;
+            background: rgba(3, 4, 7, 0.8);
+            backdrop-filter: blur(20px);
+            z-index: 100;
+        }
+
+        .logo {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 48px;
+            position: relative;
+        }
+
+        .logo-filament {
+            position: absolute;
+            inset: 0;
+            border: 1px solid var(--filament-cyan);
+            border-radius: 4px;
+            transform: rotate(45deg);
+            box-shadow: 0 0 10px var(--filament-cyan);
+        }
+
+        .nav-item {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 12px;
+            color: var(--text-secondary);
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: var(--filament-cyan);
+            background: var(--glass-surface);
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            width: 3px;
+            height: 20px;
+            background: var(--filament-cyan);
+            box-shadow: 0 0 15px var(--filament-cyan);
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* Main Workspace */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Top Header Bar */
+        header {
+            height: 64px;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            gap: 24px;
+            background: rgba(3, 4, 7, 0.4);
+            backdrop-filter: blur(10px);
+        }
+
+        .search-filament {
+            flex: 1;
+            max-width: 600px;
+            height: 36px;
+            background: var(--glass-surface);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            transition: var(--transition-smooth);
+        }
+
+        .search-filament:focus-within {
+            border-color: var(--filament-cyan);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.1);
+        }
+
+        .search-input {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-family: var(--font-main);
+            width: 100%;
+            margin-left: 12px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .zim-badge {
+            font-family: var(--font-data);
+            font-size: 10px;
+            letter-spacing: 1px;
+            padding: 4px 10px;
+            border: 1px solid var(--filament-amber);
+            color: var(--filament-amber);
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        /* Reader Content */
+        .content-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .article-view {
+            flex: 1;
+            padding: 64px 12%;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--glass-border) transparent;
+        }
+
+        .article-view::-webkit-scrollbar { width: 4px; }
+        .article-view::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 2px; }
+
+        .article-title {
+            font-size: 48px;
+            font-weight: 300;
+            margin-bottom: 24px;
+            background: linear-gradient(to right, #fff, var(--text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .article-meta {
+            font-family: var(--font-data);
+            font-size: 12px;
+            color: var(--filament-cyan);
+            margin-bottom: 48px;
+            display: flex;
+            gap: 24px;
+        }
+
+        .article-body {
+            line-height: 1.8;
+            font-size: 17px;
+            color: var(--text-secondary);
+        }
+
+        .article-body p { margin-bottom: 24px; }
+        
+        .article-body b, .article-body strong { color: var(--text-primary); font-weight: 600; }
+
+        .filament-link {
+            color: var(--filament-cyan);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: var(--transition-smooth);
+        }
+
+        .filament-link:hover {
+            border-bottom-color: var(--filament-cyan);
+            text-shadow: 0 0 8px var(--filament-cyan);
+        }
+
+        /* Node Explorer (Semantic Mesh Sidebar) */
+        .mesh-sidebar {
+            width: 320px;
+            border-left: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.01);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+        }
+
+        .mesh-title {
+            font-family: var(--font-data);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .node-cluster {
+            flex: 1;
+            position: relative;
+        }
+
+        .node {
+            padding: 12px;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            background: var(--glass-surface);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .node:hover {
+            border-color: var(--filament-cyan);
+            transform: translateX(4px);
+        }
+
+        .node-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--filament-cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--filament-cyan);
+        }
+
+        .node-label {
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        .node-relation {
+            font-family: var(--font-data);
+            font-size: 9px;
+            margin-left: auto;
+            color: var(--text-secondary);
+        }
+
+        /* Library View Overlay */
+        #library-overlay {
+            position: absolute;
+            inset: 0;
+            background: var(--bg-void);
+            z-index: 200;
+            padding: 64px;
+            display: none; /* Toggle via JS */
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition-smooth);
+        }
+
+        #library-overlay.visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .library-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 32px;
+            margin-top: 48px;
+        }
+
+        .zim-card {
+            background: var(--glass-surface);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 24px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .zim-card::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, transparent 50%, var(--glass-border) 50%);
+        }
+
+        .zim-card:hover {
+            border-color: var(--filament-cyan);
+            background: rgba(0, 242, 255, 0.02);
+            transform: scale(1.02);
+        }
+
+        .zim-card h3 { font-weight: 400; margin-bottom: 8px; }
+        .zim-card p { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+        /* Floating 6df Mesh Visualizer Button */
+        .mesh-fab {
+            position: absolute;
+            bottom: 32px;
+            right: 32px;
+            width: 56px;
+            height: 56px;
+            background: var(--bg-void);
+            border: 1px solid var(--filament-pink);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 0, 225, 0.2);
+            transition: var(--transition-smooth);
+            z-index: 100;
+        }
+
+        .mesh-fab:hover {
+            transform: rotate(90deg);
+            background: var(--filament-pink);
+            color: #fff;
+        }
+
+        /* Animations */
+        @keyframes filament-pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0.3; }
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            margin-right: 12px;
+            animation: filament-pulse 2s infinite;
+            box-shadow: 0 0 8px #00ff88;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="refraction-overlay"></div>
+
+    <aside>
+        <div class="logo">
+            <div class="logo-filament"></div>
+        </div>
+        <div class="nav-item active" title="Reader" onclick="showView('reader')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+        </div>
+        <div class="nav-item" title="Library" onclick="showView('library')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        </div>
+        <div class="nav-item" title="Bookmarks">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+        </div>
+        <div class="nav-item" title="History">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </div>
+        <div class="nav-item" style="margin-top: auto;" title="Settings">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </div>
+    </aside>
+
+    <main>
+        <header>
+            <div class="status-dot"></div>
+            <div class="search-filament">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" class="search-input" placeholder="Search the semantic mesh...">
+            </div>
+            <div class="zim-badge">Wikipedia_EN_2025.zim</div>
+        </header>
+
+        <div class="content-container">
+            <div class="article-view">
+                <h1 class="article-title">Quantum Entanglement</h1>
+                <div class="article-meta">
+                    <span>NAMESPACE: CONTENT_A</span>
+                    <span>CLUSTER ID: 0x4F22</span>
+                    <span>SIZE: 42.4 KB</span>
+                </div>
+                <div class="article-body">
+                    <p><b>Quantum entanglement</b> is a physical phenomenon that occurs when a group of particles are generated, interact, or share spatial proximity in a way such that the quantum state of each particle cannot be described independently of the state of the others, even when the particles are separated by a large distance.</p>
+                    <p>The topic of quantum entanglement is at the heart of the disparity between classical and quantum physics: entanglement is a primary feature of quantum mechanics lacking in classical mechanics.</p>
+                    <p>Measurements of physical properties such as position, momentum, spin, and polarization performed on entangled particles can, in some cases, be found to be perfectly correlated. For example, if a pair of particles is generated in such a way that their total spin is known to be zero, and one particle is found to have clockwise spin on a first axis, the spin of the other particle, measured on the same axis, will be found to be counterclockwise.</p>
+                    <p>Navigate to <a href="#" class="filament-link">Quantum Computing</a> or <a href="#" class="filament-link">Spooky Action at a Distance</a> to explore more.</p>
+                </div>
+            </div>
+
+            <div class="mesh-sidebar">
+                <div class="mesh-title">
+                    Semantic Mesh
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                </div>
+                <div class="node-cluster">
+                    <div class="node">
+                        <div class="node-dot"></div>
+                        <span class="node-label">Bell's Theorem</span>
+                        <span class="node-relation">0.94</span>
+                    </div>
+                    <div class="node">
+                        <div class="node-dot"></div>
+                        <span class="node-label">Wave Function</span>
+                        <span class="node-relation">0.88</span>
+                    </div>
+                    <div class="node">
+                        <div class="node-dot" style="background: var(--filament-pink); box-shadow: 0 0 8px var(--filament-pink);"></div>
+                        <span class="node-label">EPR Paradox</span>
+                        <span class="node-relation">0.82</span>
+                    </div>
+                    <div class="node">
+                        <div class="node-dot"></div>
+                        <span class="node-label">Quantum Logic</span>
+                        <span class="node-relation">0.75</span>
+                    </div>
+                    <div class="node">
+                        <div class="node-dot"></div>
+                        <span class="node-label">Superposition</span>
+                        <span class="node-relation">0.71</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Library Overlay -->
+        <div id="library-overlay">
+            <h1 style="font-weight: 300; font-size: 32px;">Archive Library</h1>
+            <p style="color: var(--text-secondary); margin-top: 8px;">Select a ZIM filament to hydrate the reader.</p>
+            
+            <div class="library-grid">
+                <div class="zim-card" onclick="showView('reader')">
+                    <h3 style="color: var(--filament-cyan);">Wikipedia English</h3>
+                    <p>The complete English encyclopedia. Optimized for semantic search.</p>
+                    <div style="margin-top: 16px; font-family: var(--font-data); font-size: 10px;">82.4 GB • 2025-01-12</div>
+                </div>
+                <div class="zim-card">
+                    <h3 style="color: var(--filament-amber);">Project Gutenberg</h3>
+                    <p>Collection of free eBooks. Formatted for high-fidelity offline reading.</p>
+                    <div style="margin-top: 16px; font-family: var(--font-data); font-size: 10px;">12.1 GB • 2024-11-05</div>
+                </div>
+                <div class="zim-card">
+                    <h3 style="color: var(--filament-pink);">StackOverflow Wiki</h3>
+                    <p>Technical Q&A and documentation mesh for offline developers.</p>
+                    <div style="margin-top: 16px; font-family: var(--font-data); font-size: 10px;">4.8 GB • 2024-12-20</div>
+                </div>
+                <div class="zim-card" style="border: 1px dashed var(--glass-border); display: flex; align-items: center; justify-content: center;">
+                    <span style="color: var(--text-secondary);">+ Import New ZIM</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mesh-fab" title="Switch to 6df Mesh View">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+        </div>
+    </main>
+
+    <script>
+        function showView(view) {
+            const library = document.getElementById('library-overlay');
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            if (view === 'library') {
+                library.classList.add('visible');
+                navItems[0].classList.remove('active');
+                navItems[1].classList.add('active');
+            } else {
+                library.classList.remove('visible');
+                navItems[1].classList.remove('active');
+                navItems[0].classList.add('active');
+            }
+        }
+
+        // Mouse refraction effect
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX;
+            const y = e.clientY;
+            const overlay = document.querySelector('.refraction-overlay');
+            overlay.style.background = `
+                radial-gradient(circle at ${x}px ${y}px, rgba(0, 242, 255, 0.04) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(0, 242, 255, 0.01) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 0, 225, 0.02) 0%, transparent 40%)
+            `;
+        });
+    </script>
+</body>
+</html>
