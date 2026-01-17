@@ -1,0 +1,48 @@
+[package]
+name = "enzim"
+version = "0.1.0"
+description = "EnZIM - Offline ZIM Reader & Knowledge Explorer"
+authors = ["Robin L. M. Cheung, MBA"]
+license = "All rights reserved"
+repository = "https://github.com/rebots-online/EnZIMe"
+edition = "2021"
+rust-version = "1.70"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+# Tauri 2
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-shell = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Error handling
+thiserror = "1"
+anyhow = "1"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# Date/time for build numbers
+chrono = { version = "0.4", features = ["serde"] }
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "z"
+strip = true

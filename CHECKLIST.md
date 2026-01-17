@@ -169,40 +169,40 @@
 
 | Task | Owner | Due | Status | Acceptance Criteria |
 |------|-------|-----|--------|---------------------|
-| Run `npm create tauri-app@latest` with React+TS | Dev | Day 1 | [ ] | `src-tauri/` created |
-| Configure `tauri.conf.json` for EnZIM | Dev | Day 1 | [ ] | App name, identifier, window config |
-| Setup `Cargo.toml` with Tauri 2 + plugins | Dev | Day 1 | [ ] | fs, shell, http, dialog plugins |
-| Install frontend deps: React 18, Zustand, TailwindCSS | Dev | Day 1 | [ ] | `package.json` configured |
-| Install Lucide icons, shadcn/ui components | Dev | Day 1 | [ ] | UI toolkit ready |
+| Run `npm create tauri-app@latest` with React+TS | Dev | Day 1 | [X] | `src-tauri/` created |
+| Configure `tauri.conf.json` for EnZIM | Dev | Day 1 | [X] | App name, identifier, window config |
+| Setup `Cargo.toml` with Tauri 2 + plugins | Dev | Day 1 | [X] | fs, shell, http, dialog plugins |
+| Install frontend deps: React 18, Zustand, TailwindCSS | Dev | Day 1 | [X] | `package.json` configured |
+| Install Lucide icons, shadcn/ui components | Dev | Day 1 | [X] | UI toolkit ready |
 
 ### 5.2 Version & Build System (Per Global Rules)
 
 | Task | Owner | Due | Status | Acceptance Criteria |
 |------|-------|-----|--------|---------------------|
-| Create `build.sh` / `build.ps1` scripts | Dev | Day 2 | [ ] | Cross-platform build automation |
-| Implement epoch-based build number | Dev | Day 2 | [ ] | `floor(epoch/60) % 100000` |
-| Configure executable naming | Dev | Day 2 | [ ] | `enzim_v{ver}.{build}.{ext}` |
-| Add version to `tauri.conf.json` bundle | Dev | Day 2 | [ ] | Installer shows version |
+| Create `build.sh` / `build.ps1` scripts | Dev | Day 2 | [X] | Cross-platform build automation |
+| Implement epoch-based build number | Dev | Day 2 | [X] | `floor(epoch/60) % 100000` |
+| Configure executable naming | Dev | Day 2 | [X] | `enzim_v{ver}.{build}.{ext}` |
+| Add version to `tauri.conf.json` bundle | Dev | Day 2 | [X] | Installer shows version |
 
 ### 5.3 Copyright & Branding (Per Global Rules)
 
 | Task | Owner | Due | Status | Acceptance Criteria |
 |------|-------|-----|--------|---------------------|
-| Create splash screen with copyright | Dev | Day 2 | [ ] | Shows on app launch |
-| Add `File → About` dialog | Dev | Day 2 | [ ] | Copyright, License, Version+Build |
-| Add version to status bar (bottom-right) | Dev | Day 2 | [ ] | `v0.1a.XXXXX` visible |
-| Implement menu: File \| Edit \| View \| Help | Dev | Day 2 | [ ] | Platform-native menus |
+| Create splash screen with copyright | Dev | Day 2 | [X] | Shows on app launch |
+| Add `File → About` dialog | Dev | Day 2 | [X] | Copyright, License, Version+Build |
+| Add version to status bar (bottom-right) | Dev | Day 2 | [X] | `v0.1a.XXXXX` visible |
+| Implement menu: File \| Edit \| View \| Help | Dev | Day 2 | [X] | Platform-native menus |
 
 ### 5.4 GitHub Actions CI/CD
 
 | Task | Owner | Due | Status | Acceptance Criteria |
 |------|-------|-----|--------|---------------------|
-| Create `.github/workflows/build.yml` | Dev | Day 3 | [ ] | Multi-platform trigger |
-| Configure Linux job (ubuntu-latest) | Dev | Day 3 | [ ] | .deb, .AppImage artifacts |
-| Configure Windows job (windows-latest) | Dev | Day 3 | [ ] | .msi, .exe (NSIS) artifacts |
-| Configure macOS job (macos-latest) | Dev | Day 3 | [ ] | .dmg, .app artifacts |
-| Add artifact upload with version naming | Dev | Day 3 | [ ] | `enzim_v{ver}.{build}_linux.AppImage` |
-| Create release workflow (on tag push) | Dev | Day 3 | [ ] | Auto-publish to GitHub Releases |
+| Create `.github/workflows/build.yml` | Dev | Day 3 | [X] | Multi-platform trigger |
+| Configure Linux job (ubuntu-latest) | Dev | Day 3 | [X] | .deb, .AppImage artifacts |
+| Configure Windows job (windows-latest) | Dev | Day 3 | [X] | .msi, .exe (NSIS) artifacts |
+| Configure macOS job (macos-latest) | Dev | Day 3 | [X] | .dmg, .app artifacts |
+| Add artifact upload with version naming | Dev | Day 3 | [X] | `enzim_v{ver}.{build}_linux.AppImage` |
+| Create release workflow (on tag push) | Dev | Day 3 | [X] | Auto-publish to GitHub Releases |
 
 ### 5.5 Mobile Targets (Tauri Mobile)
 
@@ -221,52 +221,52 @@
 
 | Task | Owner | Due | Status | Acceptance Criteria |
 |------|-------|-----|--------|---------------------|
-| Create `src/themes/` directory structure | Dev | Day 5 | [ ] | Theme files organized |
-| Implement CSS custom properties system | Dev | Day 5 | [ ] | `--bg-primary`, `--accent`, etc. |
-| Create `ThemeProvider` React context | Dev | Day 5 | [ ] | Theme state managed |
-| Implement `useTheme()` hook | Dev | Day 5 | [ ] | Components access theme |
-| Persist theme choice to localStorage | Dev | Day 5 | [ ] | Theme survives reload |
+| Create `src/themes/` directory structure | Dev | Day 5 | [X] | Theme files organized |
+| Implement CSS custom properties system | Dev | Day 5 | [X] | `--bg-primary`, `--accent`, etc. |
+| Create `ThemeProvider` React context | Dev | Day 5 | [X] | Theme state managed |
+| Implement `useTheme()` hook | Dev | Day 5 | [X] | Components access theme |
+| Persist theme choice to localStorage | Dev | Day 5 | [X] | Theme survives reload |
 
 ### 6.2 Light/Dark/System Toggle (Required)
 
 | Task | Owner | Due | Status | Acceptance Criteria |
 |------|-------|-----|--------|---------------------|
-| Implement Light mode variant | Dev | Day 5 | [ ] | All themes have light variant |
-| Implement Dark mode variant | Dev | Day 5 | [ ] | All themes have dark variant |
-| Implement System Auto detection | Dev | Day 5 | [ ] | `prefers-color-scheme` respected |
-| Create `ThemeToggle` component | Dev | Day 5 | [ ] | 3-way toggle UI |
+| Implement Light mode variant | Dev | Day 5 | [X] | All themes have light variant |
+| Implement Dark mode variant | Dev | Day 5 | [X] | All themes have dark variant |
+| Implement System Auto detection | Dev | Day 5 | [X] | `prefers-color-scheme` respected |
+| Create `ThemeToggle` component | Dev | Day 5 | [X] | 3-way toggle UI |
 
 ### 6.3 Theme Implementations (UI-Samples Based)
 
 | Task | Owner | Due | Status | Acceptance Criteria |
 |------|-------|-----|--------|---------------------|
-| Implement **Synaptic Cartography Veil** | Dev | Day 6 | [ ] | Neon, glassmorphic, particles |
-| Implement **Brutalist Archive Monolith** | Dev | Day 6 | [ ] | Concrete, hard shadows, grid |
-| Implement **Prismatic Swiss Utility** | Dev | Day 6 | [ ] | Clean Swiss, cyan/magenta/gold |
-| Implement **Spectral ZIM Reader** | Dev | Day 6 | [ ] | Dark, vibrant, refraction |
+| Implement **Synaptic Cartography Veil** | Dev | Day 6 | [X] | Neon, glassmorphic, particles |
+| Implement **Brutalist Archive Monolith** | Dev | Day 6 | [X] | Concrete, hard shadows, grid |
+| Implement **Prismatic Swiss Utility** | Dev | Day 6 | [X] | Clean Swiss, cyan/magenta/gold |
+| Implement **Spectral ZIM Reader** | Dev | Day 6 | [X] | Dark, vibrant, refraction |
 
 ### 6.4 Additional Themes (Per Global Rules)
 
 | Task | Owner | Due | Status | Acceptance Criteria |
 |------|-------|-----|--------|---------------------|
-| Implement **Kinetic** theme | Dev | Day 7 | [ ] | Colorful, dynamic, Gumroad-inspired |
-| Implement **Retro** theme | Dev | Day 7 | [ ] | CRT terminal, scanlines |
-| Implement **Neumorphism** theme | Dev | Day 7 | [ ] | Soft shadows, extruded surfaces |
-| Implement **Glassmorphism** theme | Dev | Day 7 | [ ] | Frosted glass with depth |
-| Implement **Y2K** theme | Dev | Day 7 | [ ] | Early 2000s web maximalism |
-| Implement **Cyberpunk** theme | Dev | Day 7 | [ ] | Neon-soaked dystopian |
-| Implement **Minimal** theme | Dev | Day 7 | [ ] | Clean Swiss design (default) |
+| Implement **Kinetic** theme | Dev | Day 7 | [X] | Colorful, dynamic, Gumroad-inspired |
+| Implement **Retro** theme | Dev | Day 7 | [X] | CRT terminal, scanlines |
+| Implement **Neumorphism** theme | Dev | Day 7 | [X] | Soft shadows, extruded surfaces |
+| Implement **Glassmorphism** theme | Dev | Day 7 | [X] | Frosted glass with depth |
+| Implement **Y2K** theme | Dev | Day 7 | [X] | Early 2000s web maximalism |
+| Implement **Cyberpunk** theme | Dev | Day 7 | [X] | Neon-soaked dystopian |
+| Implement **Minimal** theme | Dev | Day 7 | [X] | Clean Swiss design (default) |
 
 ### 6.5 App Shell Components
 
 | Task | Owner | Due | Status | Acceptance Criteria |
 |------|-------|-----|--------|---------------------|
-| Implement `AppShell` layout component | Dev | Day 8 | [ ] | 3-column responsive grid |
-| Implement `Header` component | Dev | Day 8 | [ ] | Logo, search, status, avatar |
-| Implement `Sidebar` component | Dev | Day 8 | [ ] | Navigation, archive list |
-| Implement `MainContent` container | Dev | Day 8 | [ ] | View router outlet |
+| Implement `AppShell` layout component | Dev | Day 8 | [X] | 3-column responsive grid |
+| Implement `Header` component | Dev | Day 8 | [X] | Logo, search, status, avatar |
+| Implement `Sidebar` component | Dev | Day 8 | [X] | Navigation, archive list |
+| Implement `MainContent` container | Dev | Day 8 | [X] | View router outlet |
 | Implement `RightPanel` (mesh sidebar) | Dev | Day 8 | [ ] | Collapsible panel |
-| Implement `StatusBar` component | Dev | Day 8 | [ ] | Version, build, status |
+| Implement `StatusBar` component | Dev | Day 8 | [X] | Version, build, status |
 
 ---
 
@@ -575,18 +575,18 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| Tauri 2 for Desktop/Mobile | Phase 5 | [ ] Planned |
-| Epoch-based build number (`floor(epoch/60) % 100000`) | Phase 5.2 | [ ] Planned |
-| Executable naming with version | Phase 5.2 | [ ] Planned |
-| Copyright splash on launch | Phase 5.3 | [ ] Planned |
-| `File → About` with version | Phase 5.3 | [ ] Planned |
-| Version in status bar | Phase 5.3 | [ ] Planned |
-| Menu: File \| Edit \| View \| Help | Phase 5.3 | [ ] Planned |
-| GitHub Actions CI/CD | Phase 5.4 | [ ] Planned |
-| Light/Dark/System toggle | Phase 6.2 | [ ] Planned |
-| 11 themes (4 UI-Samples + 7 global) | Phase 6.3-6.4 | [ ] Planned |
+| Tauri 2 for Desktop/Mobile | Phase 5 | [X] Done |
+| Epoch-based build number (`floor(epoch/60) % 100000`) | Phase 5.2 | [X] Done |
+| Executable naming with version | Phase 5.2 | [X] Done |
+| Copyright splash on launch | Phase 5.3 | [X] Done |
+| `File → About` with version | Phase 5.3 | [X] Done |
+| Version in status bar | Phase 5.3 | [X] Done |
+| Menu: File \| Edit \| View \| Help | Phase 5.3 | [X] Done |
+| GitHub Actions CI/CD | Phase 5.4 | [X] Done |
+| Light/Dark/System toggle | Phase 6.2 | [X] Done |
+| 11 themes (4 UI-Samples + 7 global) | Phase 6.3-6.4 | [X] Done |
 | PWA installable | Phase 11.2 | [ ] Planned |
 
 ---
 
-*Last updated: 2026-01-17T15:18:00-05:00*
+*Last updated: 2026-01-17T15:45:00-05:00*

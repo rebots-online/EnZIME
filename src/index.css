@@ -1,0 +1,264 @@
+/* EnZIM - Offline ZIM Reader & Knowledge Explorer */
+/* Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved. */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#root {
+  width: 100%;
+  height: 100vh;
+}
+
+/* Theme: Minimal (Default) */
+.theme-minimal {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --bg-surface: #fafafa;
+  --text-primary: #1a1a1a;
+  --text-secondary: #666666;
+  --accent: #0066cc;
+  --accent-hover: #0052a3;
+  --border: #e0e0e0;
+}
+
+.theme-minimal.dark {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #252525;
+  --bg-surface: #2a2a2a;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --accent: #4da6ff;
+  --accent-hover: #66b3ff;
+  --border: #404040;
+}
+
+/* Theme: Synaptic Cartography Veil */
+.theme-synaptic {
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #12121a;
+  --bg-surface: rgba(20, 20, 30, 0.8);
+  --text-primary: #e0e0e0;
+  --text-secondary: #808090;
+  --accent: #00f0ff;
+  --accent-secondary: #ff00ff;
+  --accent-tertiary: #ffd700;
+  --border: rgba(0, 240, 255, 0.2);
+}
+
+/* Theme: Brutalist Archive Monolith */
+.theme-brutalist {
+  --bg-primary: #e8e4e0;
+  --bg-secondary: #d8d4d0;
+  --bg-surface: #f5f3f0;
+  --text-primary: #1a1a1a;
+  --text-secondary: #4a4a4a;
+  --accent: #ff6b35;
+  --accent-secondary: #0066cc;
+  --border: #1a1a1a;
+}
+
+.theme-brutalist.dark {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #252525;
+  --bg-surface: #2a2a2a;
+  --text-primary: #e8e4e0;
+  --text-secondary: #a0a0a0;
+  --accent: #ff6b35;
+  --accent-secondary: #4da6ff;
+  --border: #e8e4e0;
+}
+
+/* Theme: Prismatic Swiss Utility */
+.theme-prismatic {
+  --bg-primary: #fafafa;
+  --bg-secondary: #f0f0f0;
+  --bg-surface: #ffffff;
+  --text-primary: #1a1a1a;
+  --text-secondary: #666666;
+  --accent: #00bcd4;
+  --accent-secondary: #e91e63;
+  --accent-tertiary: #ffc107;
+  --border: #e0e0e0;
+}
+
+.theme-prismatic.dark {
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --bg-surface: #252525;
+  --text-primary: #fafafa;
+  --text-secondary: #a0a0a0;
+  --accent: #00e5ff;
+  --accent-secondary: #ff4081;
+  --accent-tertiary: #ffab00;
+  --border: #404040;
+}
+
+/* Theme: Spectral ZIM Reader */
+.theme-spectral {
+  --bg-primary: #0d0d12;
+  --bg-secondary: #151520;
+  --bg-surface: rgba(25, 25, 35, 0.9);
+  --text-primary: #e8e8f0;
+  --text-secondary: #8080a0;
+  --accent: #00e5ff;
+  --accent-secondary: #ff4081;
+  --accent-tertiary: #ffab00;
+  --border: rgba(0, 229, 255, 0.15);
+}
+
+/* Base styles using CSS variables */
+.app-shell {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.surface {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.accent {
+  color: var(--accent);
+}
+
+.btn-primary {
+  background-color: var(--accent);
+  color: var(--bg-primary);
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-hover, var(--accent));
+  opacity: 0.9;
+}
+
+/* Theme: Kinetic (Gumroad-inspired) */
+.theme-kinetic {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f7f7f7;
+  --bg-surface: #ffffff;
+  --text-primary: #1a1a1a;
+  --text-secondary: #666666;
+  --accent: #ff90e8;
+  --accent-secondary: #90f0ff;
+  --accent-tertiary: #ffc900;
+  --border: #e0e0e0;
+}
+
+.theme-kinetic.dark {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #151515;
+  --bg-surface: #1a1a1a;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --accent: #ff90e8;
+  --accent-secondary: #90f0ff;
+  --accent-tertiary: #ffc900;
+  --border: #333333;
+}
+
+/* Theme: Retro (CRT Terminal) */
+.theme-retro {
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-surface: #21262d;
+  --text-primary: #33ff33;
+  --text-secondary: #22aa22;
+  --accent: #33ff33;
+  --accent-secondary: #ffff33;
+  --border: #33ff33;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+/* Theme: Neumorphism */
+.theme-neumorphism {
+  --bg-primary: #e0e5ec;
+  --bg-secondary: #e0e5ec;
+  --bg-surface: #e0e5ec;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --accent: #6d5dfc;
+  --border: transparent;
+}
+
+.theme-neumorphism.dark {
+  --bg-primary: #2d2d3a;
+  --bg-secondary: #2d2d3a;
+  --bg-surface: #2d2d3a;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --accent: #8b7dff;
+  --border: transparent;
+}
+
+/* Theme: Glassmorphism */
+.theme-glassmorphism {
+  --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --bg-secondary: rgba(255, 255, 255, 0.1);
+  --bg-surface: rgba(255, 255, 255, 0.15);
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --accent: #ffffff;
+  --border: rgba(255, 255, 255, 0.2);
+}
+
+/* Theme: Y2K */
+.theme-y2k {
+  --bg-primary: #ff99cc;
+  --bg-secondary: #99ccff;
+  --bg-surface: #ffffff;
+  --text-primary: #333399;
+  --text-secondary: #6666cc;
+  --accent: #ff6699;
+  --accent-secondary: #66ccff;
+  --border: #cc99ff;
+}
+
+.theme-y2k.dark {
+  --bg-primary: #330066;
+  --bg-secondary: #003366;
+  --bg-surface: #1a0033;
+  --text-primary: #ff99cc;
+  --text-secondary: #cc66ff;
+  --accent: #ff66cc;
+  --accent-secondary: #66ccff;
+  --border: #9933ff;
+}
+
+/* Theme: Cyberpunk */
+.theme-cyberpunk {
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #12121a;
+  --bg-surface: rgba(20, 20, 30, 0.9);
+  --text-primary: #f0f0f0;
+  --text-secondary: #888899;
+  --accent: #ff2a6d;
+  --accent-secondary: #05d9e8;
+  --accent-tertiary: #d1f7ff;
+  --border: rgba(255, 42, 109, 0.3);
+}
