@@ -1,0 +1,277 @@
+@startuml EnZIM_Billing_Flow
+!theme plain
+title EnZIM - Billing & Subscription Flow Sequences
+' Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
+
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Inter
+skinparam sequenceMessageAlign center
+
+actor "User" as user
+participant "PricingTable\n<<UI Component>>" as pricing_ui
+participant "UpgradeModal\n<<UI Component>>" as upgrade_ui
+participant "PaymentMethodForm\n<<Stripe Elements>>" as payment_ui
+participant "SubscriptionCard\n<<UI Component>>" as sub_card
+participant "Subscription State\n<<Zustand Store>>" as sub_state
+participant "Auth State\n<<Zustand Store>>" as auth_state
+participant "Billing Service\n<<Service Layer>>" as billing_service
+participant "Feature Gate\n<<Service Layer>>" as feature_gate
+participant "Stripe API\n<<External>>" as stripe
+database "Backend DB\n<<PostgreSQL>>" as db
+
+' ============================================
+' VIEW CURRENT SUBSCRIPTION
+' ============================================
+== View Current Subscription ==
+
+user -> sub_card : Navigate to /settings/billing
+activate sub_card
+
+sub_card -> sub_state : getSubscription()
+sub_state --> sub_card : subscription: Subscription | null
+
+alt Has Subscription
+    sub_card -> sub_card : Render subscription details
+    note right of sub_card
+        Display:
+        - subscription.plan (FREE|STARTER|PRO|ENTERPRISE)
+        - subscription.status (ACTIVE|PAST_DUE|...)
+        - subscription.currentPeriodEnd
+        - subscription.features: FeatureFlags
+    end note
+    
+else No Subscription (Free Tier)
+    sub_card -> sub_card : Render "Free Plan" card
+    sub_card -> sub_card : Show "Upgrade" CTA
+end
+
+deactivate sub_card
+
+' ============================================
+' SUBSCRIPTION UPGRADE FLOW
+' ============================================
+== Upgrade Subscription ==
+
+user -> pricing_ui : Click "Upgrade to Pro"
+activate pricing_ui
+
+pricing_ui -> pricing_ui : Show plan comparison
+note right of pricing_ui
+    Plans with FeatureFlags:
+    
+    FREE:
+      maxArchives: 3
+      aiAssistantEnabled: false
+      cloudSyncEnabled: false
+      
+    STARTER ($9/mo):
+      maxArchives: 10
+      aiAssistantEnabled: true
+      aiQueriesPerDay: 50
+      
+    PRO ($19/mo):
+      maxArchives: unlimited
+      aiAssistantEnabled: true
+      aiQueriesPerDay: unlimited
+      cloudSyncEnabled: true
+      customThemes: true
+end note
+
+user -> pricing_ui : Select "PRO" plan
+pricing_ui -> upgrade_ui : openModal(plan: SubscriptionPlan.PRO)
+activate upgrade_ui
+
+upgrade_ui -> payment_ui : Render Stripe Elements
+activate payment_ui
+
+user -> payment_ui : Enter card details
+payment_ui -> payment_ui : Validate card (Stripe.js)
+
+user -> payment_ui : Click "Subscribe"
+payment_ui -> billing_service : createSubscription(plan, paymentMethod)
+activate billing_service
+
+billing_service -> auth_state : getUser()
+auth_state --> billing_service : user: User
+
+billing_service -> stripe : customers.create({\n  email: user.email,\n  payment_method: pm_xxx\n})
+activate stripe
+stripe --> billing_service : customer: cus_xxx
+deactivate stripe
+
+billing_service -> stripe : subscriptions.create({\n  customer: cus_xxx,\n  items: [{price: price_pro}]\n})
+activate stripe
+stripe --> billing_service : subscription: sub_xxx
+deactivate stripe
+
+billing_service -> db : INSERT Subscription
+note right of db
+    subscription: {
+        id: generateUUID(),
+        userId: user.id,
+        plan: SubscriptionPlan.PRO,
+        status: SubscriptionStatus.ACTIVE,
+        currentPeriodStart: now,
+        currentPeriodEnd: +30 days,
+        stripeCustomerId: "cus_xxx",
+        stripeSubscriptionId: "sub_xxx",
+        features: PRO_FEATURE_FLAGS
+    }
+end note
+
+billing_service -> db : INSERT BillingEvent
+note right of db
+    billingEvent: {
+        id: generateUUID(),
+        userId: user.id,
+        type: BillingEventType.SUBSCRIPTION_CREATED,
+        amount: 1900,
+        currency: "usd",
+        timestamp: now,
+        stripeEventId: "evt_xxx"
+    }
+end note
+
+billing_service -> sub_state : setSubscription(subscription)
+billing_service -> feature_gate : refreshFeatures(subscription.features)
+
+billing_service --> payment_ui : Success
+deactivate billing_service
+
+payment_ui --> upgrade_ui : Close payment form
+deactivate payment_ui
+
+upgrade_ui -> upgrade_ui : Show success message
+upgrade_ui --> pricing_ui : Close modal
+deactivate upgrade_ui
+
+pricing_ui -> sub_card : Refresh subscription display
+
+deactivate pricing_ui
+
+' ============================================
+' PLAN CHANGE (UPGRADE/DOWNGRADE)
+' ============================================
+== Change Plan (Upgrade/Downgrade) ==
+
+user -> sub_card : Click "Change Plan"
+activate sub_card
+
+sub_card -> pricing_ui : Show plan options
+user -> pricing_ui : Select different plan
+
+pricing_ui -> billing_service : updateSubscription(newPlan)
+activate billing_service
+
+billing_service -> sub_state : getSubscription()
+sub_state --> billing_service : currentSubscription
+
+billing_service -> stripe : subscriptions.update(\n  sub_xxx,\n  {items: [{price: price_new}]}\n)
+activate stripe
+stripe --> billing_service : updatedSubscription
+deactivate stripe
+
+billing_service -> db : UPDATE Subscription\nSET plan = newPlan
+billing_service -> db : INSERT BillingEvent (SUBSCRIPTION_UPDATED)
+
+billing_service -> sub_state : setSubscription(updated)
+billing_service -> feature_gate : refreshFeatures(newFeatures)
+
+billing_service --> sub_card : Success
+deactivate billing_service
+
+sub_card -> sub_card : Re-render with new plan
+
+deactivate sub_card
+
+' ============================================
+' CANCEL SUBSCRIPTION
+' ============================================
+== Cancel Subscription ==
+
+user -> sub_card : Click "Cancel Subscription"
+activate sub_card
+
+sub_card -> sub_card : Show cancellation modal\n"Are you sure?"
+
+user -> sub_card : Confirm cancellation
+sub_card -> billing_service : cancelSubscription()
+activate billing_service
+
+billing_service -> stripe : subscriptions.update(\n  sub_xxx,\n  {cancel_at_period_end: true}\n)
+activate stripe
+stripe --> billing_service : subscription (canceled)
+deactivate stripe
+
+billing_service -> db : UPDATE Subscription\nSET status = CANCELED
+billing_service -> db : INSERT BillingEvent (SUBSCRIPTION_CANCELED)
+
+billing_service -> sub_state : setSubscription({...sub, status: CANCELED})
+
+billing_service --> sub_card : Success
+deactivate billing_service
+
+sub_card -> sub_card : Show "Subscription ends on {date}"
+note right
+    User retains access until
+    subscription.currentPeriodEnd
+end note
+
+deactivate sub_card
+
+' ============================================
+' STRIPE WEBHOOK HANDLING
+' ============================================
+== Stripe Webhook Events ==
+
+stripe -> billing_service : POST /webhooks/stripe\n{type: "invoice.payment_succeeded"}
+activate billing_service
+
+billing_service -> billing_service : Verify webhook signature
+billing_service -> billing_service : Parse event
+
+alt invoice.payment_succeeded
+    billing_service -> db : INSERT BillingEvent (PAYMENT_SUCCEEDED)
+    billing_service -> db : UPDATE Subscription periods
+    
+else invoice.payment_failed
+    billing_service -> db : INSERT BillingEvent (PAYMENT_FAILED)
+    billing_service -> db : UPDATE Subscription\nSET status = PAST_DUE
+    billing_service -> billing_service : Send payment failed email
+    
+else customer.subscription.deleted
+    billing_service -> db : UPDATE Subscription\nSET status = CANCELED
+    billing_service -> db : INSERT BillingEvent (SUBSCRIPTION_CANCELED)
+end
+
+billing_service --> stripe : 200 OK
+
+deactivate billing_service
+
+' ============================================
+' FEATURE FLAG SYNC
+' ============================================
+== Feature Flags Sync to UI ==
+
+billing_service -> feature_gate : refreshFeatures(features: FeatureFlags)
+activate feature_gate
+
+feature_gate -> sub_state : setFeatures(features)
+note right of sub_state
+    features: {
+        maxArchives: number,
+        aiAssistantEnabled: boolean,
+        aiQueriesPerDay: number,
+        cloudSyncEnabled: boolean,
+        advancedAnnotations: boolean,
+        exportFormats: string[],
+        prioritySupport: boolean,
+        customThemes: boolean
+    }
+end note
+
+feature_gate --> billing_service : Features updated
+
+deactivate feature_gate
+
+@enduml

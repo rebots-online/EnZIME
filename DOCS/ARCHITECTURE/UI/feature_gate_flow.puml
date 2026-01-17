@@ -1,0 +1,343 @@
+@startuml EnZIM_Feature_Gate_Flow
+!theme plain
+title EnZIM - Feature Gating Flow Sequences
+' Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
+
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Inter
+skinparam sequenceMessageAlign center
+
+actor "User" as user
+participant "FeatureGate\n<<React Component>>" as gate_ui
+participant "AssistantPanel\n<<UI Component>>" as assistant_ui
+participant "SemanticMeshView\n<<UI Component>>" as mesh_ui
+participant "AnnotationEditor\n<<UI Component>>" as annotation_ui
+participant "ThemeSelector\n<<UI Component>>" as theme_ui
+participant "UpgradePrompt\n<<UI Component>>" as upgrade_ui
+participant "Feature Gate\n<<Service Layer>>" as feature_gate
+participant "Subscription State\n<<Zustand Store>>" as sub_state
+participant "Auth State\n<<Zustand Store>>" as auth_state
+
+' ============================================
+' FEATURE GATE COMPONENT PATTERN
+' ============================================
+== FeatureGate Component Usage ==
+
+note over gate_ui
+    **React Component Pattern:**
+    
+    <FeatureGate 
+        feature="aiAssistantEnabled"
+        fallback={<UpgradePrompt feature="AI Assistant" />}
+    >
+        <AssistantPanel />
+    </FeatureGate>
+end note
+
+user -> gate_ui : Render gated component
+activate gate_ui
+
+gate_ui -> feature_gate : canAccess("aiAssistantEnabled")
+activate feature_gate
+
+feature_gate -> auth_state : isAuthenticated()
+auth_state --> feature_gate : boolean
+
+alt Not Authenticated
+    feature_gate --> gate_ui : {allowed: false, reason: "NOT_AUTHENTICATED"}
+    gate_ui -> upgrade_ui : Render "Sign in to access"
+    
+else Authenticated
+    feature_gate -> sub_state : getFeatures()
+    sub_state --> feature_gate : features: FeatureFlags
+    
+    feature_gate -> feature_gate : Check feature flag
+    note right
+        features.aiAssistantEnabled
+            === true ?
+    end note
+    
+    alt Feature Enabled
+        feature_gate --> gate_ui : {allowed: true}
+        gate_ui -> assistant_ui : Render <AssistantPanel />
+        
+    else Feature Disabled
+        feature_gate --> gate_ui : {allowed: false, reason: "PLAN_REQUIRED"}
+        gate_ui -> upgrade_ui : Render <UpgradePrompt\n  feature="AI Assistant"\n  requiredPlan="STARTER" />
+    end
+end
+
+deactivate feature_gate
+deactivate gate_ui
+
+' ============================================
+' AI ASSISTANT GATING (with usage limits)
+' ============================================
+== AI Assistant with Usage Limits ==
+
+user -> assistant_ui : Type question, click "Ask"
+activate assistant_ui
+
+assistant_ui -> feature_gate : checkUsage("aiQueriesPerDay")
+activate feature_gate
+
+feature_gate -> sub_state : getFeatures()
+sub_state --> feature_gate : features
+
+feature_gate -> sub_state : getUsage("aiQueriesPerDay")
+sub_state --> feature_gate : {used: 45, limit: 50}
+
+feature_gate -> feature_gate : Compare usage vs limit
+note right
+    features.aiQueriesPerDay = 50
+    currentUsage = 45
+    remaining = 5
+end note
+
+alt Within Limit
+    feature_gate --> assistant_ui : {allowed: true, remaining: 5}
+    
+    assistant_ui -> assistant_ui : Process AI query
+    assistant_ui -> sub_state : incrementUsage("aiQueriesPerDay")
+    assistant_ui -> assistant_ui : Display: "4 queries remaining today"
+    
+else Limit Reached
+    feature_gate --> assistant_ui : {allowed: false, reason: "LIMIT_REACHED"}
+    
+    assistant_ui -> assistant_ui : Show limit modal
+    note right of assistant_ui
+        "You've reached your daily limit
+        of 50 AI queries.
+        
+        Upgrade to PRO for unlimited."
+        
+        [Upgrade] [Wait until tomorrow]
+    end note
+end
+
+deactivate feature_gate
+deactivate assistant_ui
+
+' ============================================
+' ARCHIVE LIMIT GATING
+' ============================================
+== Max Archives Limit ==
+
+user -> user : Drag & drop .zim file
+activate user
+
+user -> feature_gate : checkArchiveLimit()
+activate feature_gate
+
+feature_gate -> sub_state : getFeatures()
+sub_state --> feature_gate : features (maxArchives: 3)
+
+feature_gate -> sub_state : getArchiveCount()
+sub_state --> feature_gate : currentCount: 3
+
+feature_gate -> feature_gate : Compare counts
+
+alt Under Limit
+    feature_gate --> user : {allowed: true}
+    user -> user : Add archive to library
+    
+else At Limit
+    feature_gate --> user : {allowed: false, reason: "MAX_ARCHIVES"}
+    
+    user -> upgrade_ui : Show limit modal
+    note right
+        "Free plan allows 3 archives.
+        
+        Current: 3/3 archives
+        
+        Upgrade to add more!"
+        
+        [Upgrade to Starter - 10 archives]
+        [Upgrade to Pro - Unlimited]
+    end note
+end
+
+deactivate feature_gate
+deactivate user
+
+' ============================================
+' CUSTOM THEMES GATING
+' ============================================
+== Custom Themes Gating ==
+
+user -> theme_ui : Open theme selector
+activate theme_ui
+
+theme_ui -> feature_gate : canAccess("customThemes")
+activate feature_gate
+
+feature_gate -> sub_state : getFeatures()
+sub_state --> feature_gate : features
+
+alt customThemes: true (PRO/Enterprise)
+    feature_gate --> theme_ui : {allowed: true}
+    
+    theme_ui -> theme_ui : Show all themes
+    note right of theme_ui
+        Available themes:
+        ✓ Synaptic Cartography Veil
+        ✓ Brutalist Archive Monolith
+        ✓ Prismatic Swiss Utility
+        ✓ Spectral ZIM Reader
+        ✓ Kinetic
+        ✓ Cyberpunk
+        ✓ Neumorphism
+        ✓ Glassmorphism
+        ✓ Y2K
+        ✓ Retro
+        ✓ Minimal
+    end note
+    
+else customThemes: false (Free/Starter)
+    feature_gate --> theme_ui : {allowed: false}
+    
+    theme_ui -> theme_ui : Show limited themes\n+ locked premium themes
+    note right of theme_ui
+        Available themes:
+        ✓ Synaptic (default)
+        ✓ Brutalist
+        ✓ Minimal
+        
+        Premium (🔒 PRO):
+        🔒 Cyberpunk
+        🔒 Glassmorphism
+        🔒 Neumorphism
+        🔒 Y2K
+        🔒 Retro
+    end note
+    
+    theme_ui -> theme_ui : Show upgrade badge\non locked themes
+end
+
+deactivate feature_gate
+deactivate theme_ui
+
+' ============================================
+' ADVANCED ANNOTATIONS GATING
+' ============================================
+== Advanced Annotations Gating ==
+
+user -> annotation_ui : Right-click text → "Add annotation"
+activate annotation_ui
+
+annotation_ui -> annotation_ui : Show annotation toolbar
+
+user -> annotation_ui : Click "Voice Note" (premium)
+annotation_ui -> feature_gate : canAccess("advancedAnnotations")
+activate feature_gate
+
+feature_gate -> sub_state : getFeatures()
+sub_state --> feature_gate : features.advancedAnnotations
+
+alt advancedAnnotations: true
+    feature_gate --> annotation_ui : {allowed: true}
+    annotation_ui -> annotation_ui : Open voice recorder
+    
+else advancedAnnotations: false
+    feature_gate --> annotation_ui : {allowed: false}
+    annotation_ui -> upgrade_ui : Show inline prompt
+    note right
+        "Voice notes require Starter plan.
+        [Upgrade] [Use text note instead]"
+    end note
+end
+
+deactivate feature_gate
+deactivate annotation_ui
+
+' ============================================
+' CLOUD SYNC GATING
+' ============================================
+== Cloud Sync Gating ==
+
+user -> user : Click "Sync to Cloud"
+activate user
+
+user -> feature_gate : canAccess("cloudSyncEnabled")
+activate feature_gate
+
+feature_gate -> sub_state : getFeatures()
+sub_state --> feature_gate : features.cloudSyncEnabled
+
+alt cloudSyncEnabled: true (PRO+)
+    feature_gate --> user : {allowed: true}
+    user -> user : Initiate cloud sync
+    
+else cloudSyncEnabled: false
+    feature_gate --> user : {allowed: false}
+    user -> upgrade_ui : Show upgrade modal
+    note right
+        "Cloud Sync is a PRO feature.
+        
+        Sync your library across devices:
+        • Bookmarks
+        • Annotations
+        • Reading history
+        
+        [Upgrade to PRO - $19/mo]"
+    end note
+end
+
+deactivate feature_gate
+deactivate user
+
+' ============================================
+' useFeature HOOK PATTERN
+' ============================================
+== useFeature Hook (React) ==
+
+note over feature_gate
+    **Hook-based Feature Check:**
+    
+    const { canUse, remaining, limit } = useFeature('aiQueriesPerDay');
+    
+    if (!canUse) {
+        return <LimitReachedModal 
+            feature="AI Queries"
+            limit={limit}
+            resetTime={nextMidnight}
+        />;
+    }
+    
+    // Render feature...
+end note
+
+' ============================================
+' FEATURE FLAGS STATE STRUCTURE
+' ============================================
+== FeatureFlags State Structure ==
+
+note over sub_state
+    **Subscription State Shape:**
+    
+    interface SubscriptionState {
+        subscription: Subscription | null;
+        features: FeatureFlags;
+        usage: {
+            aiQueriesPerDay: { used: number; resetAt: Date };
+            archiveCount: number;
+        };
+        loading: boolean;
+        error: string | null;
+    }
+    
+    **FeatureFlags (from class diagram):**
+    
+    interface FeatureFlags {
+        maxArchives: number;          // 3 | 10 | Infinity
+        aiAssistantEnabled: boolean;  // false | true
+        aiQueriesPerDay: number;      // 0 | 50 | Infinity
+        cloudSyncEnabled: boolean;    // false | true
+        advancedAnnotations: boolean; // false | true
+        exportFormats: string[];      // ['pdf'] | ['pdf','epub','html']
+        prioritySupport: boolean;     // false | true
+        customThemes: boolean;        // false | true
+    }
+end note
+
+@enduml

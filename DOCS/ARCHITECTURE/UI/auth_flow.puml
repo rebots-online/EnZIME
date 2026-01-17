@@ -1,0 +1,246 @@
+@startuml EnZIM_Auth_Flow
+!theme plain
+title EnZIM - Authentication Flow Sequences
+' Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
+
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Inter
+skinparam sequenceMessageAlign center
+
+actor "User" as user
+participant "LoginModal\n<<UI Component>>" as login_ui
+participant "SignupModal\n<<UI Component>>" as signup_ui
+participant "UserAvatar\n<<UI Component>>" as avatar_ui
+participant "AuthGuard\n<<UI Component>>" as guard
+participant "Auth State\n<<Zustand Store>>" as auth_state
+participant "Auth Service\n<<Service Layer>>" as auth_service
+participant "Session Manager\n<<Service Layer>>" as session_mgr
+database "Local Storage\n<<Browser>>" as storage
+participant "OAuth Provider\n<<External>>" as oauth
+
+' ============================================
+' EMAIL/PASSWORD LOGIN FLOW
+' ============================================
+== Email/Password Login ==
+
+user -> login_ui : Click "Sign In"
+activate login_ui
+login_ui -> login_ui : Show modal\n(theme: glassmorphic panel)
+
+user -> login_ui : Enter credentials\n{email, password}
+login_ui -> auth_service : login(email, password)
+activate auth_service
+
+auth_service -> auth_service : Validate input
+auth_service -> session_mgr : createSession(credentials)
+activate session_mgr
+
+alt Success
+    session_mgr -> session_mgr : Generate JWT
+    session_mgr --> auth_service : {token, user: User}
+    
+    auth_service -> auth_state : setUser(user: User)
+    note right of auth_state
+        user: {
+            id: string,
+            email: string,
+            displayName: string,
+            avatarUrl: string,
+            authProvider: AuthProvider.EMAIL_PASSWORD,
+            isEmailVerified: boolean
+        }
+    end note
+    
+    auth_service -> auth_state : setAuthenticated(true)
+    auth_service -> storage : store("enzim_token", token)
+    auth_service -> storage : store("enzim_user", user)
+    
+    auth_service --> login_ui : Success
+    login_ui -> login_ui : Close modal
+    login_ui -> avatar_ui : Render UserAvatar\n{user.avatarUrl, user.displayName}
+    
+else Invalid Credentials
+    session_mgr --> auth_service : Error: INVALID_CREDENTIALS
+    auth_service --> login_ui : Show error message
+    login_ui -> login_ui : Display:\n"Invalid email or password"
+    
+else Email Not Verified
+    session_mgr --> auth_service : Error: EMAIL_NOT_VERIFIED
+    auth_service --> login_ui : Show verification prompt
+    login_ui -> login_ui : Display:\n"Please verify your email"
+end
+
+deactivate session_mgr
+deactivate auth_service
+deactivate login_ui
+
+' ============================================
+' OAUTH LOGIN FLOW (Google/GitHub/Apple)
+' ============================================
+== OAuth Login (Google/GitHub/Apple) ==
+
+user -> login_ui : Click OAuth button\n(e.g., "Continue with Google")
+activate login_ui
+
+login_ui -> auth_service : initiateOAuth(provider: AuthProvider)
+activate auth_service
+
+auth_service -> oauth : Redirect to OAuth provider
+activate oauth
+oauth -> oauth : User authenticates
+oauth --> auth_service : OAuth callback\n{code, state}
+deactivate oauth
+
+auth_service -> auth_service : Exchange code for tokens
+auth_service -> session_mgr : createOAuthSession(provider, tokens)
+activate session_mgr
+
+session_mgr -> session_mgr : Create/update User record
+session_mgr --> auth_service : {token, user: User}
+note right
+    user.authProvider = 
+        AuthProvider.GOOGLE |
+        AuthProvider.GITHUB |
+        AuthProvider.APPLE
+end note
+deactivate session_mgr
+
+auth_service -> auth_state : setUser(user)
+auth_service -> auth_state : setAuthenticated(true)
+auth_service -> storage : store("enzim_token", token)
+auth_service --> login_ui : Success
+
+login_ui -> login_ui : Close modal
+login_ui -> avatar_ui : Render logged-in state
+
+deactivate auth_service
+deactivate login_ui
+
+' ============================================
+' SIGNUP FLOW
+' ============================================
+== New User Signup ==
+
+user -> signup_ui : Click "Create Account"
+activate signup_ui
+signup_ui -> signup_ui : Show signup modal
+
+user -> signup_ui : Enter details\n{email, password, displayName}
+signup_ui -> signup_ui : Validate password strength
+signup_ui -> auth_service : signup(email, password, displayName)
+activate auth_service
+
+auth_service -> session_mgr : createUser(userData)
+activate session_mgr
+
+session_mgr -> session_mgr : Hash password
+session_mgr -> session_mgr : Create User record
+note right of session_mgr
+    user: {
+        id: generateUUID(),
+        email: string,
+        displayName: string,
+        avatarUrl: null,
+        createdAt: new Date(),
+        lastLoginAt: new Date(),
+        authProvider: AuthProvider.EMAIL_PASSWORD,
+        isEmailVerified: false
+    }
+end note
+
+session_mgr -> session_mgr : Send verification email
+
+session_mgr --> auth_service : {user, pendingVerification: true}
+deactivate session_mgr
+
+auth_service --> signup_ui : Success (pending verification)
+signup_ui -> signup_ui : Show "Check your email" message
+
+deactivate auth_service
+deactivate signup_ui
+
+' ============================================
+' SESSION RESTORE ON APP LOAD
+' ============================================
+== Session Restore (App Startup) ==
+
+[-> auth_service : App initializes
+activate auth_service
+
+auth_service -> storage : get("enzim_token")
+storage --> auth_service : token (or null)
+
+alt Token exists
+    auth_service -> session_mgr : validateToken(token)
+    activate session_mgr
+    
+    alt Token valid
+        session_mgr -> session_mgr : Decode JWT
+        session_mgr --> auth_service : {user: User, valid: true}
+        auth_service -> auth_state : setUser(user)
+        auth_service -> auth_state : setAuthenticated(true)
+        auth_service -> auth_state : setLoading(false)
+        
+    else Token expired
+        session_mgr --> auth_service : {valid: false, reason: EXPIRED}
+        auth_service -> storage : remove("enzim_token")
+        auth_service -> auth_state : setUser(null)
+        auth_service -> auth_state : setAuthenticated(false)
+    end
+    deactivate session_mgr
+    
+else No token
+    auth_service -> auth_state : setUser(null)
+    auth_service -> auth_state : setAuthenticated(false)
+    auth_service -> auth_state : setLoading(false)
+end
+
+deactivate auth_service
+
+' ============================================
+' LOGOUT FLOW
+' ============================================
+== Logout ==
+
+user -> avatar_ui : Click avatar → "Sign Out"
+activate avatar_ui
+
+avatar_ui -> auth_service : logout()
+activate auth_service
+
+auth_service -> session_mgr : invalidateSession(token)
+auth_service -> storage : remove("enzim_token")
+auth_service -> storage : remove("enzim_user")
+auth_service -> auth_state : setUser(null)
+auth_service -> auth_state : setAuthenticated(false)
+auth_service -> auth_state : setSubscription(null)
+
+auth_service --> avatar_ui : Success
+avatar_ui -> avatar_ui : Render "Sign In" button
+
+deactivate auth_service
+deactivate avatar_ui
+
+' ============================================
+' AUTH GUARD (ROUTE PROTECTION)
+' ============================================
+== Auth Guard (Protected Routes) ==
+
+user -> guard : Navigate to /settings/billing
+activate guard
+
+guard -> auth_state : isAuthenticated?
+
+alt Authenticated
+    auth_state --> guard : true
+    guard -> guard : Render protected component
+    
+else Not Authenticated
+    auth_state --> guard : false
+    guard -> login_ui : Show LoginModal
+    guard -> guard : Render fallback\nor redirect to /
+end
+
+deactivate guard
+
+@enduml

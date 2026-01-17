@@ -1,0 +1,103 @@
+---
+title: EnZIM Auth State Machine
+---
+%% Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
+
+stateDiagram-v2
+    [*] --> Initializing: App Load
+
+    state Initializing {
+        [*] --> CheckingStorage
+        CheckingStorage --> ValidatingToken: Token found
+        CheckingStorage --> Anonymous: No token
+        ValidatingToken --> Authenticated: Token valid
+        ValidatingToken --> Anonymous: Token expired/invalid
+    }
+
+    state Anonymous {
+        [*] --> Idle
+        Idle --> ShowingLoginModal: Click "Sign In"
+        Idle --> ShowingSignupModal: Click "Create Account"
+        
+        ShowingLoginModal --> ProcessingLogin: Submit credentials
+        ShowingSignupModal --> ProcessingSignup: Submit registration
+        
+        ProcessingLogin --> Idle: Login failed
+        ProcessingLogin --> Authenticated: Login success
+        
+        ProcessingSignup --> PendingVerification: Signup success
+        ProcessingSignup --> ShowingSignupModal: Signup failed
+        
+        PendingVerification --> Idle: Close modal
+    }
+
+    state Authenticated {
+        [*] --> LoadingSubscription
+        LoadingSubscription --> Active: Subscription loaded
+        LoadingSubscription --> FreeUser: No subscription
+        
+        Active --> Active: Using features
+        FreeUser --> FreeUser: Limited features
+        
+        Active --> ShowingProfileMenu: Click avatar
+        FreeUser --> ShowingProfileMenu: Click avatar
+        
+        ShowingProfileMenu --> Active: Close menu
+        ShowingProfileMenu --> FreeUser: Close menu
+        ShowingProfileMenu --> LoggingOut: Click "Sign Out"
+    }
+
+    state LoggingOut {
+        [*] --> ClearingSession
+        ClearingSession --> ClearingStorage
+        ClearingStorage --> Anonymous
+    }
+
+    %% State variable annotations
+    note right of Anonymous
+        authState = {
+            user: null,
+            isAuthenticated: false,
+            loading: false
+        }
+    end note
+
+    note right of Authenticated
+        authState = {
+            user: User,
+            isAuthenticated: true,
+            loading: false
+        }
+        
+        User: {
+            id: string,
+            email: string,
+            displayName: string,
+            avatarUrl: string,
+            authProvider: AuthProvider,
+            isEmailVerified: boolean
+        }
+    end note
+
+    note right of Active
+        subscriptionState = {
+            subscription: Subscription,
+            features: FeatureFlags,
+            loading: false
+        }
+    end note
+
+    note right of FreeUser
+        subscriptionState = {
+            subscription: null,
+            features: FREE_TIER_FEATURES,
+            loading: false
+        }
+        
+        FREE_TIER_FEATURES = {
+            maxArchives: 3,
+            aiAssistantEnabled: false,
+            cloudSyncEnabled: false,
+            customThemes: false
+        }
+    end note
