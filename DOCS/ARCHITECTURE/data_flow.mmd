@@ -1,0 +1,84 @@
+---
+title: EnZIM - Data Flow Diagram
+---
+%%{init: {'theme': 'base'}}%%
+%% Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
+
+flowchart LR
+    subgraph Input["📥 Input"]
+        ZF[ZIM File]
+        UQ[User Query]
+        UI[User Interaction]
+    end
+
+    subgraph Processing["⚙️ Processing"]
+        subgraph ZIMParsing["ZIM Parsing"]
+            HP[Header Parser]
+            DE[Directory Reader]
+            CD[Cluster Decompressor]
+        end
+
+        subgraph Search["Search Engine"]
+            TI[Title Indexer]
+            FT[Full-Text Indexer]
+            QP[Query Processor]
+        end
+
+        subgraph Semantic["Semantic Engine"]
+            LP[Link Parser]
+            GG[Graph Generator]
+            LY[Layout Calculator]
+        end
+
+        subgraph Assistant["AI Assistant"]
+            CR[Context Retriever]
+            PM[Prompt Manager]
+            LM[Local LLM]
+        end
+    end
+
+    subgraph Output["📤 Output"]
+        AC[Article Content]
+        SR[Search Results]
+        SM[Semantic Mesh]
+        AA[AI Answer]
+        AU[Audio TTS]
+    end
+
+    ZF --> HP
+    HP --> DE
+    DE --> CD
+    CD --> AC
+
+    UQ --> QP
+    ZF --> TI
+    ZF --> FT
+    TI --> QP
+    FT --> QP
+    QP --> SR
+
+    AC --> LP
+    LP --> GG
+    GG --> LY
+    LY --> SM
+
+    UQ --> CR
+    AC --> CR
+    SR --> CR
+    CR --> PM
+    PM --> LM
+    LM --> AA
+
+    AC --> AU
+
+    subgraph Storage["💾 Storage"]
+        BK[Bookmarks]
+        HY[History]
+        AN[Annotations]
+        ST[Settings]
+    end
+
+    UI --> BK
+    UI --> HY
+    UI --> AN
+    UI --> ST

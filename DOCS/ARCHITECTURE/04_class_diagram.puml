@@ -1,0 +1,264 @@
+@startuml EnZIM_Class_Diagram
+!theme plain
+title EnZIM - Core Data Models & Classes
+' Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
+
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Inter
+skinparam classAttributeIconSize 0
+
+package "ZIM File Format" as zim_format #LightBlue {
+    class ZIMHeader {
+        +magicNumber: uint32
+        +majorVersion: uint16
+        +minorVersion: uint16
+        +entryCount: uint32
+        +articleCount: uint32
+        +clusterCount: uint32
+        +mimeListPos: uint64
+        +titleIndexPos: uint64
+        +clusterPtrPos: uint64
+        +mainPageIndex: uint32
+        +checksumPos: uint64
+    }
+    
+    class DirectoryEntry {
+        +mimetypeIndex: uint16
+        +namespace: char
+        +revision: uint32
+        +clusterNumber: uint32
+        +blobNumber: uint32
+        +url: string
+        +title: string
+    }
+    
+    class RedirectEntry {
+        +namespace: char
+        +revision: uint32
+        +redirectIndex: uint32
+        +url: string
+        +title: string
+    }
+    
+    class Cluster {
+        +compressionType: uint8
+        +blobs: Blob[]
+        +decompress(): Buffer
+    }
+}
+
+package "Application Models" as app_models #LightGreen {
+    class ZimArchive {
+        +id: string
+        +title: string
+        +description: string
+        +size: number
+        +articleCount: number
+        +mainPage: string
+        +filePath: string
+    }
+    
+    class Article {
+        +id: string
+        +archiveId: string
+        +title: string
+        +url: string
+        +content: string
+        +mimeType: string
+        +links: string[]
+    }
+    
+    class Bookmark {
+        +id: string
+        +archiveId: string
+        +articleId: string
+        +title: string
+        +note: string
+        +createdAt: Date
+    }
+    
+    class HistoryEntry {
+        +archiveId: string
+        +articleId: string
+        +title: string
+        +timestamp: Date
+    }
+    
+    class Annotation {
+        +id: string
+        +archiveId: string
+        +articleId: string
+        +type: AnnotationType
+        +content: string
+        +location: TextRange
+        +createdAt: Date
+    }
+    
+    enum AnnotationType {
+        HIGHLIGHT
+        TEXT_NOTE
+        VOICE_NOTE
+        INK_DRAWING
+    }
+}
+
+package "Semantic Graph" as graph_models #LightYellow {
+    class GraphNode {
+        +articleId: string
+        +title: string
+        +x: number
+        +y: number
+        +isFocused: boolean
+    }
+    
+    class GraphEdge {
+        +source: string
+        +target: string
+        +type: EdgeType
+        +weight: number
+    }
+    
+    class SemanticMesh {
+        +nodes: Map<string, GraphNode>
+        +edges: GraphEdge[]
+        +focusNode: string
+        +generateFromArticle(article): void
+        +expandNode(nodeId): void
+    }
+    
+    enum EdgeType {
+        HYPERLINK
+        CATEGORY
+        SEE_ALSO
+        SEMANTIC_SIMILARITY
+    }
+}
+
+package "State Store" as state_store #LightPink {
+    class AppState {
+        +currentArchiveId: string
+        +currentArticleId: string
+        +archives: ZimArchive[]
+        +bookmarks: Map<string, Bookmark[]>
+        +history: HistoryEntry[]
+        +searchResults: Article[]
+        +theme: string
+        +settings: Settings
+        +user: User
+        +subscription: Subscription
+    }
+    
+    class Settings {
+        +theme: string
+        +fontSize: number
+        +ttsVoice: string
+        +ttsSpeed: number
+        +assistantMode: string
+    }
+}
+
+package "User & Billing (Future)" as user_billing #LightCoral {
+    note as N1
+        **PLACEHOLDER FOR FUTURE IMPLEMENTATION**
+        User authentication and billing management
+        to gate premium features.
+    end note
+    
+    class User {
+        +id: string
+        +email: string
+        +displayName: string
+        +avatarUrl: string
+        +createdAt: Date
+        +lastLoginAt: Date
+        +authProvider: AuthProvider
+        +isEmailVerified: boolean
+    }
+    
+    class Subscription {
+        +id: string
+        +userId: string
+        +plan: SubscriptionPlan
+        +status: SubscriptionStatus
+        +currentPeriodStart: Date
+        +currentPeriodEnd: Date
+        +stripeCustomerId: string
+        +stripeSubscriptionId: string
+        +features: FeatureFlags
+    }
+    
+    class FeatureFlags {
+        +maxArchives: number
+        +aiAssistantEnabled: boolean
+        +aiQueriesPerDay: number
+        +cloudSyncEnabled: boolean
+        +advancedAnnotations: boolean
+        +exportFormats: string[]
+        +prioritySupport: boolean
+        +customThemes: boolean
+    }
+    
+    enum AuthProvider {
+        EMAIL_PASSWORD
+        GOOGLE
+        GITHUB
+        APPLE
+    }
+    
+    enum SubscriptionPlan {
+        FREE
+        STARTER
+        PRO
+        ENTERPRISE
+    }
+    
+    enum SubscriptionStatus {
+        ACTIVE
+        PAST_DUE
+        CANCELED
+        TRIALING
+        INCOMPLETE
+    }
+    
+    class BillingEvent {
+        +id: string
+        +userId: string
+        +type: BillingEventType
+        +amount: number
+        +currency: string
+        +timestamp: Date
+        +stripeEventId: string
+    }
+    
+    enum BillingEventType {
+        SUBSCRIPTION_CREATED
+        SUBSCRIPTION_UPDATED
+        SUBSCRIPTION_CANCELED
+        PAYMENT_SUCCEEDED
+        PAYMENT_FAILED
+        REFUND_ISSUED
+    }
+}
+
+ZIMHeader "1" -- "many" DirectoryEntry
+ZIMHeader "1" -- "many" Cluster
+DirectoryEntry <|-- RedirectEntry
+
+ZimArchive "1" -- "many" Article
+ZimArchive "1" -- "many" Bookmark
+Article "1" -- "many" Annotation
+Article "1" -- "many" HistoryEntry
+
+SemanticMesh "1" -- "many" GraphNode
+SemanticMesh "1" -- "many" GraphEdge
+
+AppState "1" -- "many" ZimArchive
+AppState "1" -- "1" Settings
+AppState "1" -- "0..1" User
+AppState "1" -- "0..1" Subscription
+
+User "1" -- "0..1" Subscription
+User "1" -- "many" BillingEvent
+Subscription "1" -- "1" FeatureFlags
+
+@enduml

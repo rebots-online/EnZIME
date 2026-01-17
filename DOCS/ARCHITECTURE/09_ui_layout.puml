@@ -1,0 +1,100 @@
+@startuml EnZIM_UI_Layout
+!theme plain
+title EnZIM - UI Layout & Views (from Prototypes)
+' Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
+
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Inter
+
+rectangle "EnZIM Application Window" as window #LightBlue {
+    
+    rectangle "Header Bar (64px)" as header #White {
+        rectangle "Brand\n[Logo + Name + Version]" as brand
+        rectangle "Search Bar\n[Query Input + ⌘K]" as search
+        rectangle "Status\n[Index + Platform]" as status
+    }
+    
+    rectangle "Main Layout (CSS Grid: 260px 1fr 340px)" as main #LightGray {
+        
+        rectangle "Left Sidebar\n(260-280px)" as sidebar #White {
+            rectangle "Section: Archives" as archives {
+                rectangle "ZimCard: Wikipedia" as zim1
+                rectangle "ZimCard: StackOverflow" as zim2
+                rectangle "ZimCard: Wikivoyage" as zim3
+            }
+            rectangle "---" as sep1
+            rectangle "Section: Bookmarks" as bookmarks {
+                rectangle "Bookmark Item" as bm1
+                rectangle "Bookmark Item" as bm2
+            }
+            rectangle "---" as sep2
+            rectangle "Add Archive Button" as add_btn
+        }
+        
+        rectangle "Main Content\n(Flexible)" as content #White {
+            
+            rectangle "LibraryView" as library_view #LightYellow {
+                rectangle "View Title:\nLOCAL ARCHIVE" as lib_title
+                rectangle "Grid Controls\n[GRID | LIST | FILTER]" as lib_controls
+                rectangle "ZIM Card Grid\n(auto-fill, 320px min)" as lib_grid
+                rectangle "Drop Zone:\n+ DROP .ZIM FILE" as drop_zone
+            }
+            
+            rectangle "ReaderView" as reader_view #LightGreen {
+                rectangle "Breadcrumb\n[ZIM > Category > Article]" as breadcrumb
+                rectangle "Article Title\n(Large, Bold)" as art_title
+                rectangle "Article Meta\n[Cached | Updated]" as art_meta
+                rectangle "Article Actions\n[★ Save | 🔊 TTS | ↗ Share]" as art_actions
+                rectangle "Article Content\n(Prose, Links, Images)" as art_content
+            }
+        }
+        
+        rectangle "Right Panel\n(320-380px)" as right #White {
+            
+            rectangle "Semantic Mesh\nVisualization" as mesh #LightPink {
+                rectangle "SVG Canvas\n(Connection Lines)" as svg
+                rectangle "Node Cluster" as nodes {
+                    rectangle "Focus Node\n[Current Article]" as focus
+                    rectangle "Related Node 1" as rel1
+                    rectangle "Related Node 2" as rel2
+                    rectangle "Related Node 3" as rel3
+                }
+                rectangle "HUD: ZOOM | NODES" as hud
+            }
+            
+            rectangle "See Also List" as see_also #LightCyan {
+                rectangle "Neighbor: Article A" as n1
+                rectangle "Neighbor: Article B" as n2
+                rectangle "Neighbor: Article C" as n3
+            }
+        }
+    }
+    
+    rectangle "Floating Elements" as floating #LightYellow {
+        rectangle "FAB: Add Archive (+)" as fab
+        rectangle "Mesh Toggle Button" as mesh_fab
+        rectangle "Assistant Panel (Bottom-Right)" as assistant
+    }
+}
+
+' Connections
+zim1 --> reader_view : click opens
+focus --> reader_view : click loads
+n1 --> reader_view : click navigates
+
+note right of mesh
+  **Semantic Mesh Styles**
+  - Synaptic: SVG + absolute nodes
+  - Brutalist: List view only
+  - Prismatic: Radial layout
+  - Spectral: Card list + dots
+end note
+
+note bottom of library_view
+  **LibraryView Grid**
+  - Desktop: 3-4 columns
+  - Tablet: 2 columns
+  - Mobile: 1 column
+end note
+
+@enduml

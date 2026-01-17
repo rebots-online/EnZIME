@@ -1,0 +1,102 @@
+@startuml EnZIM_Theme_System
+!theme plain
+title EnZIM - Theme System Architecture
+' Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
+' Derived from UI-Samples prototypes
+
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Inter
+skinparam componentStyle rectangle
+
+package "Theme Configuration" as config #LightBlue {
+    component "ThemeProvider\n[React Context]" as provider
+    component "useTheme()\n[Custom Hook]" as hook
+    component "CSS Variables\n[:root definitions]" as vars
+    
+    file "synaptic.css" as synaptic
+    file "brutalist.css" as brutalist
+    file "prismatic.css" as prismatic
+    file "spectral.css" as spectral
+}
+
+package "Design Tokens" as tokens #LightGreen {
+    component "Colors" as colors {
+        note right: --bg-color\n--surface-color\n--accent-color\n--text-main\n--text-muted
+    }
+    
+    component "Typography" as typography {
+        note right: --font-ui (Inter)\n--font-mono (JetBrains)\n--font-display (Space Grotesk)
+    }
+    
+    component "Spacing" as spacing {
+        note right: 4px, 8px, 12px, 16px,\n24px, 32px, 48px, 64px
+    }
+    
+    component "Effects" as effects {
+        note right: --glass-surface\n--glass-border\n--shadow-hard\n--ease-out-expo
+    }
+}
+
+package "Theme Variants" as variants #LightYellow {
+    component "Synaptic Cartography\n[Dark, Neon, Glass]" as th_synaptic
+    component "Brutalist Monolith\n[Light, Bold, Grid]" as th_brutalist
+    component "Prismatic Swiss\n[Light, Clean, Multi-color]" as th_prismatic
+    component "Spectral Reader\n[Dark, Sci-fi, Filament]" as th_spectral
+    
+    component "Additional Themes" as th_additional {
+        note right: Kinetic\nCyberpunk\nNeumorphism\nGlassmorphism\nMinimal\nRetro\nY2K
+    }
+}
+
+package "UI Components" as components #LightPink {
+    component "GlassPanel" as glass
+    component "ZimCard" as card
+    component "ActionButton" as button
+    component "SearchBar" as search
+    component "SemanticNode" as node
+    component "ArticleContent" as article
+}
+
+package "Background Effects" as backgrounds #LightGray {
+    component "Particle Mesh\n[Canvas Animation]" as particles
+    component "Grid Pattern\n[CSS Background]" as grid
+    component "Refraction Effect\n[Mouse-following Gradient]" as refraction
+    component "Radial Gradient\n[Static Glow]" as radial
+}
+
+provider --> vars : injects
+hook --> provider : reads
+vars --> tokens : defines
+
+synaptic --> th_synaptic
+brutalist --> th_brutalist
+prismatic --> th_prismatic
+spectral --> th_spectral
+
+th_synaptic --> colors
+th_brutalist --> colors
+th_prismatic --> colors
+th_spectral --> colors
+
+components --> vars : consume
+glass --> effects
+card --> colors
+button --> typography
+search --> spacing
+node --> effects
+article --> typography
+
+th_synaptic --> particles
+th_brutalist --> grid
+th_prismatic --> radial
+th_spectral --> refraction
+
+note bottom of variants
+  **Theme Selection**
+  - User preference stored in settings
+  - System auto-detect (light/dark)
+  - Theme toggle in Settings view
+  - Runtime CSS variable switching
+end note
+
+@enduml

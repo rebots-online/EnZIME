@@ -1,0 +1,95 @@
+@startuml EnZIM_Semantic_Mesh_Sequence
+!theme plain
+title EnZIM - Semantic Mesh Generation Flow
+' Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
+
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Inter
+
+actor User
+participant "ReaderView" as reader
+participant "MeshView" as mesh
+participant "SemanticEngine" as engine
+participant "ZIMReader" as zimlib
+participant "GraphLayout" as layout
+database "Link Cache" as cache
+
+User -> reader : Toggle "Explore" mode
+activate reader
+
+reader -> mesh : activate(currentArticle)
+activate mesh
+
+mesh -> engine : generateMesh(articleId)
+activate engine
+
+alt Links cached
+    engine -> cache : getLinks(articleId)
+    cache --> engine : cachedLinks[]
+else Links not cached
+    engine -> zimlib : getArticleContent(articleId)
+    activate zimlib
+    zimlib --> engine : HTML content
+    deactivate zimlib
+    
+    engine -> engine : parseLinks(html)\nExtract <a href="...">
+    
+    engine -> cache : storeLinks(articleId, links)
+end
+
+engine -> engine : Build GraphNode for focus article
+
+loop For each outgoing link (limit 10-15)
+    engine -> zimlib : getEntryMetadata(linkTarget)
+    activate zimlib
+    zimlib --> engine : {title, exists}
+    deactivate zimlib
+    
+    alt Article exists in ZIM
+        engine -> engine : Create neighbor GraphNode
+        engine -> engine : Create GraphEdge(focus, neighbor)
+    end
+end
+
+engine -> layout : computeLayout(nodes, edges)
+activate layout
+
+layout -> layout : Force-directed or\nradial layout algorithm
+
+layout --> engine : nodes with (x, y) positions
+deactivate layout
+
+engine --> mesh : SemanticMesh object
+deactivate engine
+
+mesh -> mesh : Render nodes (SVG/Canvas)\nDraw edges as lines\nHighlight focus node
+
+mesh --> User : Display interactive graph
+deactivate mesh
+deactivate reader
+
+== User Interaction ==
+
+User -> mesh : Click neighbor node "Photon"
+activate mesh
+
+mesh -> engine : setFocus("Photon")
+mesh -> reader : loadArticle("Photon")
+
+note over mesh, reader
+  Graph regenerates with "Photon" 
+  as new center node
+end note
+
+mesh --> User : Updated graph + article
+deactivate mesh
+
+note right of engine
+  **Semantic Mesh Features**
+  - Hyperlink edges (primary)
+  - Category edges (if available)
+  - Semantic similarity (future NLP)
+  - Configurable depth (1-2 degrees)
+end note
+
+@enduml

@@ -1,0 +1,85 @@
+---
+title: EnZIM - UI Component Hierarchy
+---
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#4F46E5'}}}%%
+%% Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
+%% Derived from UI-Samples prototypes
+
+flowchart TB
+    subgraph App["🖥️ App Shell"]
+        direction TB
+        
+        subgraph Header["Header (64px)"]
+            Brand["Brand/Logo"]
+            SearchBar["SearchBar"]
+            StatusIndicators["Status Indicators"]
+            HeaderActions["Header Actions"]
+        end
+
+        subgraph MainLayout["Main Layout (3-Column Grid)"]
+            subgraph Sidebar["Sidebar (260-280px)"]
+                direction TB
+                ArchiveList["📂 Archive List"]
+                ZimCard["ZimCard"]
+                BookmarksList["⭐ Bookmarks"]
+                HistoryList["🕐 History"]
+                NavSettings["⚙️ Settings"]
+            end
+
+            subgraph MainContent["Main Content (Flexible)"]
+                direction TB
+                LibraryView["📚 LibraryView"]
+                LibraryGrid["ZimCard Grid"]
+                
+                ReaderView["📖 ReaderView"]
+                ArticleHeader["Article Header"]
+                ArticleContent["Article Content"]
+                ArticleActions["Action Buttons"]
+                
+                SearchView["🔍 SearchView"]
+                SearchResults["Search Results List"]
+            end
+
+            subgraph MeshPanel["Semantic Mesh (320-380px)"]
+                direction TB
+                MeshView["🕸️ MeshView"]
+                SVGCanvas["SVG Connection Lines"]
+                NodeCluster["Node Cluster"]
+                FocusNode["Focus Node"]
+                RelatedNodes["Related Nodes"]
+                
+                SeeAlsoList["📋 See Also List"]
+                NeighborItems["Neighbor Items"]
+            end
+        end
+
+        subgraph Overlays["Overlays & Modals"]
+            AssistantPanel["🤖 Assistant Panel"]
+            SettingsModal["Settings Modal"]
+            ThemePicker["Theme Picker"]
+        end
+    end
+
+    %% Relationships
+    ArchiveList --> ZimCard
+    LibraryView --> LibraryGrid
+    LibraryGrid --> ZimCard
+    
+    ReaderView --> ArticleHeader
+    ReaderView --> ArticleContent
+    ArticleHeader --> ArticleActions
+    
+    SearchView --> SearchResults
+    
+    MeshView --> SVGCanvas
+    MeshView --> NodeCluster
+    NodeCluster --> FocusNode
+    NodeCluster --> RelatedNodes
+    
+    SeeAlsoList --> NeighborItems
+
+    %% Click Actions
+    ZimCard -.->|"onClick"| ReaderView
+    RelatedNodes -.->|"onClick"| ReaderView
+    NeighborItems -.->|"onClick"| ReaderView
+    SearchResults -.->|"onClick"| ReaderView

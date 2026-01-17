@@ -1,0 +1,64 @@
+@startuml EnZIM_Container_Diagram
+!theme plain
+title EnZIM - Container Diagram (C4 Level 2)
+' Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
+
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Inter
+
+rectangle "Desktop Platform (Tauri)" as desktop #LightBlue {
+    rectangle "React Frontend\n[TypeScript, Tailwind CSS]" as react_desktop
+    rectangle "Tauri Backend\n[Rust]" as tauri
+    rectangle "zimlib.rs\n[Rust ZIM Library]" as zimlib_rust
+    database "SQLite\n[User Data]" as sqlite
+}
+
+rectangle "Web Platform (PWA/Extension)" as web #LightGreen {
+    rectangle "React Frontend\n[TypeScript, Tailwind CSS]" as react_web
+    rectangle "Service Worker\n[Offline Cache]" as sw
+    rectangle "zimlib.ts\n[TypeScript ZIM Library]" as zimlib_ts
+    database "IndexedDB\n[User Data + ZIM Cache]" as indexeddb
+}
+
+rectangle "Mobile Platform (Tauri Mobile)" as mobile #LightYellow {
+    rectangle "React Frontend\n[TypeScript, Tailwind CSS]" as react_mobile
+    rectangle "Tauri Mobile\n[Rust + WebView]" as tauri_mobile
+    rectangle "zimlib.rs\n[Rust ZIM Library]" as zimlib_rust_mobile
+    database "SQLite\n[User Data]" as sqlite_mobile
+}
+
+rectangle "Shared Components" as shared #LightPink {
+    rectangle "AnZimmermanLib\n[Multi-Language ZIM Libraries]" as anzim
+    rectangle "UI Component Library\n[React + Tailwind]" as ui_lib
+    rectangle "State Management\n[Zustand/Redux]" as state
+}
+
+react_desktop --> tauri : IPC Commands
+tauri --> zimlib_rust : Native calls
+tauri --> sqlite : Read/Write
+react_desktop ..> ui_lib : Uses
+react_desktop ..> state : Uses
+
+react_web --> zimlib_ts : Direct calls
+react_web --> indexeddb : Read/Write
+sw --> indexeddb : Cache
+react_web ..> ui_lib : Uses
+react_web ..> state : Uses
+
+react_mobile --> tauri_mobile : IPC Commands
+tauri_mobile --> zimlib_rust_mobile : Native calls
+tauri_mobile --> sqlite_mobile : Read/Write
+react_mobile ..> ui_lib : Uses
+react_mobile ..> state : Uses
+
+anzim --> zimlib_rust
+anzim --> zimlib_ts
+
+note bottom of shared
+  **Code Reuse Strategy**
+  - Single React codebase for all platforms
+  - Platform abstraction layer for native features
+  - Shared design tokens via CSS variables
+end note
+
+@enduml

@@ -1,0 +1,105 @@
+---
+title: EnZIM - Entity Relationship Diagram
+---
+%%{init: {'theme': 'base'}}%%
+%% Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
+
+erDiagram
+    ZIM_ARCHIVE ||--o{ ARTICLE : contains
+    ZIM_ARCHIVE ||--o{ BOOKMARK : has
+    ZIM_ARCHIVE {
+        string id PK
+        string title
+        string description
+        int size_bytes
+        int article_count
+        string main_page
+        string file_path
+        datetime loaded_at
+    }
+
+    ARTICLE ||--o{ ANNOTATION : has
+    ARTICLE ||--o{ HISTORY_ENTRY : logged_in
+    ARTICLE ||--o{ GRAPH_NODE : represents
+    ARTICLE {
+        string id PK
+        string archive_id FK
+        string title
+        string url
+        string namespace
+        string mime_type
+        int cluster_number
+        int blob_number
+    }
+
+    BOOKMARK {
+        string id PK
+        string archive_id FK
+        string article_id FK
+        string title
+        string note
+        datetime created_at
+    }
+
+    HISTORY_ENTRY {
+        string id PK
+        string archive_id FK
+        string article_id FK
+        string title
+        datetime timestamp
+    }
+
+    ANNOTATION {
+        string id PK
+        string archive_id FK
+        string article_id FK
+        string type
+        string content
+        string location_start
+        string location_end
+        datetime created_at
+    }
+
+    GRAPH_NODE ||--o{ GRAPH_EDGE : source_of
+    GRAPH_NODE ||--o{ GRAPH_EDGE : target_of
+    GRAPH_NODE {
+        string article_id PK
+        string title
+        float x_position
+        float y_position
+        boolean is_focused
+    }
+
+    GRAPH_EDGE {
+        string id PK
+        string source_id FK
+        string target_id FK
+        string edge_type
+        float weight
+    }
+
+    USER_SETTINGS {
+        string id PK
+        string theme
+        int font_size
+        string tts_voice
+        float tts_speed
+        string assistant_mode
+        boolean dark_mode
+    }
+
+    SEARCH_INDEX ||--o{ INDEX_ENTRY : contains
+    SEARCH_INDEX {
+        string archive_id PK
+        datetime built_at
+        int entry_count
+        boolean is_full_text
+    }
+
+    INDEX_ENTRY {
+        string id PK
+        string archive_id FK
+        string article_id FK
+        string title_normalized
+        string content_tokens
+    }

@@ -1,0 +1,89 @@
+---
+title: EnZIM - UI State Machine
+---
+%%{init: {'theme': 'base'}}%%
+%% Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
+
+stateDiagram-v2
+    [*] --> AppLaunch
+
+    state AppLaunch {
+        [*] --> LoadingSettings
+        LoadingSettings --> LoadingArchives
+        LoadingArchives --> LibraryReady
+    }
+
+    AppLaunch --> LibraryView: Settings & Archives Loaded
+
+    state LibraryView {
+        [*] --> ArchiveList
+        ArchiveList --> AddingArchive: Click Add
+        AddingArchive --> ArchiveList: Cancel/Complete
+        ArchiveList --> ArchiveSelected: Click Archive Card
+    }
+
+    LibraryView --> LoadingArchive: Archive Selected
+    LoadingArchive --> ReaderView: Archive Opened
+
+    state ReaderView {
+        [*] --> DisplayingArticle
+        DisplayingArticle --> LoadingArticle: Click Link
+        LoadingArticle --> DisplayingArticle: Content Loaded
+        DisplayingArticle --> TTSPlaying: Start TTS
+        TTSPlaying --> DisplayingArticle: Stop TTS
+    }
+
+    state SearchMode {
+        [*] --> QueryInput
+        QueryInput --> Searching: Enter Query
+        Searching --> ShowingResults: Results Ready
+        ShowingResults --> QueryInput: New Query
+    }
+
+    state MeshMode {
+        [*] --> GeneratingMesh
+        GeneratingMesh --> DisplayingMesh: Mesh Ready
+        DisplayingMesh --> NavigatingNode: Click Node
+        NavigatingNode --> GeneratingMesh: Regenerate
+    }
+
+    state AssistantMode {
+        [*] --> AwaitingQuery
+        AwaitingQuery --> ProcessingQuery: Submit Question
+        ProcessingQuery --> ShowingAnswer: Answer Ready
+        ShowingAnswer --> AwaitingQuery: New Question
+    }
+
+    ReaderView --> SearchMode: Open Search
+    SearchMode --> ReaderView: Select Result
+
+    ReaderView --> MeshMode: Toggle Mesh
+    MeshMode --> ReaderView: Close Mesh / Select Node
+
+    ReaderView --> AssistantMode: Open Assistant
+    AssistantMode --> ReaderView: Close Panel
+
+    ReaderView --> LibraryView: Go to Library
+    ReaderView --> BookmarksView: Open Bookmarks
+    ReaderView --> HistoryView: Open History
+    ReaderView --> SettingsView: Open Settings
+
+    state BookmarksView {
+        [*] --> ListingBookmarks
+        ListingBookmarks --> RemovingBookmark: Delete Action
+    }
+
+    state HistoryView {
+        [*] --> ListingHistory
+        ListingHistory --> ClearingHistory: Clear Action
+    }
+
+    state SettingsView {
+        [*] --> DisplayingSettings
+        DisplayingSettings --> ChangingTheme: Select Theme
+        ChangingTheme --> DisplayingSettings: Theme Applied
+    }
+
+    BookmarksView --> ReaderView: Select Bookmark
+    HistoryView --> ReaderView: Select Entry
+    SettingsView --> ReaderView: Close Settings

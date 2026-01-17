@@ -7,9 +7,10 @@
 ## Core Directives
 
 ### Operating Mode
-- **Architecture First**: Do not begin coding until explicit consensus on architecture and execution plan exists.
+- **Architecture First**: Do not begin coding until explicit consensus on architecture and execution plan exists. Place the approved architecture details in DOCS/ARCHITECTURE/ and in coding mode, only follow the checklist and DOCS/ARCHITECTURE/  file
 - **Living Documentation**: Keep all architecture and documentation artifacts accurate and current at task completion.
 - **Scope Management**: If milestones risk slipping, pause coding, renegotiate scope/timeline, update `CHECKLIST.md` so remaining milestones remain achievable.
+- **Single Source of Truth**: Maintain ONE checklist, updated at the end of each task; if any changes to architecture become necessary, update the representations in DOCS/ARCHITECTURE/ and in the running checklist
 
 ---
 

@@ -1,0 +1,76 @@
+@startuml EnZIM_Search_Sequence
+!theme plain
+title EnZIM - Search Query Flow
+' Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
+
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Inter
+
+actor User
+participant "SearchBar" as searchbar
+participant "SearchService" as search
+participant "SearchIndexer" as indexer
+participant "ZIMReader" as zimlib
+participant "AppState" as state
+database "Search Index" as index
+
+User -> searchbar : Enter query "quantum"
+activate searchbar
+
+searchbar -> search : search(query, options)
+activate search
+
+alt Index not built
+    search -> indexer : buildIndex(archiveId)
+    activate indexer
+    
+    indexer -> zimlib : iterateEntries()
+    activate zimlib
+    
+    loop For each article entry
+        zimlib -> indexer : DirectoryEntry
+        indexer -> index : Index title + metadata
+    end
+    
+    zimlib --> indexer : Done
+    deactivate zimlib
+    
+    indexer --> search : Index ready
+    deactivate indexer
+end
+
+search -> index : query("quantum")
+activate index
+
+index -> index : Normalize query\nTokenize\nMatch against index
+
+index --> search : Ranked results\n[{title, score, snippet}]
+deactivate index
+
+search -> search : Apply filters\n(namespace, limit)
+
+search -> state : setSearchResults(results)
+activate state
+state --> search : OK
+deactivate state
+
+search --> searchbar : SearchResult[]
+deactivate search
+
+searchbar -> searchbar : Render result list\nHighlight query terms
+
+searchbar --> User : Display results
+deactivate searchbar
+
+User -> searchbar : Click result
+searchbar -> state : dispatch(openArticle(resultId))
+
+note right of indexer
+  **Indexing Strategy**
+  - Title index: Fast prefix search
+  - Full-text: Optional, memory-heavy
+  - Incremental: Background worker
+  - Target: <1s for title, <2s full-text
+end note
+
+@enduml

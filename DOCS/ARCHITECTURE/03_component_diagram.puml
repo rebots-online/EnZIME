@@ -1,0 +1,105 @@
+@startuml EnZIM_Component_Diagram
+!theme plain
+title EnZIM - Component Architecture
+' Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
+
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Inter
+skinparam componentStyle rectangle
+
+package "Frontend Layer" as frontend #LightBlue {
+    component "LibraryView" as library_view
+    component "ReaderView" as reader_view
+    component "SearchView" as search_view
+    component "MeshView\n(Semantic Graph)" as mesh_view
+    component "BookmarksView" as bookmarks_view
+    component "HistoryView" as history_view
+    component "AssistantPanel\n(Chat UI)" as assistant_panel
+    component "SettingsView" as settings_view
+    
+    component "Global Header\n(Search Bar)" as header
+    component "Navigation Sidebar" as sidebar
+    component "Theme Manager" as theme_mgr
+}
+
+package "State Layer" as state_layer #LightYellow {
+    component "App State Store\n[Zustand]" as store
+    component "Archive State" as archive_state
+    component "Article State" as article_state
+    component "Bookmarks State" as bookmarks_state
+    component "History State" as history_state
+    component "Settings State" as settings_state
+    component "Auth State\n(Future)" as auth_state
+    component "Subscription State\n(Future)" as subscription_state
+}
+
+package "Service Layer" as services #LightGreen {
+    component "ZIM Service\n(Platform Abstraction)" as zim_service
+    component "Search Service" as search_service
+    component "Semantic Engine" as semantic_engine
+    component "Assistant Service" as assistant_service
+    component "TTS Service" as tts_service
+    component "Annotation Service" as annotation_service
+    component "Storage Service" as storage_service
+}
+
+package "Auth & Billing (Future)" as auth_billing #LightCoral {
+    note as AuthNote
+        **PLACEHOLDER**
+        User login & subscription
+        management for feature gating
+    end note
+    
+    component "Auth Service\n[OAuth/Email]" as auth_service
+    component "Session Manager" as session_mgr
+    component "Billing Service\n[Stripe Integration]" as billing_service
+    component "Feature Gate\n[Entitlement Check]" as feature_gate
+}
+
+package "Core Layer (AnZimmermanLib)" as core #LightPink {
+    component "ZIMReader" as zim_reader
+    component "ZIMWriter" as zim_writer
+    component "Search Indexer" as indexer
+    component "Cluster Decompressor" as decompressor
+}
+
+library_view --> store
+reader_view --> store
+search_view --> store
+mesh_view --> store
+bookmarks_view --> store
+assistant_panel --> store
+
+store --> archive_state
+store --> article_state
+store --> bookmarks_state
+store --> history_state
+store --> settings_state
+
+library_view --> zim_service
+reader_view --> zim_service
+search_view --> search_service
+mesh_view --> semantic_engine
+assistant_panel --> assistant_service
+reader_view --> tts_service
+
+zim_service --> zim_reader
+search_service --> indexer
+semantic_engine --> zim_reader
+storage_service --> zim_reader
+
+header --> search_service
+sidebar --> library_view
+theme_mgr --> settings_state
+
+zim_reader --> decompressor
+
+' Auth & Billing connections (Future)
+auth_service --> session_mgr
+billing_service --> feature_gate
+session_mgr --> store : "user state"
+feature_gate --> assistant_service : "gate AI features"
+feature_gate --> semantic_engine : "gate advanced mesh"
+feature_gate --> annotation_service : "gate premium annotations"
+
+@enduml

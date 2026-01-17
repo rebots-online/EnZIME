@@ -1,0 +1,68 @@
+@startuml EnZIM_Content_Load_Sequence
+!theme plain
+title EnZIM - Article Content Loading Flow
+' Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
+
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Inter
+
+actor User
+participant "ReaderView" as reader
+participant "AppState" as state
+participant "ZIMService" as service
+participant "ZIMReader" as zimlib
+participant "Decompressor" as decomp
+database "ZIM File" as zim
+
+User -> reader : Click article link
+activate reader
+
+reader -> state : dispatch(openArticle(articleId))
+activate state
+
+state -> service : getArticleContent(archiveId, articleId)
+activate service
+
+service -> zimlib : getEntryByPath(path)
+activate zimlib
+
+zimlib -> zim : Read directory entry
+zim --> zimlib : DirectoryEntry
+
+zimlib -> zim : Read cluster pointer\n(clusterPtrPos + clusterNumber * 8)
+zim --> zimlib : Cluster offset
+
+zimlib -> zim : Read cluster data
+zim --> zimlib : Compressed cluster bytes
+
+zimlib -> decomp : decompress(data, compressionType)
+activate decomp
+decomp --> zimlib : Decompressed blob data
+deactivate decomp
+
+zimlib --> service : Article HTML content
+deactivate zimlib
+
+service -> service : Resolve internal links\n& image references
+
+service --> state : articleContent
+deactivate service
+
+state -> state : Update currentArticle\nPush to history
+
+state --> reader : New article state
+deactivate state
+
+reader -> reader : Render HTML in WebView\nApply theme styles
+
+reader --> User : Display article
+deactivate reader
+
+note right of zimlib
+  **Performance Optimizations**
+  - Cluster caching for sequential reads
+  - Lazy loading of images
+  - Memory-mapped files (desktop)
+end note
+
+@enduml

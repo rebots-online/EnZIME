@@ -1,0 +1,43 @@
+@startuml EnZIM_System_Context
+!theme plain
+title EnZIM - System Context Diagram (C4 Level 1)
+' Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
+
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Inter
+
+actor "Student/Researcher\n(Offline Learner)" as student
+actor "Traveler\n(On-the-go Reader)" as traveler
+actor "Knowledge Explorer\n(Power User)" as explorer
+actor "Archivist\n(Data Hoarder)" as archivist
+
+rectangle "EnZIM System" as enzim #LightBlue {
+    rectangle "EnZIM Application\n[Offline Knowledge Explorer]" as app
+}
+
+database "ZIM Archives\n[Wikipedia, Wikivoyage,\nWikibooks, etc.]" as zim #LightGreen
+rectangle "AnZimmermanLib\n[Clean-Room ZIM Libraries]" as anzim #LightYellow
+rectangle "Local AI Model\n[Optional LLM for\nQ&A Assistant]" as ai #LightPink
+rectangle "OS TTS Engine\n[Text-to-Speech]" as tts #LightGray
+
+student --> app : Browse offline\nencyclopedias
+traveler --> app : Read articles\non-the-go
+explorer --> app : Explore semantic\nknowledge graph
+archivist --> app : Manage large\narchive collections
+
+app --> zim : Reads/writes
+app --> anzim : Uses for ZIM\nparsing
+app --> ai : Queries for\nQ&A/summaries
+app --> tts : Reads articles\naloud
+
+note right of enzim
+  **EnZIM Vision**
+  Offline-first knowledge companion
+  combining high-fidelity ZIM reading
+  with semantic navigation and
+  AI-powered assistance.
+  
+  MIT Licensed (clean-room)
+end note
+
+@enduml

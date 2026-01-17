@@ -1,0 +1,99 @@
+---
+title: EnZIM - Cross-Platform Deployment
+---
+%%{init: {'theme': 'base'}}%%
+%% Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
+
+flowchart TB
+    subgraph SharedCode["🔄 Shared Codebase"]
+        RC[React Components]
+        TW[Tailwind CSS]
+        ZU[Zustand State]
+        TS[TypeScript Services]
+    end
+
+    subgraph Desktop["🖥️ Desktop (Tauri)"]
+        subgraph Windows["Windows"]
+            WE[.exe / .msi]
+        end
+        subgraph MacOS["macOS"]
+            MA[.app / .dmg]
+        end
+        subgraph Linux["Linux"]
+            LX[.deb / .AppImage]
+        end
+        
+        TB[Tauri Backend - Rust]
+        ZR[zimlib.rs]
+        SQ[SQLite]
+    end
+
+    subgraph Web["🌐 Web Platform"]
+        subgraph PWA["Progressive Web App"]
+            SW[Service Worker]
+            MF[Manifest.json]
+        end
+        subgraph Extension["Browser Extension"]
+            CH[Chrome Extension]
+            FF[Firefox Add-on]
+        end
+        
+        ZT[zimlib.ts]
+        ID[(IndexedDB)]
+    end
+
+    subgraph Mobile["📱 Mobile"]
+        subgraph Android["Android"]
+            APK[.apk / Play Store]
+            TMA[Tauri Mobile Android]
+        end
+        subgraph iOS["iOS (Future)"]
+            IPA[.ipa / App Store]
+            TMI[Tauri Mobile iOS]
+        end
+    end
+
+    SharedCode --> Desktop
+    SharedCode --> Web
+    SharedCode --> Mobile
+
+    TB --> ZR
+    TB --> SQ
+    
+    PWA --> ZT
+    PWA --> ID
+    Extension --> ZT
+    Extension --> ID
+
+    TMA --> ZR
+    TMI --> ZR
+
+    subgraph Distribution["📦 Distribution"]
+        GH[GitHub Releases]
+        MS[Microsoft Store]
+        AS[Apple App Store]
+        GP[Google Play]
+        CWS[Chrome Web Store]
+        AMO[Firefox Add-ons]
+    end
+
+    Windows --> GH
+    Windows --> MS
+    MacOS --> GH
+    MacOS --> AS
+    Linux --> GH
+    APK --> GP
+    IPA --> AS
+    CH --> CWS
+    FF --> AMO
+
+    subgraph BuildPipeline["🔧 Build Pipeline"]
+        CI[GitHub Actions CI/CD]
+        TC[Tauri CLI]
+        VC[Vite/Webpack]
+    end
+
+    SharedCode --> BuildPipeline
+    BuildPipeline --> Desktop
+    BuildPipeline --> Web
+    BuildPipeline --> Mobile

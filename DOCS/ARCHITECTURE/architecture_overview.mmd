@@ -1,0 +1,63 @@
+---
+title: EnZIM - System Architecture Overview
+---
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#4F46E5', 'primaryTextColor': '#fff', 'primaryBorderColor': '#4338CA', 'lineColor': '#6366F1', 'secondaryColor': '#F3F4F6', 'tertiaryColor': '#EEF2FF'}}}%%
+%% Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
+
+flowchart TB
+    subgraph Users["👥 Users"]
+        U1[Student/Researcher]
+        U2[Traveler]
+        U3[Knowledge Explorer]
+        U4[Archivist]
+    end
+
+    subgraph EnZIM["📚 EnZIM Application"]
+        subgraph Frontend["Frontend Layer (React + TypeScript)"]
+            LV[LibraryView]
+            RV[ReaderView]
+            SV[SearchView]
+            MV[MeshView]
+            BV[BookmarksView]
+            AP[AssistantPanel]
+            TM[ThemeManager]
+        end
+
+        subgraph State["State Layer (Zustand)"]
+            AS[AppState Store]
+        end
+
+        subgraph Services["Service Layer"]
+            ZS[ZIM Service]
+            SS[Search Service]
+            SE[Semantic Engine]
+            AI[Assistant Service]
+            TTS[TTS Service]
+        end
+
+        subgraph Core["Core Layer (AnZimmermanLib)"]
+            ZR[ZIMReader]
+            ZW[ZIMWriter]
+            IX[Search Indexer]
+            DC[Decompressor]
+        end
+    end
+
+    subgraph External["External Resources"]
+        ZIM[(ZIM Archives)]
+        LLM[Local AI Model]
+        OSTTS[OS TTS Engine]
+        DB[(Local Storage)]
+    end
+
+    Users --> Frontend
+    Frontend <--> State
+    State <--> Services
+    Services <--> Core
+    
+    ZS --> ZIM
+    AI --> LLM
+    TTS --> OSTTS
+    Services --> DB
+
+    Core --> ZIM
