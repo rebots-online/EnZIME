@@ -1,3 +1,7 @@
+Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+All rights reserved.
+Unauthorized use without prior written consent is strictly prohibited.
+
 # ZIM Downloader
 
 A cross-platform TUI (Terminal User Interface) application for browsing and downloading ZIM files from public repositories like Kiwix.
@@ -207,7 +211,7 @@ cargo tauri build --target x86_64-pc-windows-msvc
 
 ## License
 
-MIT License - See [LICENSE](LICENSE) for details.
+Proprietary License - See [LICENSE](LICENSE) for details.
 
 ## Related Projects
 

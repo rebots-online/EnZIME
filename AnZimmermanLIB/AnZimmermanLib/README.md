@@ -1,3 +1,7 @@
+Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+All rights reserved.
+Unauthorized use without prior written consent is strictly prohibited.
+
 # Clean-room ZIM Libraries for Chrome Extension "Zimmer" and Kiwix-Scale
 
 This repository contains **clean-room implementations** of ZIM (Zeno IMproved) file format readers and writers in multiple programming languages, specifically designed for use in the Chrome extension "zimmer" and kiwix-scale Wikipedia ZIM-size handling capabilities.
@@ -24,8 +28,8 @@ The implementations are based on research of permissively-licensed ZIM implement
 - **libzim** (GPLv2) - Reference C++ implementation by openZIM
 - **kiwix-js** (GPLv3) - JavaScript ZIM reader for browsers
 - **python-libzim** (GPLv3) - Python bindings for libzim
-- **go-zim** (MIT) - Go implementation by Bornholm
-- **gozim** (MIT) - Pure Go implementation by akhenakh
+- **go-zim** (Proprietary) - Go implementation by Bornholm
+- **gozim** (Proprietary) - Pure Go implementation by akhenakh
 - **ZIMply** (GPL) - Pure Python ZIM reader
 
 Our clean-room implementations use only the **ZIM file format specification** from openZIM wiki, not any source code.

@@ -1,3 +1,7 @@
+// Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+// All rights reserved.
+// Unauthorized use without prior written consent is strictly prohibited.
+
 //! Terminal User Interface (TUI) for ZIM Downloader
 //! 
 //! Uses ratatui for rendering and crossterm for terminal handling.

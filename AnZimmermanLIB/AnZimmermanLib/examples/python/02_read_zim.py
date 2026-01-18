@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+# All rights reserved.
+# Unauthorized use without prior written consent is strictly prohibited.
+
 """
 Example: Reading a ZIM file
 
@@ -12,7 +16,7 @@ It covers:
 - Following redirects
 
 Author: Clean-room ZIM Library
-License: MIT
+License: Proprietary
 """
 
 import sys

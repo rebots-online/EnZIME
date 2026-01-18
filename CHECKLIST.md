@@ -1,3 +1,7 @@
+Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+All rights reserved.
+Unauthorized use without prior written consent is strictly prohibited.
+
 # EnZIM Development Checklist
 
 **Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.**
@@ -496,6 +500,47 @@
 | Copyright notice verified | Dev | Release | [ ] | Shows on launch |
 | Build numbers in filenames | Dev | Release | [ ] | Per global rules |
 | Create GitHub Release | Dev | Release | [ ] | Tag + notes |
+
+---
+
+## 12. Entitlements Refactor (ChatGPT 5.2 / online webap)
+
+### Objectives
+- Move all capability checks behind a single Gatekeeper API (`can`, `limit`, `tier`, `quota`)
+- Ensure modules never check plans directly (capability-first enforcement)
+- Add offline-first cached entitlements with signed token verification
+
+### Scope
+- Documentation updates in `CHECKLIST.md` and `DOCS/ARCHITECTURE/*`
+- Gatekeeper + provider scaffolding and minimal enforcement
+- billedr (EntitlementsAuthority) stub integration with local cache
+
+### Risks
+- Breaking feature access if gatekeeper defaults or caching logic is wrong
+- Architectural drift if diagrams are not updated alongside code
+- Offline fallback behavior diverging from billedr-issued entitlements
+
+### Ordered Checklist Steps
+
+| Task | Owner | Due | Status | Acceptance Criteria |
+|------|-------|-----|--------|---------------------|
+| Add Entitlements Refactor section to roadmap | Dev | Week 2 | ✅ | This section includes objectives, scope, risks, validation, rollback |
+| Update ARCHITECTURE.md with Entitlements & Billing model | Dev | Week 2 | ✅ | Capability-first, module enforcement, billedr boundary, offline cache |
+| Update system/context + container/component + sequence + data_flow diagrams | Dev | Week 2 | ✅ | Gatekeeper, provider, token cache, billedr added |
+| Commit A: Gatekeeper scaffolding + mock provider | Dev | Week 2 | ✅ | No behavior change; defaults allow as needed |
+| Commit B: Minimal enforcement on 1–2 optional features | Dev | Week 2 | ✅ | User-facing denial messaging added |
+| Commit C: billedr stub + signed token v0 + cache | Dev | Week 2 | ✅ | Offline fallback to defaults |
+| Commit D: Tests + remove legacy plan checks | Dev | Week 2 | ✅ | Converted modules free of plan checks |
+
+### Validation
+- Run UI/unit tests (or document missing deps) ✅
+- Verify offline entitlements fallback works without network [X]
+- Confirm no direct plan checks remain in converted modules ✅
+
+### Rollback
+- Revert to mock provider defaults
+- Remove gatekeeper calls from converted modules
+- Restore previous plan-check logic if needed
 
 ---
 

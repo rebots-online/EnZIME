@@ -1,3 +1,7 @@
+Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+All rights reserved.
+Unauthorized use without prior written consent is strictly prohibited.
+
 # EnZIM — Offline ZIM Reader & Knowledge Assistant
 
 **Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.**
@@ -55,7 +59,7 @@ EnZIM includes 9+ beautiful themes with Light/Dark/System auto modes:
 
 EnZIM is built on the **AnZimmermanLib** clean-room ZIM library implementations, ensuring:
 
-- **MIT Licensed** — No GPL contamination
+- **Proprietary Licensed** — No GPL contamination
 - **Multi-Language** — Rust, TypeScript, Python, Go, PHP implementations
 - **Cross-Platform** — Single codebase for all platforms
 - **Offline-First** — All features work without internet

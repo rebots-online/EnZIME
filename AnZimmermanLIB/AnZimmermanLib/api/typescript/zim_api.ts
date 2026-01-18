@@ -1,3 +1,7 @@
+// Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+// All rights reserved.
+// Unauthorized use without prior written consent is strictly prohibited.
+
 /**
  * ZIM Library REST API with Express and Swagger UI
  * 
@@ -81,8 +85,8 @@ Click **Try it out** on any endpoint to test interactively.
                 url: 'https://github.com/yourproject/zimlib'
             },
             license: {
-                name: 'MIT',
-                url: 'https://opensource.org/licenses/MIT'
+                name: 'Proprietary',
+                url: 'https://opensource.org/licenses/Proprietary'
             }
         },
         servers: [

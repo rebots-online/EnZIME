@@ -1,3 +1,7 @@
+' Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+' All rights reserved.
+' Unauthorized use without prior written consent is strictly prohibited.
+
 @startuml EnZIM_Container_Diagram
 !theme plain
 title EnZIM - Container Diagram (C4 Level 2)
@@ -31,28 +35,41 @@ rectangle "Shared Components" as shared #LightPink {
     rectangle "AnZimmermanLib\n[Multi-Language ZIM Libraries]" as anzim
     rectangle "UI Component Library\n[React + Tailwind]" as ui_lib
     rectangle "State Management\n[Zustand/Redux]" as state
+    rectangle "Entitlements Gatekeeper" as gatekeeper
+    rectangle "Entitlements Provider" as entitlements_provider
+    database "Entitlements Token Cache" as entitlements_cache
+    rectangle "Module Registry" as module_registry
 }
+
+rectangle "billedr\n[Entitlements Authority]" as billedr #LightGray
 
 react_desktop --> tauri : IPC Commands
 tauri --> zimlib_rust : Native calls
 tauri --> sqlite : Read/Write
 react_desktop ..> ui_lib : Uses
 react_desktop ..> state : Uses
+react_desktop ..> gatekeeper : Capability checks
 
 react_web --> zimlib_ts : Direct calls
 react_web --> indexeddb : Read/Write
 sw --> indexeddb : Cache
 react_web ..> ui_lib : Uses
 react_web ..> state : Uses
+react_web ..> gatekeeper : Capability checks
 
 react_mobile --> tauri_mobile : IPC Commands
 tauri_mobile --> zimlib_rust_mobile : Native calls
 tauri_mobile --> sqlite_mobile : Read/Write
 react_mobile ..> ui_lib : Uses
 react_mobile ..> state : Uses
+react_mobile ..> gatekeeper : Capability checks
 
 anzim --> zimlib_rust
 anzim --> zimlib_ts
+gatekeeper --> entitlements_provider
+entitlements_provider --> entitlements_cache
+entitlements_provider --> billedr
+module_registry --> gatekeeper
 
 note bottom of shared
   **Code Reuse Strategy**

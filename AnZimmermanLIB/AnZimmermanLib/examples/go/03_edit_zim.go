@@ -1,3 +1,7 @@
+// Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+// All rights reserved.
+// Unauthorized use without prior written consent is strictly prohibited.
+
 // Example: Editing/Modifying ZIM files (Go)
 //
 // Since ZIM files are immutable, editing involves reading the original,

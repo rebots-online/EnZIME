@@ -1,3 +1,7 @@
+// Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+// All rights reserved.
+// Unauthorized use without prior written consent is strictly prohibited.
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],

@@ -1,8 +1,13 @@
+// Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+// All rights reserved.
+// Unauthorized use without prior written consent is strictly prohibited.
+
 // EnZIM - Offline ZIM Reader & Knowledge Explorer
 // Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
 
 import { useState } from 'react';
 import { X, Network, Sparkles, Link2, ChevronRight } from 'lucide-react';
+import { useEntitlementsStore } from '../../entitlements/store';
 
 interface MeshNode {
   id: string;
@@ -19,6 +24,8 @@ interface MeshPanelProps {
 
 export function MeshPanel({ isOpen, onClose, currentArticleTitle }: MeshPanelProps) {
   const [activeTab, setActiveTab] = useState<'related' | 'concepts' | 'links'>('related');
+  const { gatekeeper, ready } = useEntitlementsStore();
+  const canViewMesh = ready && gatekeeper.can('mesh.view');
   
   // Placeholder data
   const mockNodes: MeshNode[] = [
@@ -29,6 +36,34 @@ export function MeshPanel({ isOpen, onClose, currentArticleTitle }: MeshPanelPro
   ];
 
   if (!isOpen) return null;
+
+  if (!canViewMesh) {
+    return (
+      <div className="w-80 border-l border-[var(--border)] bg-[var(--bg-surface)] flex flex-col h-full">
+        <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
+          <div className="flex items-center gap-2">
+            <Network className="w-5 h-5 text-[var(--accent)]" />
+            <span className="font-medium">Semantic Mesh</span>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <div className="flex-1 flex items-center justify-center p-6 text-center">
+          <div>
+            <Network className="w-12 h-12 mx-auto mb-3 text-secondary" />
+            <p className="text-sm font-medium">Semantic Mesh is unavailable</p>
+            <p className="text-xs text-secondary mt-2">
+              This capability is not enabled for your current entitlements.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-80 border-l border-[var(--border)] bg-[var(--bg-surface)] flex flex-col h-full">
