@@ -1,28 +1,30 @@
 // EnZIM - Offline ZIM Reader & Knowledge Explorer
 // Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
 
-import { Library, BookOpen, History, Bookmark, Settings, FolderOpen } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
+import { Library, BookOpen, History, Bookmark, Settings, FolderOpen, Search } from 'lucide-react';
 
 interface NavItemProps {
+  to: string;
   icon: React.ReactNode;
   label: string;
-  active?: boolean;
-  onClick?: () => void;
 }
 
-function NavItem({ icon, label, active, onClick }: NavItemProps) {
+function NavItem({ to, icon, label }: NavItemProps) {
   return (
-    <button
-      onClick={onClick}
-      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-        active 
-          ? 'bg-[var(--accent)] text-white' 
-          : 'hover:bg-black/5 dark:hover:bg-white/5'
-      }`}
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        `w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+          isActive 
+            ? 'bg-[var(--accent)] text-white' 
+            : 'hover:bg-black/5 dark:hover:bg-white/5'
+        }`
+      }
     >
       {icon}
       <span>{label}</span>
-    </button>
+    </NavLink>
   );
 }
 
@@ -31,10 +33,11 @@ export function Sidebar() {
     <aside className="surface w-64 border-r flex flex-col">
       {/* Navigation */}
       <nav className="p-3 space-y-1">
-        <NavItem icon={<Library className="w-5 h-5" />} label="Library" active />
-        <NavItem icon={<BookOpen className="w-5 h-5" />} label="Reader" />
-        <NavItem icon={<History className="w-5 h-5" />} label="History" />
-        <NavItem icon={<Bookmark className="w-5 h-5" />} label="Bookmarks" />
+        <NavItem to="/library" icon={<Library className="w-5 h-5" />} label="Library" />
+        <NavItem to="/reader" icon={<BookOpen className="w-5 h-5" />} label="Reader" />
+        <NavItem to="/search" icon={<Search className="w-5 h-5" />} label="Search" />
+        <NavItem to="/history" icon={<History className="w-5 h-5" />} label="History" />
+        <NavItem to="/bookmarks" icon={<Bookmark className="w-5 h-5" />} label="Bookmarks" />
       </nav>
 
       {/* Divider */}
@@ -56,7 +59,7 @@ export function Sidebar() {
 
       {/* Settings */}
       <div className="p-3 border-t border-[var(--border)]">
-        <NavItem icon={<Settings className="w-5 h-5" />} label="Settings" />
+        <NavItem to="/settings" icon={<Settings className="w-5 h-5" />} label="Settings" />
       </div>
     </aside>
   );

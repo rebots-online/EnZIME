@@ -1,9 +1,10 @@
 // EnZIM - Offline ZIM Reader & Knowledge Explorer
 // Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { RouterProvider } from 'react-router-dom';
 import { invoke } from '@tauri-apps/api/core';
-import { AppShell } from './components/layout/AppShell';
+import { createRouter } from './router';
 import { SplashScreen } from './components/SplashScreen';
 import { ThemeProvider } from './contexts/ThemeContext';
 
@@ -24,7 +25,7 @@ export function App() {
       try {
         const info = await invoke<AppInfo>('get_app_info');
         setAppInfo(info);
-      } catch (e) {
+      } catch {
         // Running in browser without Tauri
         setAppInfo({
           name: 'EnZIM',
@@ -42,13 +43,18 @@ export function App() {
     init();
   }, []);
 
-  if (loading || !appInfo) {
+  const router = useMemo(() => {
+    if (!appInfo) return null;
+    return createRouter(appInfo);
+  }, [appInfo]);
+
+  if (loading || !appInfo || !router) {
     return <SplashScreen appInfo={appInfo} />;
   }
 
   return (
     <ThemeProvider>
-      <AppShell appInfo={appInfo} />
+      <RouterProvider router={router} />
     </ThemeProvider>
   );
 }

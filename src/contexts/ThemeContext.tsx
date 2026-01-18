@@ -16,6 +16,20 @@ export type ThemeName =
   | 'y2k'
   | 'cyberpunk';
 
+export const themes: ThemeName[] = [
+  'minimal',
+  'synaptic',
+  'brutalist',
+  'prismatic',
+  'spectral',
+  'kinetic',
+  'retro',
+  'neumorphism',
+  'glassmorphism',
+  'y2k',
+  'cyberpunk',
+];
+
 export type ThemeMode = 'light' | 'dark' | 'system';
 
 interface ThemeContextType {

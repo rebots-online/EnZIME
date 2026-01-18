@@ -276,20 +276,20 @@
 
 | Task | Owner | Due | Status | Acceptance Criteria |
 |------|-------|-----|--------|---------------------|
-| Implement `LibraryView` container | Dev | Week 2 | [ ] | Grid/list view toggle |
-| Implement `ZimCard` component | Dev | Week 2 | [ ] | Archive display card |
-| Implement `ZimDropzone` component | Dev | Week 2 | [ ] | Drag-drop .zim files |
+| Implement `LibraryView` container | Dev | Week 2 | [X] | Grid/list view toggle |
+| Implement `ZimCard` component | Dev | Week 2 | [X] | Archive display card |
+| Implement `ZimDropzone` component | Dev | Week 2 | [X] | Drag-drop .zim files |
 | Implement `ArchiveDetails` modal | Dev | Week 2 | [ ] | Metadata, size, count |
-| Wire to `useAppStore.archives` state | Dev | Week 2 | [ ] | State bindings working |
+| Wire to `useAppStore.archives` state | Dev | Week 2 | [X] | State bindings working |
 
 ### 7.2 Reader View
 
 | Task | Owner | Due | Status | Acceptance Criteria |
 |------|-------|-----|--------|---------------------|
-| Implement `ReaderView` container | Dev | Week 2 | [ ] | Article display area |
-| Implement `ArticleHeader` component | Dev | Week 2 | [ ] | Title, breadcrumb, actions |
-| Implement `ArticleContent` (WebView) | Dev | Week 2 | [ ] | Renders ZIM HTML |
-| Implement `BookmarkButton` component | Dev | Week 2 | [ ] | Add/remove bookmark |
+| Implement `ReaderView` container | Dev | Week 2 | [X] | Article display area |
+| Implement `ArticleHeader` component | Dev | Week 2 | [X] | Title, breadcrumb, actions |
+| Implement `ArticleContent` (WebView) | Dev | Week 2 | [X] | Renders ZIM HTML |
+| Implement `BookmarkButton` component | Dev | Week 2 | [X] | Add/remove bookmark |
 | Implement `TTSControls` component | Dev | Week 2 | [ ] | Play/pause, speed, voice |
 | Implement `AnnotationToolbar` component | Dev | Week 2 | [ ] | Highlight, note actions |
 
@@ -297,29 +297,29 @@
 
 | Task | Owner | Due | Status | Acceptance Criteria |
 |------|-------|-----|--------|---------------------|
-| Implement `SearchBar` component | Dev | Week 2 | [ ] | ⌘K shortcut, autocomplete |
-| Implement `SearchResults` list | Dev | Week 2 | [ ] | Result items with snippets |
+| Implement `SearchBar` component | Dev | Week 2 | [X] | ⌘K shortcut, autocomplete |
+| Implement `SearchResults` list | Dev | Week 2 | [X] | Result items with snippets |
 | Implement `SearchFilters` component | Dev | Week 2 | [ ] | Archive, date filters |
-| Wire to search state & service | Dev | Week 2 | [ ] | Real-time results |
+| Wire to search state & service | Dev | Week 2 | [X] | Real-time results |
 
 ### 7.4 Semantic Mesh
 
 | Task | Owner | Due | Status | Acceptance Criteria |
 |------|-------|-----|--------|---------------------|
-| Implement `SemanticMeshView` container | Dev | Week 2 | [ ] | Graph visualization |
+| Implement `SemanticMeshView` container | Dev | Week 2 | [X] | Graph visualization |
 | Implement `GraphNode` component | Dev | Week 2 | [ ] | Interactive nodes |
 | Implement `GraphEdge` SVG component | Dev | Week 2 | [ ] | Connection lines |
 | Implement force-directed layout | Dev | Week 2 | [ ] | Auto-positioning |
-| Implement `RelatedArticles` list | Dev | Week 2 | [ ] | Text list fallback |
+| Implement `RelatedArticles` list | Dev | Week 2 | [X] | Text list fallback |
 
 ### 7.5 Navigation & History
 
 | Task | Owner | Due | Status | Acceptance Criteria |
 |------|-------|-----|--------|---------------------|
-| Implement `HistoryView` component | Dev | Week 2 | [ ] | Recent articles list |
-| Implement `BookmarksView` component | Dev | Week 2 | [ ] | Saved bookmarks |
-| Implement `SettingsView` component | Dev | Week 2 | [ ] | Preferences UI |
-| Implement routing (React Router) | Dev | Week 2 | [ ] | View navigation |
+| Implement `HistoryView` component | Dev | Week 2 | [X] | Recent articles list |
+| Implement `BookmarksView` component | Dev | Week 2 | [X] | Saved bookmarks |
+| Implement `SettingsView` component | Dev | Week 2 | [X] | Preferences UI |
+| Implement routing (React Router) | Dev | Week 2 | [X] | View navigation |
 
 ---
 
@@ -329,18 +329,18 @@
 
 | Task | Owner | Due | Status | Acceptance Criteria |
 |------|-------|-----|--------|---------------------|
-| Import `zimlib.ts` from AnZimmermanLib | Dev | Week 2 | [ ] | Library available |
-| Create `ZimService` wrapper | Dev | Week 2 | [ ] | API abstraction |
-| Implement `loadArchive(file)` | Dev | Week 2 | [ ] | Opens .zim file |
-| Implement `getArticle(url)` | Dev | Week 2 | [ ] | Returns HTML content |
-| Implement `getMetadata()` | Dev | Week 2 | [ ] | Archive info |
+| Import `zimlib.ts` from AnZimmermanLib | Dev | Week 2 | [X] | Library available |
+| Create `ZimService` wrapper | Dev | Week 2 | [X] | API abstraction |
+| Implement `loadArchive(file)` | Dev | Week 2 | [X] | Opens .zim file |
+| Implement `getArticle(url)` | Dev | Week 2 | [X] | Returns HTML content |
+| Implement `getMetadata()` | Dev | Week 2 | [X] | Archive info |
 
 ### 8.2 Search Engine
 
 | Task | Owner | Due | Status | Acceptance Criteria |
 |------|-------|-----|--------|---------------------|
-| Create `SearchService` class | Dev | Week 3 | [ ] | Search abstraction |
-| Implement title index building | Dev | Week 3 | [ ] | Fast title search |
+| Create `SearchService` class | Dev | Week 3 | [X] | Search abstraction |
+| Implement title index building | Dev | Week 3 | [X] | Fast title search |
 | Implement full-text indexing | Dev | Week 3 | [ ] | Web Worker background |
 | Implement search result ranking | Dev | Week 3 | [ ] | Relevance sorting |
 | Target: < 1s title, < 2s full-text | Dev | Week 3 | [ ] | Performance met |
@@ -589,4 +589,4 @@
 
 ---
 
-*Last updated: 2026-01-17T15:45:00-05:00*
+*Last updated: 2026-01-17T16:30:00-05:00*

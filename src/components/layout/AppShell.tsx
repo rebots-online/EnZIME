@@ -2,11 +2,11 @@
 // Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
 
 import { useState } from 'react';
+import { Outlet } from 'react-router-dom';
 import { Header } from './Header';
 import { MenuBar } from './MenuBar';
 import { Sidebar } from './Sidebar';
 import { StatusBar } from './StatusBar';
-import { MainContent } from './MainContent';
 import { AboutDialog } from '../dialogs/AboutDialog';
 
 interface AppInfo {
@@ -48,8 +48,10 @@ export function AppShell({ appInfo }: AppShellProps) {
           <Sidebar />
         )}
         
-        {/* Main Content */}
-        <MainContent />
+        {/* Main Content - Router Outlet */}
+        <main className="flex-1 overflow-auto bg-[var(--bg-primary)]">
+          <Outlet />
+        </main>
       </div>
       
       {/* Status Bar */}
