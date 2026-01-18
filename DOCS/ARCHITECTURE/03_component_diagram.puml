@@ -1,3 +1,7 @@
+' Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+' All rights reserved.
+' Unauthorized use without prior written consent is strictly prohibited.
+
 @startuml EnZIM_Component_Diagram
 !theme plain
 title EnZIM - Component Architecture
@@ -53,7 +57,10 @@ package "Auth & Billing (Future)" as auth_billing #LightCoral {
     component "Auth Service\n[OAuth/Email]" as auth_service
     component "Session Manager" as session_mgr
     component "Billing Service\n[Stripe Integration]" as billing_service
-    component "Feature Gate\n[Entitlement Check]" as feature_gate
+    component "Entitlements Gatekeeper" as feature_gate
+    component "Entitlements Provider" as entitlements_provider
+    component "Token Cache" as token_cache
+    component "Module Registry" as module_registry
 }
 
 package "Core Layer (AnZimmermanLib)" as core #LightPink {
@@ -96,7 +103,10 @@ zim_reader --> decompressor
 
 ' Auth & Billing connections (Future)
 auth_service --> session_mgr
-billing_service --> feature_gate
+billing_service --> entitlements_provider
+entitlements_provider --> token_cache
+entitlements_provider --> feature_gate
+module_registry --> feature_gate
 session_mgr --> store : "user state"
 feature_gate --> assistant_service : "gate AI features"
 feature_gate --> semantic_engine : "gate advanced mesh"

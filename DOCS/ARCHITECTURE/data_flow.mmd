@@ -1,3 +1,7 @@
+% Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+%% All rights reserved.
+%% Unauthorized use without prior written consent is strictly prohibited.
+
 ---
 title: EnZIM - Data Flow Diagram
 ---
@@ -35,6 +39,14 @@ flowchart LR
             PM[Prompt Manager]
             LM[Local LLM]
         end
+
+        subgraph Entitlements["🔐 Entitlements"]
+            GK[Gatekeeper]
+            EP[Entitlements Provider]
+            TC[(Token Cache)]
+            BD[billedr Authority]
+            ED[Capability Decision]
+        end
     end
 
     subgraph Output["📤 Output"]
@@ -68,6 +80,14 @@ flowchart LR
     CR --> PM
     PM --> LM
     LM --> AA
+
+    UI --> GK
+    GK --> EP
+    EP --> TC
+    EP --> BD
+    GK --> ED
+    ED --> LP
+    ED --> CR
 
     AC --> AU
 

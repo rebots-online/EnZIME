@@ -1,4 +1,11 @@
 <?php
+
+/*
+ * Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+ * All rights reserved.
+ * Unauthorized use without prior written consent is strictly prohibited.
+ */
+
 /**
  * ZIM Library REST API with Slim Framework and Swagger UI
  * 
@@ -75,8 +82,8 @@ Use the Swagger UI to test endpoints interactively.
                 'url' => 'https://github.com/yourproject/zimlib'
             ],
             'license' => [
-                'name' => 'MIT',
-                'url' => 'https://opensource.org/licenses/MIT'
+                'name' => 'Proprietary',
+                'url' => 'https://opensource.org/licenses/Proprietary'
             ]
         ],
         'servers' => [

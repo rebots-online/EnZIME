@@ -1,3 +1,7 @@
+// Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+// All rights reserved.
+// Unauthorized use without prior written consent is strictly prohibited.
+
 import { useEffect, useState } from 'react';
 import { HardDrive, Download, Clock } from 'lucide-react';
 import { useStore } from '../store';

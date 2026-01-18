@@ -1,3 +1,7 @@
+' Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+' All rights reserved.
+' Unauthorized use without prior written consent is strictly prohibited.
+
 @startuml EnZIM_System_Context
 !theme plain
 title EnZIM - System Context Diagram (C4 Level 1)
@@ -19,6 +23,7 @@ database "ZIM Archives\n[Wikipedia, Wikivoyage,\nWikibooks, etc.]" as zim #Light
 rectangle "AnZimmermanLib\n[Clean-Room ZIM Libraries]" as anzim #LightYellow
 rectangle "Local AI Model\n[Optional LLM for\nQ&A Assistant]" as ai #LightPink
 rectangle "OS TTS Engine\n[Text-to-Speech]" as tts #LightGray
+rectangle "billedr\n[Entitlements Authority]" as billedr #LightGray
 
 student --> app : Browse offline\nencyclopedias
 traveler --> app : Read articles\non-the-go
@@ -29,6 +34,7 @@ app --> zim : Reads/writes
 app --> anzim : Uses for ZIM\nparsing
 app --> ai : Queries for\nQ&A/summaries
 app --> tts : Reads articles\naloud
+app --> billedr : Fetch signed\nentitlements
 
 note right of enzim
   **EnZIM Vision**
@@ -37,7 +43,13 @@ note right of enzim
   with semantic navigation and
   AI-powered assistance.
   
-  MIT Licensed (clean-room)
+  Proprietary Licensed (clean-room)
+end note
+
+note right of billedr
+  **Trust Boundary**
+  Signed entitlements issued
+  by external authority.
 end note
 
 @enduml

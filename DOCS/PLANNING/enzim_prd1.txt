@@ -1,3 +1,7 @@
+Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+All rights reserved.
+Unauthorized use without prior written consent is strictly prohibited.
+
 EnZIM: Offline ZIM Reader & Knowledge
 Assistant – PRD & Architecture
 Executive Vision
@@ -9,7 +13,7 @@ responsive, modern interface to vast information repositories 1 2 . The applicat
 traditional article viewing and search, but also an interactive “semantic mesh” of concepts to facilitate
 discovery of related topics. A built-in AI assistant agent provides natural-language Q&A, summaries,
 and guidance using the offline content, essentially bringing an AI-powered experience to offline
-knowledge bases. All of this is delivered as a clean-room, MIT-licensed solution to avoid any GPL
+knowledge bases. All of this is delivered as a clean-room, Proprietary-licensed solution to avoid any GPL
 licensing constraints, ensuring the platform remains open and permissive 3 . In short, EnZIM’s vision is
 to be the go-to offline wiki reader and AI tutor, fusing robust content access with innovative
 navigation and AI-driven help.
@@ -666,8 +670,8 @@ and practical readability (light/dark modes). Early prototypes explore four dist
        an almost sci-fi aesthetic with a backdrop of subtle radial gradients in neon cyan and pink that
        appear like lens flares or spectral refractions on a dark void background 80 . The UI elements
        (sidebars, headers) are semi-transparent black with blur, similar to Synaptic, but Spectral uses a
-       unique “filament” motif: for example, the app’s vertical sidebar is referred to as the “filament
-       spine,” a slim panel with glowing edges 81 82 . Active elements glow in cyan or sometimes
+some background images or patterns). Since EnZIM is Proprietary-licensed and oriented to community use, we
+        implementation (Proprietary-licensed, multiple languages).
        amber, and there’s use of rotation or motion (a floating action button might rotate on hover with
        pink highlight 83 ). Fonts are Inter and JetBrains Mono, giving it a techy feel, with text colors in
        cool whites and gray-blue for secondary text 84 . Spectral seems to emphasize the reading

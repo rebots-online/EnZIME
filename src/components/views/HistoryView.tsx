@@ -1,11 +1,39 @@
+// Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+// All rights reserved.
+// Unauthorized use without prior written consent is strictly prohibited.
+
 // EnZIM - Offline ZIM Reader & Knowledge Explorer
 // Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
 
 import { Clock, Trash2, BookOpen } from 'lucide-react';
 import { useArchiveStore } from '../../stores/archiveStore';
+import { getEntitlementsGatekeeper } from '../../entitlements';
 
 export function HistoryView() {
   const { recentArticles, archives, setCurrentArchive, setCurrentArticle } = useArchiveStore();
+  const canViewHistory = getEntitlementsGatekeeper().can('history.view');
+
+  if (!canViewHistory) {
+    return (
+      <div className="h-full flex flex-col">
+        <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
+          <div className="flex items-center gap-3">
+            <Clock className="w-5 h-5 text-[var(--accent)]" />
+            <h1 className="text-xl font-semibold">History</h1>
+          </div>
+        </div>
+        <div className="flex-1 flex items-center justify-center p-6 text-center">
+          <div>
+            <Clock className="w-12 h-12 mx-auto mb-4 text-secondary" />
+            <h2 className="text-lg font-medium mb-2">History is unavailable</h2>
+            <p className="text-secondary text-sm">
+              This capability is not enabled for your current entitlements.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleArticleClick = (article: typeof recentArticles[0]) => {
     const archive = archives.find(a => a.id === article.archiveId);

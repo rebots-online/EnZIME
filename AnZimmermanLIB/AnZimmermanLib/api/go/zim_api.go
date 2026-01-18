@@ -1,3 +1,7 @@
+// Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+// All rights reserved.
+// Unauthorized use without prior written consent is strictly prohibited.
+
 // ZIM Library REST API with Gin and Swagger UI
 //
 // This module provides a RESTful API for ZIM file operations with
@@ -54,8 +58,8 @@ import (
 // @contact.name ZIM Library
 // @contact.url https://github.com/yourproject/zimlib
 
-// @license.name MIT
-// @license.url https://opensource.org/licenses/MIT
+// @license.name Proprietary
+// @license.url https://opensource.org/licenses/Proprietary
 
 // @host localhost:8080
 // @BasePath /
@@ -210,8 +214,8 @@ func getOpenAPISpec() map[string]interface{} {
 				"url":  "https://github.com/yourproject/zimlib",
 			},
 			"license": map[string]string{
-				"name": "MIT",
-				"url":  "https://opensource.org/licenses/MIT",
+				"name": "Proprietary",
+				"url":  "https://opensource.org/licenses/Proprietary",
 			},
 		},
 		"servers": []map[string]string{

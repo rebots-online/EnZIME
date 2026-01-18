@@ -1,3 +1,7 @@
+// Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+// All rights reserved.
+// Unauthorized use without prior written consent is strictly prohibited.
+
 import { useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { CheckCircle, XCircle, Clock, Trash2, FolderOpen } from 'lucide-react';

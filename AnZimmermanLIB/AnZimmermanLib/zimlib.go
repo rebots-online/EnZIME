@@ -1,3 +1,7 @@
+// Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+// All rights reserved.
+// Unauthorized use without prior written consent is strictly prohibited.
+
 // Clean-room ZIM (Zeno IMproved) file format reader/writer library for Go
 //
 // Based on ZIM file format specification from openZIM

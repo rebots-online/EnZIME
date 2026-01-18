@@ -1,3 +1,7 @@
+// Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+// All rights reserved.
+// Unauthorized use without prior written consent is strictly prohibited.
+
 // Example: Reading a ZIM file (Go)
 //
 // This example demonstrates how to read and extract content from ZIM archives.

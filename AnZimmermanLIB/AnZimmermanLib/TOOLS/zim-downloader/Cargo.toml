@@ -1,9 +1,13 @@
+# Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+# All rights reserved.
+# Unauthorized use without prior written consent is strictly prohibited.
+
 [package]
 name = "zim-downloader"
 version = "0.1.0"
 description = "A TUI application for browsing and downloading ZIM files from public repositories"
 authors = ["ZIM Library Team"]
-license = "MIT"
+license = "Proprietary"
 repository = "https://github.com/yourproject/zim-downloader"
 edition = "2021"
 rust-version = "1.70"
