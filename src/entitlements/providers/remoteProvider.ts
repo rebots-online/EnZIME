@@ -29,12 +29,12 @@ export class RemoteEntitlementsProvider implements EntitlementsProvider {
 
   async getEntitlements(): Promise<Entitlements> {
     const cachedToken = this.tokenCache.load();
-    if (cachedToken && verifySignedToken(cachedToken, this.publicKey)) {
+    if (cachedToken && await verifySignedToken(cachedToken, this.publicKey)) {
       return cachedToken.entitlements;
     }
 
     const remoteToken = await this.fetchRemoteToken();
-    if (remoteToken && verifySignedToken(remoteToken, this.publicKey)) {
+    if (remoteToken && await verifySignedToken(remoteToken, this.publicKey)) {
       this.tokenCache.save(remoteToken);
       return remoteToken.entitlements;
     }

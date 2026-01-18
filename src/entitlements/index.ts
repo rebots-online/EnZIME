@@ -8,14 +8,18 @@ import type { EntitlementsProvider } from './types';
 import { MockLocalEntitlementsProvider } from './providers/mockLocalProvider';
 import { RemoteEntitlementsProvider } from './providers/remoteProvider';
 import { EntitlementsTokenCache } from './tokenCache';
+import { useEntitlementsStore } from './store';
 
 const fallbackEntitlements = createDefaultEntitlements();
 const defaultProvider = new MockLocalEntitlementsProvider(fallbackEntitlements);
-let gatekeeper = new EntitlementsGatekeeper(defaultProvider, fallbackEntitlements);
 
-export const getEntitlementsGatekeeper = (): EntitlementsGatekeeper => gatekeeper;
+export const getEntitlementsGatekeeper = (): EntitlementsGatekeeper =>
+  useEntitlementsStore.getState().gatekeeper;
 
 export const initializeEntitlements = async (provider?: EntitlementsProvider): Promise<EntitlementsGatekeeper> => {
+  const store = useEntitlementsStore.getState();
+  let gatekeeper = store.gatekeeper;
+
   if (provider) {
     gatekeeper = new EntitlementsGatekeeper(provider, fallbackEntitlements);
   } else if (import.meta.env.VITE_BILLEDR_URL) {
@@ -27,7 +31,9 @@ export const initializeEntitlements = async (provider?: EntitlementsProvider): P
     });
     gatekeeper = new EntitlementsGatekeeper(remoteProvider, fallbackEntitlements);
   }
+
   await gatekeeper.refresh();
+  useEntitlementsStore.setState({ gatekeeper, ready: true, lastUpdated: new Date().toISOString() });
   return gatekeeper;
 };
 

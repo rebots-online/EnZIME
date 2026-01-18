@@ -7,11 +7,12 @@
 
 import { Clock, Trash2, BookOpen } from 'lucide-react';
 import { useArchiveStore } from '../../stores/archiveStore';
-import { getEntitlementsGatekeeper } from '../../entitlements';
+import { useEntitlementsStore } from '../../entitlements/store';
 
 export function HistoryView() {
   const { recentArticles, archives, setCurrentArchive, setCurrentArticle } = useArchiveStore();
-  const canViewHistory = getEntitlementsGatekeeper().can('history.view');
+  const { gatekeeper, ready } = useEntitlementsStore();
+  const canViewHistory = ready && gatekeeper.can('history.view');
 
   if (!canViewHistory) {
     return (

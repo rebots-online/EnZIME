@@ -7,7 +7,7 @@
 
 import { useState } from 'react';
 import { X, Network, Sparkles, Link2, ChevronRight } from 'lucide-react';
-import { getEntitlementsGatekeeper } from '../../entitlements';
+import { useEntitlementsStore } from '../../entitlements/store';
 
 interface MeshNode {
   id: string;
@@ -24,7 +24,8 @@ interface MeshPanelProps {
 
 export function MeshPanel({ isOpen, onClose, currentArticleTitle }: MeshPanelProps) {
   const [activeTab, setActiveTab] = useState<'related' | 'concepts' | 'links'>('related');
-  const canViewMesh = getEntitlementsGatekeeper().can('mesh.view');
+  const { gatekeeper, ready } = useEntitlementsStore();
+  const canViewMesh = ready && gatekeeper.can('mesh.view');
   
   // Placeholder data
   const mockNodes: MeshNode[] = [
