@@ -1,6 +1,6 @@
-# EnZIM — Offline ZIM Reader & Knowledge Assistant
+# EnZIMe — Offline ZIM Reader & Knowledge Assistant
 
-**Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.**
+**Copyright (C) 2025-2026 Robin L. M. Cheung, MBA. All rights reserved.**
 
 ---
 
@@ -9,6 +9,8 @@
 ---
 
 ## 🌟 Features
+
+<img src="file:///home/robin/github/EnZIMe/DOCS/UI-Samples/history_entitlements.png" title="" alt="" data-align="center">
 
 ### Core Capabilities
 
@@ -23,31 +25,31 @@
 
 ### Platform Support
 
-| Platform | Technology | Status |
-|----------|------------|--------|
-| **Windows** | Tauri (Rust + WebView) | Planned |
-| **macOS** | Tauri (Rust + WebView) | Planned |
-| **Linux** | Tauri (Rust + WebView) | Planned |
-| **Web (PWA)** | React + Service Worker | Planned |
-| **Chrome Extension** | Manifest V3 | Planned |
-| **Android** | Tauri Mobile | Planned |
-| **iOS** | Tauri Mobile | Future |
+| Platform             | Technology             | Status  |
+| -------------------- | ---------------------- | ------- |
+| **Windows**          | Tauri (Rust + WebView) | Planned |
+| **macOS**            | Tauri (Rust + WebView) | Planned |
+| **Linux**            | Tauri (Rust + WebView) | Planned |
+| **Web (PWA)**        | React + Service Worker | Planned |
+| **Chrome Extension** | Manifest V3            | Planned |
+| **Android**          | Tauri Mobile           | Planned |
+| **iOS**              | Tauri Mobile           | Future  |
 
 ### Multi-Theme Support
 
 EnZIM includes 9+ beautiful themes with Light/Dark/System auto modes:
 
-| Theme | Aesthetic |
-|-------|-----------|
-| **Synaptic Cartography Veil** | Neon, glassmorphic, neural network |
-| **Brutalist Archive Monolith** | Bold, print-like, utilitarian |
-| **Prismatic Swiss Utility** | Clean Swiss design, multi-color |
-| **Spectral ZIM Reader** | Sci-fi, spectral glows |
-| **Kinetic** | Colorful, dynamic, Gumroad-inspired |
-| **Cyberpunk** | Neon-soaked dystopian |
-| **Neumorphism** | Soft shadows, extruded surfaces |
-| **Glassmorphism** | Frosted glass with depth |
-| **Minimal** | Clean Swiss design |
+| Theme                          | Aesthetic                           |
+| ------------------------------ | ----------------------------------- |
+| **Synaptic Cartography Veil**  | Neon, glassmorphic, neural network  |
+| **Brutalist Archive Monolith** | Bold, print-like, utilitarian       |
+| **Prismatic Swiss Utility**    | Clean Swiss design, multi-color     |
+| **Spectral ZIM Reader**        | Sci-fi, spectral glows              |
+| **Kinetic**                    | Colorful, dynamic, Gumroad-inspired |
+| **Cyberpunk**                  | Neon-soaked dystopian               |
+| **Neumorphism**                | Soft shadows, extruded surfaces     |
+| **Glassmorphism**              | Frosted glass with depth            |
+| **Minimal**                    | Clean Swiss design                  |
 
 ---
 
@@ -165,12 +167,12 @@ const article = await zimReader.getArticleContent(entry);
 
 ## 📖 Documentation
 
-| Document | Purpose |
-|----------|---------|
-| [CLAUDE.md](CLAUDE.md) | Agent configuration, development rules, versioning |
-| [ARCHITECTURE.md](DOCS/ARCHITECTURE/ARCHITECTURE.md) | System design, components, data models |
-| [AnZimmermanLib README](AnZimmermanLIB/AnZimmermanLib/README.md) | ZIM library documentation |
-| [PRD Documents](DOCS/PLANNING/) | Product requirements and specifications |
+| Document                                                         | Purpose                                            |
+| ---------------------------------------------------------------- | -------------------------------------------------- |
+| [CLAUDE.md](CLAUDE.md)                                           | Agent configuration, development rules, versioning |
+| [ARCHITECTURE.md](DOCS/ARCHITECTURE/ARCHITECTURE.md)             | System design, components, data models             |
+| [AnZimmermanLib README](AnZimmermanLIB/AnZimmermanLib/README.md) | ZIM library documentation                          |
+| [PRD Documents](DOCS/PLANNING/)                                  | Product requirements and specifications            |
 
 ---
 
@@ -196,28 +198,28 @@ For AI agents and human developers, see **[CLAUDE.md](CLAUDE.md)** for:
 
 ## 📊 Development Roadmap
 
-| Milestone | Features | Target |
-|-----------|----------|--------|
-| **M1: Core Reader MVP** | ZIM open, article rendering, basic nav | Week 1-2 |
-| **M2: Library & Search** | Multi-archive, title/full-text search | Week 2-3 |
-| **M3: Semantic Explorer** | Mesh view, graph navigation | Week 3-4 |
-| **M4: AI Assistant** | Chat interface, Q&A, summaries | Week 4-5 |
-| **M5: Production** | Performance, cross-platform, polish | Week 5-6 |
+| Milestone                 | Features                               | Target   |
+| ------------------------- | -------------------------------------- | -------- |
+| **M1: Core Reader MVP**   | ZIM open, article rendering, basic nav | Week 1-2 |
+| **M2: Library & Search**  | Multi-archive, title/full-text search  | Week 2-3 |
+| **M3: Semantic Explorer** | Mesh view, graph navigation            | Week 3-4 |
+| **M4: AI Assistant**      | Chat interface, Q&A, summaries         | Week 4-5 |
+| **M5: Production**        | Performance, cross-platform, polish    | Week 5-6 |
 
 ---
 
 ## 🛠️ Technology Stack
 
-| Layer | Technology |
-|-------|------------|
-| **Frontend** | React 18, TypeScript, Tailwind CSS |
-| **State** | Zustand |
-| **Desktop** | Tauri 2.0 (Rust) |
-| **Mobile** | Tauri Mobile |
-| **Web** | Vite, Service Workers |
+| Layer           | Technology                             |
+| --------------- | -------------------------------------- |
+| **Frontend**    | React 18, TypeScript, Tailwind CSS     |
+| **State**       | Zustand                                |
+| **Desktop**     | Tauri 2.0 (Rust)                       |
+| **Mobile**      | Tauri Mobile                           |
+| **Web**         | Vite, Service Workers                  |
 | **ZIM Parsing** | AnZimmermanLib (Rust/TS/Python/Go/PHP) |
-| **Icons** | Lucide React |
-| **Diagrams** | PlantUML, Mermaid |
+| **Icons**       | Lucide React                           |
+| **Diagrams**    | PlantUML, Mermaid                      |
 
 ---
 
