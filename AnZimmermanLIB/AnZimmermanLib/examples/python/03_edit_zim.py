@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+# All rights reserved.
+# Unauthorized use without prior written consent is strictly prohibited.
+
 """
 Example: Editing/Modifying ZIM files
 
@@ -13,7 +17,7 @@ Note: ZIM files are immutable by design. To "edit" a ZIM file,
 we read the original, apply modifications, and write a new file.
 
 Author: Clean-room ZIM Library
-License: MIT
+License: Proprietary
 """
 
 import sys

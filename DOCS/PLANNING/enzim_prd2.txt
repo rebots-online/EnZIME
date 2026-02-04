@@ -1,3 +1,7 @@
+Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+All rights reserved.
+Unauthorized use without prior written consent is strictly prohibited.
+
 EnZIM – Product Requirements & Architecture
 Specification
 1. Executive Summary and Vision
@@ -1034,7 +1038,7 @@ model if available). Or “Show me related topics” which ties into the mesh (i
 mesh view shows, or even trigger the mesh view to open).
 - Focus on ensuring no internet needed: all answers come from the content we have. If an LLM is used,
 it should operate without calling external APIs (maybe a distilled model running via WebAssembly or via
-Rust CPU). We might test integration with a small model (for instance, a 100MB quantized model) to see
+contributors. Also, finalize licensing checks to ensure all components are Proprietary or similarly permissive 79
 if response times are okay (~ a few seconds per answer). If not, stick to deterministic methods.
 - Voice integration (optional): allow user to click a mic and ask a question via speech (speech-to-text),
 then answer via TTS. This can leverage OS capabilities; it’s an extension of the assistant feature but nice

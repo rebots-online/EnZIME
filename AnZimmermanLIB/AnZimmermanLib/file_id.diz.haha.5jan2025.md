@@ -1,3 +1,7 @@
+Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+All rights reserved.
+Unauthorized use without prior written consent is strictly prohibited.
+
 .:
 total 152K
 drwxrwxr-x 1 robin robin  170 Jan  4 07:25 docs/
@@ -2945,7 +2949,7 @@ drwxrwxr-x 1 robin robin 2.1K Jan  4 08:36 ../
 total 20K
 -rw-rw-r-- 1 robin robin 1.3K Jan  4 08:36 package.json
 -rw-rw-r-- 1 robin robin 3.5K Jan  4 08:36 cssesc.js
--rw-rw-r-- 1 robin robin 1.1K Jan  4 08:36 LICENSE-MIT.txt
+-rw-rw-r-- 1 robin robin 1.1K Jan  4 08:36 LICENSE-Proprietary.txt
 -rw-rw-r-- 1 robin robin 6.5K Jan  4 08:36 README.md
 drwxrwxr-x 1 robin robin   12 Jan  4 08:36 bin/
 drwxrwxr-x 1 robin robin  102 Jan  4 08:36 ./
@@ -3192,7 +3196,7 @@ drwxrwxr-x 1 robin robin   14 Jan  4 08:36 man/
 -rw-rw-r-- 1 robin robin 1.4K Jan  4 08:36 package.json
 -rw-rw-r-- 1 robin robin  14K Jan  4 08:36 README.md
 drwxrwxr-x 1 robin robin  100 Jan  4 08:36 ./
--rw-rw-r-- 1 robin robin 1.1K Jan  4 08:36 LICENSE-MIT.txt
+-rw-rw-r-- 1 robin robin 1.1K Jan  4 08:36 LICENSE-Proprietary.txt
 drwxrwxr-x 1 robin robin 2.1K Jan  4 08:36 ../
 
 ./TOOLS/zim-downloader/ui/node_modules/jsesc/bin:
@@ -4152,7 +4156,7 @@ drwxrwxr-x 1 robin robin 122 Jan  4 08:36 ../
 
 ./TOOLS/zim-downloader/ui/node_modules/postcss-selector-parser:
 total 80K
--rw-rw-r-- 1 robin robin 1.1K Jan  4 08:36 LICENSE-MIT
+-rw-rw-r-- 1 robin robin 1.1K Jan  4 08:36 LICENSE-Proprietary
 drwxrwxr-x 1 robin robin  164 Jan  4 08:36 dist/
 -rw-rw-r-- 1 robin robin 2.1K Jan  4 08:36 package.json
 -rw-rw-r-- 1 robin robin  21K Jan  4 08:36 API.md

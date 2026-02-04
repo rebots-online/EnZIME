@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+# All rights reserved.
+# Unauthorized use without prior written consent is strictly prohibited.
+
 """
 Example: Creating a ZIM file from scratch
 
@@ -11,7 +15,7 @@ multiple articles, images, and redirects. It covers:
 - Finalizing and saving the ZIM file
 
 Author: Clean-room ZIM Library
-License: MIT
+License: Proprietary
 """
 
 import sys
@@ -195,7 +199,7 @@ helloWorld();
             <li>Pure Python implementation</li>
             <li>No external dependencies</li>
             <li>Clean-room design</li>
-            <li>MIT licensed</li>
+            <li>Proprietary licensed</li>
         </ul>
         
         <p><a href="Main_Page">← Back to Home</a></p>

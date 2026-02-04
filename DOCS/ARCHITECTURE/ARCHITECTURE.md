@@ -1,3 +1,7 @@
+Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+All rights reserved.
+Unauthorized use without prior written consent is strictly prohibited.
+
 # EnZIM Architecture Document
 
 **Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.**
@@ -13,7 +17,7 @@ EnZIM is a next-generation **offline knowledge explorer** that evolves the AnZim
 - **AI-powered assistant** for natural language Q&A and summaries
 - **Cross-platform deployment** (Desktop, Web, Mobile)
 
-Built on MIT-licensed, clean-room implementations to avoid GPL contamination.
+Built on Proprietary-licensed, clean-room implementations to avoid GPL contamination.
 
 ---
 
@@ -369,7 +373,7 @@ User Question → Context Retriever
 - **Content Sandboxing:** HTML from ZIM rendered in sandboxed WebView with strict CSP
 - **No Remote Execution:** Scripts in ZIM content stripped or blocked
 - **Local-Only:** No network calls by default (offline-first)
-- **Clean-Room:** No GPL code contamination (MIT licensed)
+- **Clean-Room:** No GPL code contamination (Proprietary licensed)
 - **Credential Safety:** No secrets stored in ZIM or app data
 
 ---
@@ -387,36 +391,46 @@ User Question → Context Retriever
 | GitHub OAuth | Social login | Developer-friendly |
 | Apple Sign-In | Social login | Required for iOS |
 
-### Feature Gating Architecture
+## 10.2 Entitlements & Billing
+
+### Capability-First Model
+
+- Features are gated by **capabilities**, not plans.
+- Modules call a single Gatekeeper API: `can`, `limit`, `tier`, `quota`.
+- Plans (if present) are **labels only**; they never appear in module-level checks.
+
+### Module-Level Enforcement
+
+- UI and service modules must use the Gatekeeper for every gated capability.
+- No direct subscription or plan logic lives inside feature modules.
+
+### EntitlementsAuthority Boundary (billedr)
+
+- **billedr** is the external authority that issues signed entitlement tokens.
+- The app treats billedr as a trust boundary and verifies tokens locally.
+
+### Offline Token Caching + Verification
+
+- Signed entitlements are cached locally with expiry metadata.
+- Gatekeeper verifies token signatures locally; if offline or expired, it falls back to free-tier defaults.
+
+### Entitlement Decision Flow
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                     Feature Gate Flow                        │
+│                     Entitlements Flow                       │
 ├─────────────────────────────────────────────────────────────┤
-│  User Request → Auth Check → Subscription Check → Feature   │
+│  Module Request → Gatekeeper → Local Cache → billedr        │
 │                                                              │
-│  [Anonymous] → [Free Tier Features Only]                    │
-│  [Logged In] → [Check Plan] → [Gate/Allow Feature]          │
+│  [Cache Valid] → Allow/Deny                                  │
+│  [Cache Missing/Expired] → Fetch + Verify → Cache → Decide   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Gated Features (Planned)
-
-| Feature | Free | Paid |
-|---------|------|------|
-| Core Reader | ✅ | ✅ |
-| Max Archives | 3 | Unlimited |
-| AI Assistant | ❌ | ✅ |
-| Cloud Sync | ❌ | ✅ |
-| Advanced Annotations | ❌ | ✅ |
-| Custom Themes | ❌ | ✅ |
-| Export (PDF/EPUB) | Limited | Full |
-
 ### Billing Integration
 
-- **Provider:** Stripe (via MCP integration)
-- **Webhook Events:** Subscription lifecycle management
-- **Data Models:** See `04_class_diagram.puml` for `User`, `Subscription`, `FeatureFlags`
+- **Provider:** billedr (EntitlementsAuthority)
+- **Token Format:** Signed entitlements token v0
 - **UI Components:** See `UI_COMPONENTS.md` Section 11
 
 ---

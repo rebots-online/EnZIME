@@ -1,3 +1,7 @@
+Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+All rights reserved.
+Unauthorized use without prior written consent is strictly prohibited.
+
 # CLAUDE.md — Project Configuration
 
 > **Agent Role**: Roo-Architect — Software architecture expert specializing in complex hardware–software systems, architectural patterns, and optimization for efficiency, consistency, and alignment.

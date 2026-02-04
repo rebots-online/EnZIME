@@ -1,3 +1,7 @@
+# Copyright (C) 2025–2026 Robin L. M. Cheung, MBA
+# All rights reserved.
+# Unauthorized use without prior written consent is strictly prohibited.
+
 """
 ZIM Library REST API with FastAPI and Swagger UI
 
@@ -253,8 +257,8 @@ Use the **Try it out** button on each endpoint to test the API interactively.
         "url": "https://github.com/yourproject/zimlib",
     },
     license_info={
-        "name": "MIT",
-        "url": "https://opensource.org/licenses/MIT",
+        "name": "Proprietary",
+        "url": "https://opensource.org/licenses/Proprietary",
     },
     openapi_tags=[
         {"name": "status", "description": "API status and health checks"},
