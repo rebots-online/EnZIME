@@ -96,7 +96,12 @@ export const verifySignedToken = async (
     const payload = buildPayload(token);
     const signature = decodeSignature(token.signature);
     const data = new TextEncoder().encode(payload);
-    return await globalThis.crypto.subtle.verify('RSASSA-PKCS1-v1_5', cryptoKey, signature, data);
+    return await globalThis.crypto.subtle.verify(
+      'RSASSA-PKCS1-v1_5',
+      cryptoKey,
+      signature as unknown as BufferSource,
+      data as unknown as BufferSource
+    );
   } catch {
     return false;
   }

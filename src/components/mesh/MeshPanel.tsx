@@ -5,16 +5,11 @@
 // EnZIM - Offline ZIM Reader & Knowledge Explorer
 // Copyright (C) 2025 Robin L. M. Cheung, MBA. All rights reserved.
 
-import { useState } from 'react';
-import { X, Network, Sparkles, Link2, ChevronRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Network, Sparkles, Link2, ChevronRight, Loader2 } from 'lucide-react';
 import { useEntitlementsStore } from '../../entitlements/store';
-
-interface MeshNode {
-  id: string;
-  title: string;
-  type: 'article' | 'concept' | 'entity';
-  relevance: number;
-}
+import { useArchiveStore } from '../../stores/archiveStore';
+import { semanticEngine, GraphNode } from '../../services/semanticEngine';
 
 interface MeshPanelProps {
   isOpen: boolean;
@@ -22,18 +17,46 @@ interface MeshPanelProps {
   currentArticleTitle?: string;
 }
 
-export function MeshPanel({ isOpen, onClose, currentArticleTitle }: MeshPanelProps) {
+export function MeshPanel({ isOpen, onClose }: MeshPanelProps) {
   const [activeTab, setActiveTab] = useState<'related' | 'concepts' | 'links'>('related');
   const { gatekeeper, ready } = useEntitlementsStore();
+  const { currentArticle, currentArchive } = useArchiveStore();
+  const [nodes, setNodes] = useState<GraphNode[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
   const canViewMesh = ready && gatekeeper.can('mesh.view');
   
-  // Placeholder data
-  const mockNodes: MeshNode[] = [
-    { id: '1', title: 'Related Article 1', type: 'article', relevance: 0.95 },
-    { id: '2', title: 'Key Concept', type: 'concept', relevance: 0.88 },
-    { id: '3', title: 'Named Entity', type: 'entity', relevance: 0.82 },
-    { id: '4', title: 'Another Related', type: 'article', relevance: 0.75 },
-  ];
+  useEffect(() => {
+    async function loadMesh() {
+      if (!currentArticle || !currentArchive || !isOpen || !canViewMesh) {
+        setNodes([]);
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const content = currentArticle.content || '';
+        // Note: content might be empty if not fully loaded, but SemanticEngine needs it.
+        // Ideally we fetch content if missing, or rely on ReaderView having loaded it.
+        // Assuming ReaderView updates store with content.
+
+        if (content) {
+            const graph = await semanticEngine.generateMesh(
+                currentArchive.id,
+                currentArticle.url,
+                content
+            );
+            setNodes(graph.nodes);
+        }
+      } catch (error) {
+        console.error('Failed to generate mesh:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadMesh();
+  }, [currentArticle, currentArchive, isOpen, canViewMesh]);
 
   if (!isOpen) return null;
 
@@ -104,14 +127,21 @@ export function MeshPanel({ isOpen, onClose, currentArticleTitle }: MeshPanelPro
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-4">
-        {currentArticleTitle ? (
+        {isLoading ? (
+            <div className="h-full flex items-center justify-center">
+                <Loader2 className="w-6 h-6 animate-spin text-[var(--accent)]" />
+            </div>
+        ) : currentArticle ? (
           <div className="space-y-2">
-            {mockNodes
-              .filter(n => 
-                activeTab === 'related' ? n.type === 'article' : 
-                activeTab === 'concepts' ? n.type === 'concept' || n.type === 'entity' :
-                true
-              )
+            {nodes
+              .filter(n => {
+                  // Filter out the current article node itself from the list
+                  if (n.id === currentArticle.url) return false;
+
+                  return activeTab === 'related' ? n.type === 'article' :
+                         activeTab === 'concepts' ? n.type === 'concept' || n.type === 'entity' :
+                         true;
+              })
               .map(node => (
                 <button
                   key={node.id}
@@ -132,6 +162,9 @@ export function MeshPanel({ isOpen, onClose, currentArticleTitle }: MeshPanelPro
                   </div>
                 </button>
               ))}
+              {nodes.length <= 1 && (
+                  <p className="text-center text-secondary text-sm py-4">No connections found.</p>
+              )}
           </div>
         ) : (
           <div className="h-full flex items-center justify-center text-center">
