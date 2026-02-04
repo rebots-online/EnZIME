@@ -7,13 +7,13 @@ import { createDefaultEntitlements } from '../defaults';
 import { EntitlementsGatekeeper } from '../gatekeeper';
 import type { Entitlements, EntitlementsProvider } from '../types';
 
-const buildEntitlements = (overrides: Partial<Entitlements>): Entitlements => ({
+const buildEntitlements = (overrides: Omit<Partial<Entitlements>, 'capabilities'> & { capabilities?: Partial<Entitlements['capabilities']> }): Entitlements => ({
   ...createDefaultEntitlements(),
   ...overrides,
   capabilities: {
     ...createDefaultEntitlements().capabilities,
     ...(overrides.capabilities ?? {}),
-  },
+  } as Entitlements['capabilities'],
 });
 
 describe('EntitlementsGatekeeper', () => {

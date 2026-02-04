@@ -353,9 +353,9 @@ Unauthorized use without prior written consent is strictly prohibited.
 
 | Task | Owner | Due | Status | Acceptance Criteria |
 |------|-------|-----|--------|---------------------|
-| Create `SemanticEngine` class | Dev | Week 3 | [ ] | Mesh generation |
-| Implement link extraction | Dev | Week 3 | [ ] | Parse article links |
-| Implement graph building | Dev | Week 3 | [ ] | Nodes + edges |
+| Create `SemanticEngine` class | Dev | Week 3 | [X] [JULES] | Mesh generation |
+| Implement link extraction | Dev | Week 3 | [X] [JULES] | Parse article links |
+| Implement graph building | Dev | Week 3 | [X] [JULES] | Nodes + edges |
 | Implement layout algorithm | Dev | Week 3 | [ ] | Force-directed |
 
 ---
