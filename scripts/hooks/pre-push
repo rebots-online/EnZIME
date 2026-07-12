@@ -49,14 +49,16 @@ do
         range="$remote_sha..$local_sha"
     fi
 
-    # Check for LFS pointer files in the commits being pushed
-    # LFS pointers have the version string "version https://git-lfs.github.com/spec/v1"
+    # Check for LFS pointer files in the commits being pushed.
+    # A real LFS pointer's FIRST line is exactly this string, nothing else on
+    # the line — match whole-line (-x) so this doesn't false-positive on this
+    # very script, whose own grep call contains the string as a substring.
     if git rev-list --objects "$range" 2>/dev/null | \
         git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize)' --batch-all-objects 2>/dev/null | \
         grep -E '^blob [0-9a-f]{40} [0-9]+$' | \
         cut -d' ' -f2 | \
         xargs -I {} git cat-file blob {} 2>/dev/null | \
-        grep -q 'version https://git-lfs.github.com/spec/v1'; then
+        grep -qx 'version https://git-lfs.github.com/spec/v1'; then
         echo "ERROR: LFS blobs detected in push to '$remote' remote."
         echo ""
         echo "Only 'forgejo' (forgejo.robin.mba/rcheung/EnZIME) may receive LFS blobs."
