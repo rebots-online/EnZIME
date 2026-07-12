@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-zim-list-articles"
+description = "Enables the zim_list_articles command without any pre-configured scope."
+commands.allow = ["zim_list_articles"]
+
+[[permission]]
+identifier = "deny-zim-list-articles"
+description = "Denies the zim_list_articles command without any pre-configured scope."
+commands.deny = ["zim_list_articles"]

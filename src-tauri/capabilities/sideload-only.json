@@ -1,0 +1,14 @@
+{
+  "identifier": "sideload-only",
+  "description": "Sideload flavor capability set: grants app update apply via APK install intent (non-Play) plus window control permissions",
+  "local": true,
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "allow-app-update-apply",
+    "core:window:allow-set-title",
+    "core:window:allow-show",
+    "core:window:allow-hide"
+  ]
+}

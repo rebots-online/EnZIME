@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Geist:wght@100;300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#4fdbc8",
+                        "on-tertiary": "#283044",
+                        "surface-tint": "#4fdbc8",
+                        "on-primary-fixed-variant": "#005048",
+                        "surface-container-highest": "#273647",
+                        "on-tertiary-fixed": "#131b2e",
+                        "surface": "#051424",
+                        "primary-container": "#14b8a6",
+                        "secondary-container": "#03c6b2",
+                        "on-primary-container": "#00423b",
+                        "on-error": "#690005",
+                        "surface-dim": "#051424",
+                        "primary": "#4fdbc8",
+                        "on-surface-variant": "#bbcac6",
+                        "on-secondary-fixed": "#00201c",
+                        "surface-container-lowest": "#010f1f",
+                        "primary-fixed": "#71f8e4",
+                        "on-tertiary-fixed-variant": "#3f465c",
+                        "secondary-fixed-dim": "#3cddc7",
+                        "secondary": "#44e2cd",
+                        "on-surface": "#d4e4fa",
+                        "error-container": "#93000a",
+                        "on-secondary": "#003731",
+                        "tertiary-container": "#9ca4bd",
+                        "surface-bright": "#2c3a4c",
+                        "on-primary": "#003731",
+                        "surface-container": "#122131",
+                        "surface-container-low": "#0d1c2d",
+                        "inverse-primary": "#006b5f",
+                        "outline-variant": "#3c4947",
+                        "on-secondary-container": "#004d44",
+                        "tertiary-fixed": "#dae2fd",
+                        "on-tertiary-container": "#323a4f",
+                        "on-secondary-fixed-variant": "#005047",
+                        "surface-variant": "#273647",
+                        "inverse-surface": "#d4e4fa",
+                        "background": "#051424",
+                        "tertiary-fixed-dim": "#bec6e0",
+                        "on-error-container": "#ffdad6",
+                        "on-primary-fixed": "#00201c",
+                        "error": "#ffb4ab",
+                        "on-background": "#d4e4fa",
+                        "secondary-fixed": "#62fae3",
+                        "outline": "#859490",
+                        "inverse-on-surface": "#233143",
+                        "tertiary": "#bec6e0",
+                        "surface-container-high": "#1c2b3c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "container-max": "1024px",
+                        "margin-desktop": "40px",
+                        "gutter": "24px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Space Grotesk"],
+                        "headline-lg": ["Space Grotesk"],
+                        "headline-md": ["Space Grotesk"],
+                        "body-lg": ["Geist"],
+                        "label-md": ["Space Grotesk"],
+                        "body-md": ["Geist"],
+                        "display-lg": ["Space Grotesk"],
+                        "code": ["Geist"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "500"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "code": ["14px", {"lineHeight": "1.4", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .reader-blur {
+            backdrop-filter: blur(8px);
+            background: rgba(5, 20, 36, 0.85);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #3c4947;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary-container selection:text-on-primary-container font-body-md overflow-hidden h-screen">
+<!-- Mock Background Reader Content (Dimmed) -->
+<div class="fixed inset-0 overflow-y-auto px-gutter py-12 flex flex-col items-center opacity-40 pointer-events-none">
+<header class="w-full max-w-[720px] mb-12">
+<h1 class="font-display-lg text-display-lg mb-4">The Architecture of Local-First Systems</h1>
+<p class="text-on-surface-variant font-code text-code">PUBLISHED: OCT 24, 2023 · 12 MIN READ</p>
+</header>
+<article class="w-full max-w-[720px] space-y-6 leading-relaxed">
+<p class="font-body-lg text-body-lg">The shift towards cloud-based software has provided unprecedented convenience, yet it has come at a cost: the loss of agency over our own data. EnZIME is built on the premise that your digital workspace should be resilient to network failures and corporate shifts.</p>
+<p class="font-body-lg text-body-lg">Local-first software combines the best of both worlds: the collaboration capabilities of the cloud with the performance and reliability of local software. By prioritizing local storage and using synchronization as a secondary mechanism, we ensure that the user is always in control.</p>
+<div class="h-64 w-full bg-surface-container rounded-xl border border-outline-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-6xl text-outline">analytics</span>
+</div>
+</article>
+</div>
+<!-- Paywall Overlay Overlay -->
+<div class="fixed inset-0 reader-blur z-50 flex items-center justify-center p-4">
+<!-- Centered Modal -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl max-w-[580px] w-full shadow-2xl relative animate-in fade-in zoom-in duration-300">
+<!-- Header -->
+<div class="flex items-center justify-between p-6 border-b border-outline-variant">
+<div class="flex items-center gap-3">
+<div class="bg-primary-container/20 p-2 rounded-lg">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">enhanced_encryption</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Unlock EnZIME Pro</h2>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Benefits -->
+<div class="p-6">
+<ul class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-6 mb-8">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-body-md text-on-surface-variant">Unlimited on-device AI chat</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-body-md text-on-surface-variant">Voice note transcription</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-body-md text-on-surface-variant">Sync annotations with unlimited peers</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-body-md text-on-surface-variant">Run multiple AI models</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-body-md text-on-surface-variant">Priority pack mirrors</span>
+</li>
+</ul>
+<!-- Pricing Plans -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+<!-- Monthly -->
+<button class="plan-card flex flex-col items-center justify-center p-5 rounded-xl border border-outline-variant bg-surface-container-lowest hover:border-primary-fixed-dim transition-all group" onclick="selectPlan(this)">
+<span class="font-label-md text-label-md text-on-surface-variant mb-2 group-hover:text-on-surface">Monthly</span>
+<span class="font-headline-md text-headline-md text-on-surface">$4.99/mo</span>
+</button>
+<!-- Annual (Selected) -->
+<button class="plan-card relative flex flex-col items-center justify-center p-5 rounded-xl border-2 border-primary bg-surface-container hover:bg-surface-container-high transition-all group shadow-[0_0_20px_rgba(20,184,166,0.1)]" onclick="selectPlan(this)">
+<div class="absolute -top-3 bg-primary text-on-primary font-label-md text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full">
+                            Best value
+                        </div>
+<span class="font-label-md text-label-md text-primary mb-2">Annual</span>
+<span class="font-headline-md text-headline-md text-on-surface">$39/yr</span>
+</button>
+<!-- Lifetime -->
+<button class="plan-card flex flex-col items-center justify-center p-5 rounded-xl border border-outline-variant bg-surface-container-lowest hover:border-primary-fixed-dim transition-all group" onclick="selectPlan(this)">
+<span class="font-label-md text-label-md text-on-surface-variant mb-2 group-hover:text-on-surface">Lifetime</span>
+<span class="font-headline-md text-headline-md text-on-surface">$89 once</span>
+</button>
+</div>
+<!-- Footer Actions -->
+<div class="space-y-4">
+<button class="w-full bg-primary-container text-on-primary-container font-headline-md text-headline-md py-4 rounded-xl hover:bg-primary transition-all active:scale-[0.98] shadow-lg">
+                        Continue
+                    </button>
+<div class="flex justify-center">
+<button class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors decoration-dotted underline underline-offset-4">
+                            Restore purchases
+                        </button>
+</div>
+</div>
+</div>
+<!-- Fine Print Footer -->
+<div class="p-6 bg-surface-container-lowest border-t border-outline-variant rounded-b-xl text-center space-y-3">
+<div class="flex items-center justify-center gap-2 text-on-surface-variant font-body-md">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+<span>Works fully offline after purchase · no account required · cancel anytime</span>
+</div>
+<p class="font-code text-[11px] leading-relaxed text-outline max-w-[400px] mx-auto">
+                    Billing via Google Play / direct (Stripe · BTCPay) depending on how you installed EnZIME
+                </p>
+</div>
+</div>
+</div>
+<script>
+        function selectPlan(element) {
+            // Remove active classes from all cards
+            document.querySelectorAll('.plan-card').forEach(card => {
+                card.classList.remove('border-2', 'border-primary', 'bg-surface-container', 'shadow-[0_0_20px_rgba(20,184,166,0.1)]');
+                card.classList.add('border', 'border-outline-variant', 'bg-surface-container-lowest');
+                
+                // Reset labels
+                const label = card.querySelector('.font-label-md');
+                if(label) label.classList.remove('text-primary');
+                if(label) label.classList.add('text-on-surface-variant');
+            });
+
+            // Add active classes to selected card
+            element.classList.remove('border', 'border-outline-variant', 'bg-surface-container-lowest');
+            element.classList.add('border-2', 'border-primary', 'bg-surface-container', 'shadow-[0_0_20px_rgba(20,184,166,0.1)]');
+            
+            const label = element.querySelector('.font-label-md');
+            if(label) label.classList.remove('text-on-surface-variant');
+            if(label) label.classList.add('text-primary');
+        }
+    </script>
+</body></html>

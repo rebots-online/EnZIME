@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-zim-get-article"
+description = "Enables the zim_get_article command without any pre-configured scope."
+commands.allow = ["zim_get_article"]
+
+[[permission]]
+identifier = "deny-zim-get-article"
+description = "Denies the zim_get_article command without any pre-configured scope."
+commands.deny = ["zim_get_article"]

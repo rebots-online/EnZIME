@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-entitlement-check"
+description = "Enables the entitlement_check command without any pre-configured scope."
+commands.allow = ["entitlement_check"]
+
+[[permission]]
+identifier = "deny-entitlement-check"
+description = "Denies the entitlement_check command without any pre-configured scope."
+commands.deny = ["entitlement_check"]

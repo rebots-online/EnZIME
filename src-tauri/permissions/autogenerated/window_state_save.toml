@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-window-state-save"
+description = "Enables the window_state_save command without any pre-configured scope."
+commands.allow = ["window_state_save"]
+
+[[permission]]
+identifier = "deny-window-state-save"
+description = "Denies the window_state_save command without any pre-configured scope."
+commands.deny = ["window_state_save"]

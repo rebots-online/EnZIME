@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-chunk-ingest"
+description = "Enables the chunk_ingest command without any pre-configured scope."
+commands.allow = ["chunk_ingest"]
+
+[[permission]]
+identifier = "deny-chunk-ingest"
+description = "Denies the chunk_ingest command without any pre-configured scope."
+commands.deny = ["chunk_ingest"]

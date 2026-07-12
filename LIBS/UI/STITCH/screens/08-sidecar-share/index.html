@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Share &amp; Sync Annotations | EnZIME</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-on-surface": "#233143",
+                      "outline": "#859490",
+                      "primary-fixed": "#71f8e4",
+                      "on-surface-variant": "#bbcac6",
+                      "inverse-primary": "#006b5f",
+                      "on-primary": "#003731",
+                      "on-background": "#d4e4fa",
+                      "on-primary-container": "#00423b",
+                      "surface-container-low": "#0d1c2d",
+                      "tertiary-container": "#9ca4bd",
+                      "tertiary-fixed-dim": "#bec6e0",
+                      "secondary-fixed": "#62fae3",
+                      "on-error": "#690005",
+                      "outline-variant": "#3c4947",
+                      "on-secondary-fixed-variant": "#005047",
+                      "surface-container-lowest": "#010f1f",
+                      "primary-container": "#14b8a6",
+                      "surface-variant": "#273647",
+                      "on-tertiary-fixed": "#131b2e",
+                      "on-secondary-container": "#004d44",
+                      "on-surface": "#d4e4fa",
+                      "on-error-container": "#ffdad6",
+                      "tertiary": "#bec6e0",
+                      "background": "#051424",
+                      "error": "#ffb4ab",
+                      "secondary-container": "#03c6b2",
+                      "surface-container": "#122131",
+                      "surface-tint": "#4fdbc8",
+                      "primary-fixed-dim": "#4fdbc8",
+                      "on-primary-fixed": "#00201c",
+                      "on-tertiary-container": "#323a4f",
+                      "secondary": "#44e2cd",
+                      "surface-container-high": "#1c2b3c",
+                      "primary": "#4fdbc8",
+                      "surface": "#051424",
+                      "error-container": "#93000a",
+                      "surface-bright": "#2c3a4c",
+                      "inverse-surface": "#d4e4fa",
+                      "on-secondary-fixed": "#00201c",
+                      "surface-dim": "#051424",
+                      "surface-container-highest": "#273647",
+                      "secondary-fixed-dim": "#3cddc7",
+                      "on-tertiary": "#283044",
+                      "on-secondary": "#003731",
+                      "on-tertiary-fixed-variant": "#3f465c",
+                      "tertiary-fixed": "#dae2fd",
+                      "on-primary-fixed-variant": "#005048"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "base": "8px",
+                      "gutter": "24px",
+                      "container-max": "1024px",
+                      "margin-desktop": "40px"
+              },
+              "fontFamily": {
+                      "label-md": ["Space Grotesk"],
+                      "headline-md": ["Space Grotesk"],
+                      "headline-lg-mobile": ["Space Grotesk"],
+                      "body-lg": ["Geist"],
+                      "display-lg": ["Space Grotesk"],
+                      "code": ["Geist"],
+                      "body-md": ["Geist"],
+                      "headline-lg": ["Space Grotesk"]
+              },
+              "fontSize": {
+                      "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "500"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                      "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "code": ["14px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                      "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #051424;
+            color: #d4e4fa;
+        }
+        .crypto-border {
+            border-image: linear-gradient(to bottom, #3c4947, #122131) 1;
+        }
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(79, 219, 200, 0.05), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="flex min-h-screen overflow-x-hidden font-body-md">
+<!-- SideNavBar Anchor -->
+<nav class="fixed left-0 top-0 h-full w-[72px] bg-surface-container flex flex-col items-center py-base gap-gutter border-r border-outline-variant z-50">
+<div class="mb-8">
+<span class="text-headline-md font-headline-md font-bold text-primary">E</span>
+</div>
+<div class="flex flex-col gap-6 items-center w-full">
+<button class="group flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[24px]">library_books</span>
+<span class="text-[10px] font-label-md">Library</span>
+</button>
+<button class="group flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[24px]">download</span>
+<span class="text-[10px] font-label-md">Downloads</span>
+</button>
+<button class="group flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[24px]">bookmark</span>
+<span class="text-[10px] font-label-md">Bookmarks</span>
+</button>
+<!-- Active Tab: Annotations -->
+<button class="relative group flex flex-col items-center gap-1 text-primary scale-95 transition-transform duration-150">
+<div class="absolute -right-[23px] top-0 h-full w-[2px] bg-primary"></div>
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">edit_note</span>
+<span class="text-[10px] font-label-md font-bold">Annotations</span>
+</button>
+<button class="group flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[24px]">settings</span>
+<span class="text-[10px] font-label-md">Settings</span>
+</button>
+</div>
+<div class="mt-auto pb-4">
+<div class="w-10 h-10 rounded-full border border-outline-variant overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHQdBmKTbhjhCQ5mycfgn8Ko6sSXXWthBNgSc26JgoJedN82rKRFqj_6kuoYpfYVhB7oageeFJZndRLUFiYbk5837FTrKya3p-yyLN_nms3MxB_he3rWu0eMoroi-lxvlOhMsvz8eJGjWL6Mm96ik8S5QjNVdUwdU1bdhWr0DJN8K7gBrfqQ0gROPI6bocydUiST_by5INpPxUN8hhfVIuP8uApqfVdT5vWO-fzVLQNz95saZSi5g43IK1xQRP2zlg1fwOGKrG2Dg"/>
+</div>
+</div>
+</nav>
+<!-- Main Canvas -->
+<main class="flex-1 ml-[72px] p-margin-desktop max-w-container-max mx-auto w-full">
+<!-- Header -->
+<header class="mb-12">
+<h1 class="text-display-lg font-display-lg text-on-surface tracking-tight">Share &amp; Sync Annotations</h1>
+<p class="text-body-lg font-body-lg text-on-surface-variant mt-2">
+                Your notes travel as signed files — no account, works offline.
+            </p>
+</header>
+<!-- Two Column Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter items-start">
+<!-- LEFT COLUMN: Export -->
+<section class="flex flex-col gap-gutter">
+<div class="bg-surface-container border border-outline-variant p-gutter rounded-lg shadow-sm">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">upload_file</span>
+<h2 class="text-headline-md font-headline-md text-on-surface">Export annotations</h2>
+</div>
+<!-- Segmented Control -->
+<div class="mb-8">
+<label class="text-label-md font-label-md text-outline block mb-3 uppercase tracking-widest">Scope</label>
+<div class="flex bg-surface-container-low p-1 rounded-lg border border-outline-variant">
+<button class="flex-1 py-2 text-label-md font-label-md text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg">This article</button>
+<button class="flex-1 py-2 text-label-md font-label-md text-primary bg-surface-container-high shadow-inner rounded-lg">This pack</button>
+<button class="flex-1 py-2 text-label-md font-label-md text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg">Everything</button>
+</div>
+</div>
+<!-- Summary List -->
+<div class="space-y-4 mb-8">
+<div class="flex items-center gap-4 text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">format_ink_highlighter</span>
+<span class="text-body-md font-body-md">12 highlights</span>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">sticky_note_2</span>
+<span class="text-body-md font-body-md">3 notes</span>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">mic</span>
+<span class="text-body-md font-body-md">2 voice notes</span>
+</div>
+</div>
+<!-- Identity Chip -->
+<div class="bg-surface-container-highest/30 border border-outline-variant/50 p-4 rounded-lg flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<div class="flex flex-col">
+<span class="text-label-md font-label-md text-on-surface">Signed by you</span>
+<span class="text-code font-code text-on-surface-variant text-[12px] opacity-70">ed25519:8a3f…9b2c</span>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex flex-col gap-3">
+<button class="w-full bg-primary-container text-on-primary-container py-3 font-label-md rounded-lg hover:opacity-90 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">sim_card_download</span>
+                            Export .zsc
+                        </button>
+<button class="w-full border border-outline-variant text-on-surface hover:bg-surface-container-high py-3 font-label-md rounded-lg transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">usb</span>
+                            Save to media (SD/USB)
+                        </button>
+</div>
+</div>
+<!-- Decorative Asset for Trust -->
+<div class="h-32 rounded-lg bg-surface-container-low border border-outline-variant overflow-hidden relative group">
+<div class="absolute inset-0 opacity-20 pointer-events-none shimmer"></div>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary/30 text-[64px]" style="font-variation-settings: 'wght' 200;">shield_lock</span>
+</div>
+<div class="p-4 relative">
+<div class="text-code font-code text-[11px] text-outline uppercase tracking-widest mb-1">Encrypted Packet Status</div>
+<div class="h-1 w-24 bg-primary-container/20 rounded-full overflow-hidden">
+<div class="h-full w-2/3 bg-primary animate-pulse"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- RIGHT COLUMN: Import -->
+<section class="flex flex-col gap-gutter">
+<div class="bg-surface-container border border-outline-variant p-gutter rounded-lg shadow-sm border-t-2 border-t-primary/40">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">download_for_offline</span>
+<h2 class="text-headline-md font-headline-md text-on-surface">Import annotations</h2>
+</div>
+<!-- Drop Zone -->
+<div class="border-2 border-dashed border-outline-variant rounded-xl p-8 mb-8 text-center hover:border-primary/50 transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-[48px] text-outline group-hover:text-primary transition-colors mb-4">folder_zip</span>
+<p class="text-body-md font-body-md text-on-surface-variant">Drop a .zsc file here, or <span class="text-primary hover:underline">Import from media</span></p>
+</div>
+<!-- Verification Panel (Active) -->
+<div class="space-y-6">
+<div class="flex justify-between items-start">
+<div class="flex flex-col">
+<span class="text-label-md font-label-md text-outline uppercase tracking-widest mb-1">Source</span>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">person</span>
+<span class="text-code font-code text-on-surface">From peer · ed25519:4c1d…2e7a</span>
+</div>
+</div>
+<span class="bg-primary/10 text-primary border border-primary/30 px-3 py-1 rounded-full text-label-md font-label-md flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                Signature verified
+                            </span>
+</div>
+<div class="h-px bg-outline-variant w-full"></div>
+<div class="flex flex-col gap-2">
+<span class="text-label-md font-label-md text-outline uppercase tracking-widest">Contents</span>
+<div class="text-body-md font-body-md text-on-surface flex flex-wrap gap-x-4">
+<span>8 annotations</span>
+<span class="text-outline">·</span>
+<span>1 voice note</span>
+<span class="text-outline">·</span>
+<span class="italic text-secondary">pack: Where There Is No Doctor</span>
+</div>
+</div>
+<!-- Trust Prompt Block -->
+<div class="bg-error-container/10 border border-error/20 p-4 rounded-lg">
+<div class="flex items-center gap-3 text-error mb-4">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span class="font-label-md">You haven't trusted this peer yet.</span>
+</div>
+<div class="flex flex-wrap gap-2 mb-4">
+<button class="px-4 py-2 bg-surface-container-highest border border-outline-variant rounded-lg text-label-md font-label-md text-on-surface hover:border-primary transition-colors">Trusted</button>
+<button class="px-4 py-2 bg-surface-container-highest border border-outline-variant rounded-lg text-label-md font-label-md text-primary ring-1 ring-primary">Verify only</button>
+<button class="px-4 py-2 bg-surface-container-highest border border-error/40 rounded-lg text-label-md font-label-md text-error hover:bg-error/10 transition-colors">Reject</button>
+</div>
+<div class="relative">
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-3 text-body-md focus:outline-none focus:border-primary transition-colors placeholder:text-outline/50" placeholder="Why do you trust this peer? (optional)" type="text"/>
+</div>
+</div>
+<!-- Import Button (Disabled Style) -->
+<button class="w-full bg-surface-container-highest text-outline py-3 font-label-md rounded-lg cursor-not-allowed border border-outline-variant flex items-center justify-center gap-2" disabled="">
+<span class="material-symbols-outlined text-[18px]">input</span>
+                            Import
+                        </button>
+</div>
+</div>
+<!-- Peer Network Visualization placeholder -->
+<div class="h-24 bg-surface-container-low border border-outline-variant rounded-lg flex items-center px-gutter gap-gutter">
+<div class="flex -space-x-3">
+<div class="w-8 h-8 rounded-full border-2 border-background bg-secondary-container"></div>
+<div class="w-8 h-8 rounded-full border-2 border-background bg-tertiary"></div>
+<div class="w-8 h-8 rounded-full border-2 border-background bg-surface-container-highest flex items-center justify-center text-[10px] text-on-surface-variant font-bold">+4</div>
+</div>
+<div class="flex flex-col">
+<span class="text-label-md font-label-md text-on-surface">Local Mesh Active</span>
+<span class="text-code font-code text-[11px] text-primary">Scanning for nearby zsc nodes...</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Footer / Technical Summary -->
+<footer class="mt-12 pt-8 border-t border-outline-variant flex justify-between items-center text-code font-code text-[12px] text-on-surface-variant">
+<div class="flex items-center gap-4">
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span> Offline Engine 2.4.1</span>
+<span>•</span>
+<span>SHA-256: e3b0c442...</span>
+</div>
+<div class="flex items-center gap-4">
+<a class="hover:text-primary transition-colors" href="#">Documentation</a>
+<a class="hover:text-primary transition-colors" href="#">Privacy Manifest</a>
+</div>
+</footer>
+</main>
+<!-- Micro-interaction Script -->
+<script>
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                button.classList.add('scale-[0.97]');
+            });
+            button.addEventListener('mouseup', () => {
+                button.classList.remove('scale-[0.97]');
+            });
+        });
+
+        // Animation for trust chips logic
+        const trustButtons = document.querySelectorAll('.bg-surface-container-highest');
+        trustButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Clear active states
+                trustButtons.forEach(b => b.classList.remove('ring-1', 'ring-primary', 'text-primary'));
+                // Toggle active
+                if (!this.innerText.includes('Reject')) {
+                    this.classList.add('ring-1', 'ring-primary', 'text-primary');
+                }
+            });
+        });
+    </script>
+</body></html>

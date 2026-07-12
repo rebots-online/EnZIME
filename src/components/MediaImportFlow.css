@@ -1,0 +1,227 @@
+/**
+ * MediaImportFlow styles — nocturnal teal palette from theme.ts
+ * Integrates Stitch 02-first-launch design (717d021f1dcd4fa0a02d6b99a78b7f38)
+ */
+
+.media-import-flow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  min-height: 400px;
+  font-family: var(--font-body, 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  color: var(--on-surface, #d4e4fa);
+}
+
+.media-import-card {
+  width: 100%;
+  max-width: 720px;
+  background: var(--surface-container, #122131);
+  border: 1px solid var(--outline-variant, #3c4947);
+  border-radius: var(--radius-lg, 0.5rem);
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.media-import-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.media-import-title {
+  font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--on-surface, #d4e4fa);
+}
+
+.media-import-subtitle {
+  font-size: 0.95rem;
+  color: var(--on-surface-variant, #bbcac6);
+  line-height: 1.5;
+  margin-bottom: 2rem;
+}
+
+.variant-code {
+  background: var(--surface-container-high, #273647);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  color: var(--primary, #4fdbc8);
+  font-family: var(--font-code, 'Geist', monospace);
+  font-size: 0.85rem;
+}
+
+.import-action-btn {
+  width: 100%;
+  background: var(--primary, #4fdbc8);
+  border: none;
+  color: var(--on-primary, #003731);
+  padding: 1rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-family: var(--font-label, 'Space Grotesk', sans-serif);
+  border-radius: var(--radius-lg, 0.5rem);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.25s ease;
+  margin-top: 1rem;
+}
+
+.import-action-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.import-action-btn:active {
+  transform: translateY(1px);
+}
+
+.import-progress-area {
+  background: var(--surface-dim, #051424);
+  border-radius: var(--radius-md, 0.25rem);
+  padding: 1.5rem;
+  border: 1px solid var(--outline-variant, #3c4947);
+  margin-top: 1rem;
+}
+
+.progress-spinner-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--surface-container-high, #273647);
+  border-radius: 50%;
+  border-top-color: var(--primary, #4fdbc8);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.progress-status-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: var(--font-label, 'Space Grotesk', sans-serif);
+  text-align: center;
+  margin-bottom: 0.75rem;
+  color: var(--primary, #4fdbc8);
+}
+
+.progress-bar-wrapper {
+  position: relative;
+  background: var(--surface-container-high, #273647);
+  height: 24px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--outline-variant, #3c4947);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary, #4fdbc8), var(--primary-container, #14b8a6));
+  box-shadow: 0 0 10px rgba(79, 219, 200, 0.5);
+  transition: width 0.3s ease;
+}
+
+.progress-bytes-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--on-surface, #d4e4fa);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.import-result {
+  border-radius: var(--radius-md, 0.25rem);
+  padding: 1.5rem;
+  text-align: center;
+  margin-top: 1rem;
+  animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.import-result.success {
+  background: rgba(79, 219, 200, 0.1);
+  border: 1px solid var(--primary, #4fdbc8);
+}
+
+.import-result.failure {
+  background: rgba(255, 180, 171, 0.1);
+  border: 1px solid var(--error, #ffb4ab);
+}
+
+.result-icon {
+  font-size: 2.2rem;
+  margin-bottom: 0.75rem;
+}
+
+.import-result.success .result-icon { color: var(--primary, #4fdbc8); }
+.import-result.failure .result-icon { color: var(--error, #ffb4ab); }
+
+.result-title {
+  font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--on-surface, #d4e4fa);
+}
+
+.result-desc {
+  font-size: 0.85rem;
+  color: var(--on-surface-variant, #bbcac6);
+  margin-bottom: 1.25rem;
+  word-break: break-all;
+}
+
+.result-code {
+  background: var(--surface-dim, #051424);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  color: var(--primary, #4fdbc8);
+  font-family: var(--font-code, 'Geist', monospace);
+  font-size: 0.85rem;
+}
+
+.result-reset-btn {
+  background: var(--surface-container-high, #273647);
+  border: 1px solid var(--outline, #859490);
+  color: var(--on-surface, #d4e4fa);
+  padding: 0.6rem 1.2rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: var(--font-label, 'Space Grotesk', sans-serif);
+  border-radius: var(--radius-md, 0.25rem);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.result-reset-btn:hover {
+  background: var(--surface-container-highest, #273647);
+  border-color: var(--outline-variant, #3c4947);
+}
+
+/* Material Symbols integration for icons */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  display: inline-block;
+  vertical-align: middle;
+}

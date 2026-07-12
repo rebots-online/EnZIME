@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EnZIME | Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@100..900&amp;family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-primary-fixed": "#00201c",
+                      "on-tertiary-fixed-variant": "#3f465c",
+                      "error": "#ffb4ab",
+                      "surface-bright": "#2c3a4c",
+                      "primary-container": "#14b8a6",
+                      "primary-fixed-dim": "#4fdbc8",
+                      "on-error-container": "#ffdad6",
+                      "primary-fixed": "#71f8e4",
+                      "on-primary-fixed-variant": "#005048",
+                      "surface-dim": "#051424",
+                      "error-container": "#93000a",
+                      "surface-container-highest": "#273647",
+                      "on-primary-container": "#00423b",
+                      "on-primary": "#003731",
+                      "background": "#051424",
+                      "outline": "#859490",
+                      "on-background": "#d4e4fa",
+                      "on-secondary-fixed": "#00201c",
+                      "tertiary-fixed": "#dae2fd",
+                      "primary": "#4fdbc8",
+                      "on-tertiary-fixed": "#131b2e",
+                      "on-surface": "#d4e4fa",
+                      "secondary-container": "#03c6b2",
+                      "inverse-on-surface": "#233143",
+                      "on-tertiary": "#283044",
+                      "tertiary-fixed-dim": "#bec6e0",
+                      "on-secondary-fixed-variant": "#005047",
+                      "inverse-primary": "#006b5f",
+                      "surface-container-high": "#1c2b3c",
+                      "secondary": "#44e2cd",
+                      "tertiary-container": "#9ca4bd",
+                      "surface-tint": "#4fdbc8",
+                      "on-tertiary-container": "#323a4f",
+                      "inverse-surface": "#d4e4fa",
+                      "surface": "#051424",
+                      "outline-variant": "#3c4947",
+                      "secondary-fixed-dim": "#3cddc7",
+                      "on-surface-variant": "#bbcac6",
+                      "on-error": "#690005",
+                      "surface-container": "#122131",
+                      "surface-variant": "#273647",
+                      "on-secondary-container": "#004d44",
+                      "on-secondary": "#003731",
+                      "surface-container-lowest": "#010f1f",
+                      "secondary-fixed": "#62fae3",
+                      "tertiary": "#bec6e0",
+                      "surface-container-low": "#0d1c2d"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter": "24px",
+                      "base": "8px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "40px",
+                      "container-max": "1024px"
+              },
+              "fontFamily": {
+                      "headline-md": ["Space Grotesk"],
+                      "code": ["Geist Mono"],
+                      "label-md": ["Space Grotesk"],
+                      "headline-lg": ["Space Grotesk"],
+                      "body-md": ["Geist"],
+                      "body-lg": ["Geist"]
+              },
+              "fontSize": {
+                      "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "500"}],
+                      "code": ["14px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                      "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                      "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: #051424;
+            color: #d4e4fa;
+            font-family: 'Geist', sans-serif;
+            overflow: hidden;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #051424;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #273647;
+            border-radius: 2px;
+        }
+        .nav-item-active {
+            color: #4fdbc8;
+            border-right: 2px solid #4fdbc8;
+        }
+        .settings-card {
+            background-color: #122131;
+            border: 1px solid #3c4947;
+            transition: border-color 0.2s ease;
+        }
+        .settings-card:hover {
+            border-color: #4fdbc8;
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            background: #273647;
+            height: 4px;
+            border-radius: 2px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #4fdbc8;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="flex h-screen select-none">
+<!-- SideNavBar Rail -->
+<nav class="fixed left-0 top-0 h-screen w-[72px] bg-surface-dim flex flex-col items-center py-base space-y-4 border-r border-outline-variant z-50">
+<div class="mb-6 mt-2">
+<span class="text-headline-md font-headline-md font-bold text-primary">E</span>
+</div>
+<button class="w-12 h-12 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors scale-95 active:scale-90" title="Home">
+<span class="material-symbols-outlined">neurology</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors scale-95 active:scale-90" title="Reading">
+<span class="material-symbols-outlined">book_2</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors scale-95 active:scale-90" title="Security">
+<span class="material-symbols-outlined">lock</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors scale-95 active:scale-90" title="Trust">
+<span class="material-symbols-outlined">verified_user</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors scale-95 active:scale-90" title="Storage">
+<span class="material-symbols-outlined">storage</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors scale-95 active:scale-90" title="Subscription">
+<span class="material-symbols-outlined">payments</span>
+</button>
+<div class="flex-grow"></div>
+<button class="w-12 h-12 flex items-center justify-center text-primary font-bold border-r-2 border-primary hover:bg-surface-container-high transition-colors scale-95 active:scale-90" title="Settings">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="pb-4">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant">
+<img alt="User profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6j-jBpLg7xgOj_YwdBU449cSaUDgkcL1ll6MFhjYsKCnKwAOMK9i13PuaNQjfSjxlzgZdqK6AgkMS3W-lN4ilSfuEJlJzXBWSQU9udDSyQrxuG4U9x1kwXItzDtBxFsi7PiSbouNUdQokbfTGOrXjecjQygJmXj2aBf5lFJcnUQ59eTJhHFaHoci-QVJGcLjDHQxzx_9LXN10zIbivikvdha6oKlBkkT-X5Rp3J5SeUS7jaurTyNk0RnRXNe_Fz5-zQ6FaIljFgs"/>
+</div>
+</div>
+</nav>
+<!-- Main Shell -->
+<main class="ml-[72px] flex-grow flex flex-col bg-background">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center h-16 px-gutter border-b border-outline-variant">
+<div class="flex items-center space-x-4">
+<h1 class="text-headline-md font-headline-md font-bold text-primary">Settings</h1>
+</div>
+<div class="flex items-center space-x-6">
+<div class="flex items-center space-x-2 text-on-surface-variant opacity-80 hover:opacity-100 transition-opacity cursor-pointer">
+<span class="material-symbols-outlined text-[20px]">sync</span>
+<span class="text-label-md font-label-md">Synced</span>
+</div>
+<div class="flex items-center space-x-4">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors">help_outline</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors">account_circle</span>
+</div>
+</div>
+</header>
+<!-- Split View Layout -->
+<div class="flex flex-grow overflow-hidden">
+<!-- Section Navigation (Left Pane) -->
+<aside class="w-64 border-r border-outline-variant bg-surface-container-lowest py-8 flex flex-col">
+<nav class="space-y-1 px-4">
+<a class="flex items-center space-x-3 px-4 py-3 rounded text-primary font-bold bg-surface-container-high" href="#ai-model">
+<span class="material-symbols-outlined text-[20px]">neurology</span>
+<span class="text-label-md font-label-md">AI Model</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container transition-colors" href="#reading">
+<span class="material-symbols-outlined text-[20px]">book_2</span>
+<span class="text-label-md font-label-md">Reading</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container transition-colors" href="#privacy">
+<span class="material-symbols-outlined text-[20px]">lock</span>
+<span class="text-label-md font-label-md">Privacy &amp; Security</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container transition-colors" href="#sharing">
+<span class="material-symbols-outlined text-[20px]">verified_user</span>
+<span class="text-label-md font-label-md">Sharing &amp; Trust</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container transition-colors" href="#storage">
+<span class="material-symbols-outlined text-[20px]">storage</span>
+<span class="text-label-md font-label-md">Storage</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container transition-colors" href="#subscription">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+<span class="text-label-md font-label-md">Subscription</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container transition-colors" href="#about">
+<span class="material-symbols-outlined text-[20px]">info</span>
+<span class="text-label-md font-label-md">About</span>
+</a>
+</nav>
+</aside>
+<!-- Detail Pane (Right Pane) -->
+<section class="flex-grow overflow-y-auto custom-scrollbar bg-surface py-12 px-margin-desktop">
+<div class="max-w-[720px] mx-auto space-y-16 pb-24">
+<!-- AI MODEL SECTION -->
+<div class="scroll-mt-24" id="ai-model">
+<h2 class="text-headline-lg font-headline-lg text-on-surface mb-6">AI Model</h2>
+<div class="settings-card p-6 rounded-xl space-y-6">
+<div class="flex items-start justify-between">
+<div class="space-y-1">
+<h3 class="text-body-lg font-bold text-primary">Gemma 4 E2B (q4)</h3>
+<p class="text-body-md text-on-surface-variant">1.8 GB · Local on-device execution</p>
+</div>
+<span class="px-2 py-1 bg-primary-container/20 text-primary text-[10px] font-bold uppercase tracking-wider rounded border border-primary/30">Active</span>
+</div>
+<div class="flex items-center space-x-4">
+<button class="px-6 py-2.5 bg-primary-container text-on-primary-container text-label-md font-label-md rounded-lg hover:brightness-110 transition-all">Switch model</button>
+<button class="px-6 py-2.5 border border-outline-variant text-on-surface text-label-md font-label-md rounded-lg hover:bg-surface-container-high transition-all">Re-download</button>
+</div>
+<div class="pt-2 border-t border-outline-variant">
+<a class="text-primary text-label-md font-label-md hover:underline inline-flex items-center" href="#">
+                                    Manage downloaded models
+                                    <span class="material-symbols-outlined text-[16px] ml-1">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+<!-- READING SECTION -->
+<div class="scroll-mt-24" id="reading">
+<h2 class="text-headline-lg font-headline-lg text-on-surface mb-6">Reading</h2>
+<div class="settings-card p-6 rounded-xl space-y-8">
+<!-- Theme -->
+<div class="flex items-center justify-between">
+<span class="text-body-md font-medium">Appearance</span>
+<div class="flex bg-surface-container-low rounded-lg p-1 border border-outline-variant">
+<button class="px-4 py-1.5 rounded-md text-label-md font-label-md text-on-surface-variant hover:text-on-surface transition-colors">Light</button>
+<button class="px-4 py-1.5 rounded-md text-label-md font-label-md bg-surface-container-high text-primary border border-outline-variant">Dark</button>
+</div>
+</div>
+<!-- Font Size -->
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<span class="text-body-md font-medium">Font size</span>
+<span class="text-code font-code text-on-surface-variant">16px</span>
+</div>
+<input class="w-full accent-primary" max="24" min="12" type="range" value="16"/>
+</div>
+<!-- Line Width -->
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<span class="text-body-md font-medium">Reading line-width</span>
+<span class="text-code font-code text-on-surface-variant">Optimal (720px)</span>
+</div>
+<div class="grid grid-cols-3 gap-3">
+<button class="py-3 border border-outline-variant rounded-lg text-on-surface-variant hover:border-primary transition-colors flex flex-col items-center">
+<span class="material-symbols-outlined mb-1">align_horizontal_left</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Narrow</span>
+</button>
+<button class="py-3 border-2 border-primary rounded-lg text-primary bg-primary/5 transition-colors flex flex-col items-center">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">align_horizontal_center</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Default</span>
+</button>
+<button class="py-3 border border-outline-variant rounded-lg text-on-surface-variant hover:border-primary transition-colors flex flex-col items-center">
+<span class="material-symbols-outlined mb-1">align_horizontal_right</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Wide</span>
+</button>
+</div>
+</div>
+<!-- Font Family -->
+<div class="flex items-center justify-between pt-4 border-t border-outline-variant">
+<span class="text-body-md font-medium">Font family</span>
+<button class="flex items-center space-x-2 px-4 py-2 border border-outline-variant rounded-lg hover:bg-surface-container-high transition-colors">
+<span class="text-body-md" style="font-family: 'Literata', serif;">Literata</span>
+<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+<!-- PRIVACY & SECURITY SECTION -->
+<div class="scroll-mt-24" id="privacy">
+<h2 class="text-headline-lg font-headline-lg text-on-surface mb-6">Privacy &amp; Security</h2>
+<div class="settings-card p-6 rounded-xl space-y-6">
+<div class="flex items-center justify-between">
+<div class="space-y-1">
+<span class="text-body-md font-medium">Auto-lock timeout</span>
+<p class="text-label-md text-on-surface-variant font-normal">Locks the vault after inactivity</p>
+</div>
+<select class="bg-surface-container-low border border-outline-variant text-on-surface rounded-lg px-4 py-2 focus:ring-1 focus:ring-primary outline-none">
+<option>Off</option>
+<option>1 min</option>
+<option selected="">5 min</option>
+<option>15 min</option>
+</select>
+</div>
+<div class="flex items-center justify-between py-4 border-t border-outline-variant">
+<div class="space-y-1">
+<span class="text-body-md font-medium">Require unlock on launch</span>
+<p class="text-label-md text-on-surface-variant font-normal">Biometric or password check</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-high rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="pt-4 flex items-center space-x-2 text-on-surface-variant opacity-60">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span class="text-label-md font-label-md italic">All data stays on this device</span>
+</div>
+</div>
+</div>
+<!-- SHARING & TRUST SECTION -->
+<div class="scroll-mt-24" id="sharing">
+<h2 class="text-headline-lg font-headline-lg text-on-surface mb-6">Sharing &amp; Trust</h2>
+<div class="settings-card p-6 rounded-xl space-y-8">
+<div class="space-y-3">
+<span class="text-label-md font-label-md uppercase tracking-widest text-on-surface-variant">Your identity</span>
+<div class="flex items-center justify-between bg-surface-container-lowest border border-outline-variant rounded-lg p-4">
+<span class="text-code font-code text-primary opacity-80">ed25519:8a3f...9b2c</span>
+<button class="p-2 hover:bg-surface-container-high rounded transition-colors" title="Copy key">
+<span class="material-symbols-outlined text-primary text-[20px]">content_copy</span>
+</button>
+</div>
+</div>
+<div class="space-y-4">
+<span class="text-label-md font-label-md uppercase tracking-widest text-on-surface-variant">Peer trust list</span>
+<div class="space-y-2">
+<!-- Peer 1 -->
+<div class="flex items-center justify-between p-3 bg-surface-container rounded-lg border border-outline-variant/30">
+<div class="flex items-center space-x-3">
+<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-[18px]">person</span>
+</div>
+<span class="text-body-md">Peer 1</span>
+</div>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-primary-container/20 text-primary border border-primary/20 uppercase">Trusted</span>
+</div>
+<!-- Peer 2 -->
+<div class="flex items-center justify-between p-3 bg-surface-container rounded-lg border border-outline-variant/30">
+<div class="flex items-center space-x-3">
+<div class="w-8 h-8 rounded-full bg-blue-400/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary text-[18px]">person</span>
+</div>
+<span class="text-body-md">Peer 2</span>
+</div>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-tertiary-container/20 text-on-tertiary-container border border-tertiary/20 uppercase">Verified</span>
+</div>
+<!-- Peer 3 -->
+<div class="flex items-center justify-between p-3 bg-surface-container rounded-lg border border-outline-variant/30">
+<div class="flex items-center space-x-3">
+<div class="w-8 h-8 rounded-full bg-error/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-error text-[18px]">person_off</span>
+</div>
+<span class="text-body-md">Peer 3</span>
+</div>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-error-container/20 text-error border border-error/20 uppercase">Rejected</span>
+</div>
+</div>
+</div>
+<button class="w-full py-3 border border-outline-variant text-on-surface text-label-md font-label-md rounded-lg hover:bg-surface-container-high transition-all">Manage peers</button>
+</div>
+</div>
+<!-- STORAGE SECTION -->
+<div class="scroll-mt-24" id="storage">
+<h2 class="text-headline-lg font-headline-lg text-on-surface mb-6">Storage</h2>
+<div class="settings-card p-6 rounded-xl space-y-8">
+<div class="space-y-4">
+<div class="flex justify-between items-end">
+<div class="space-y-1">
+<span class="text-headline-md font-bold text-on-surface">118 GB</span>
+<p class="text-label-md text-on-surface-variant font-normal">Total Disk Allocated</p>
+</div>
+<span class="text-code font-code text-on-surface-variant">8.012 GB Used</span>
+</div>
+<div class="w-full h-4 bg-surface-container-high rounded-full overflow-hidden flex">
+<div class="h-full bg-primary" style="width: 55%" title="Packs 6.2 GB"></div>
+<div class="h-full bg-secondary" style="width: 15%" title="Models 1.8 GB"></div>
+<div class="h-full bg-tertiary" style="width: 2%" title="Annotations 12 MB"></div>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+<div class="flex items-center space-x-2">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="text-code text-[11px] text-on-surface-variant">Packs 6.2GB</span>
+</div>
+<div class="flex items-center space-x-2">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="text-code text-[11px] text-on-surface-variant">Models 1.8GB</span>
+</div>
+<div class="flex items-center space-x-2">
+<div class="w-2 h-2 rounded-full bg-tertiary"></div>
+<span class="text-code text-[11px] text-on-surface-variant">Annot. 12MB</span>
+</div>
+<div class="flex items-center space-x-2">
+<div class="w-2 h-2 rounded-full bg-surface-container-high border border-outline"></div>
+<span class="text-code text-[11px] text-on-surface-variant">Free 110GB</span>
+</div>
+</div>
+</div>
+<div class="flex items-center space-x-4 pt-4 border-t border-outline-variant">
+<button class="px-6 py-2.5 border border-outline-variant text-on-surface text-label-md font-label-md rounded-lg hover:bg-surface-container-high transition-all">Manage packs</button>
+<button class="px-6 py-2.5 text-error text-label-md font-label-md rounded-lg hover:bg-error-container/20 transition-all">Clear cache</button>
+</div>
+</div>
+</div>
+<!-- SUBSCRIPTION SECTION -->
+<div class="scroll-mt-24" id="subscription">
+<h2 class="text-headline-lg font-headline-lg text-on-surface mb-6">Subscription</h2>
+<div class="settings-card p-6 rounded-xl bg-gradient-to-br from-surface-container-lowest to-surface-container-low border-primary/20">
+<div class="flex items-start justify-between mb-8">
+<div class="space-y-1">
+<h3 class="text-headline-md font-bold text-on-surface">EnZIME Free</h3>
+<p class="text-body-md text-on-surface-variant">Limited local context (2,048 tokens)</p>
+</div>
+<div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-[32px]">workspace_premium</span>
+</div>
+</div>
+<button class="w-full py-4 bg-primary text-on-primary font-bold rounded-xl hover:scale-[1.01] transition-transform active:scale-[0.98] shadow-lg shadow-primary/10">Upgrade to Pro</button>
+<div class="mt-6 text-center">
+<a class="text-on-surface-variant text-label-md font-label-md hover:text-primary transition-colors" href="#">Restore purchases</a>
+</div>
+</div>
+</div>
+<!-- ABOUT SECTION -->
+<div class="scroll-mt-24" id="about">
+<h2 class="text-headline-lg font-headline-lg text-on-surface mb-6">About</h2>
+<div class="settings-card p-6 rounded-xl space-y-6">
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center font-bold text-primary border border-outline-variant">E</div>
+<div>
+<p class="text-body-md font-bold">EnZIME</p>
+<p class="text-label-md text-on-surface-variant">v1.0.0 Stable</p>
+</div>
+</div>
+<span class="px-3 py-1 rounded-full bg-surface-container-high border border-outline-variant text-[11px] font-bold text-primary flex items-center">
+<span class="material-symbols-outlined text-[14px] mr-1">wifi_off</span>
+                                    Works fully offline
+                                </span>
+</div>
+<div class="pt-4 border-t border-outline-variant flex justify-between items-center">
+<span class="text-label-md text-on-surface-variant">© 2024 EnZIME Labs</span>
+<a class="text-primary text-label-md font-label-md hover:underline" href="#">Licenses</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Micro-interaction Scripts -->
+<script>
+        // Smooth scroll for nav links
+        document.querySelectorAll('aside nav a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                // Update nav classes
+                document.querySelectorAll('aside nav a').forEach(a => {
+                    a.classList.remove('text-primary', 'font-bold', 'bg-surface-container-high');
+                    a.classList.add('text-on-surface-variant');
+                });
+                this.classList.add('text-primary', 'font-bold', 'bg-surface-container-high');
+                this.classList.remove('text-on-surface-variant');
+
+                targetElement.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Toggle Switch Logic
+        const toggles = document.querySelectorAll('.peer');
+        toggles.forEach(toggle => {
+            toggle.addEventListener('change', function() {
+                console.log('Setting updated');
+            });
+        });
+
+        // Dropdown Logic
+        const dropdowns = document.querySelectorAll('select');
+        dropdowns.forEach(dropdown => {
+            dropdown.addEventListener('change', function() {
+                console.log('Preference changed to:', this.value);
+            });
+        });
+    </script>
+</body></html>

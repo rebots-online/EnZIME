@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EnZIME | Archive Library Manager</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-primary-fixed": "#001f24",
+            "on-secondary": "#1a3150",
+            "primary": "#c3f5ff",
+            "surface-variant": "#333539",
+            "tertiary": "#ffe9cd",
+            "on-surface": "#e2e2e8",
+            "outline-variant": "#3b494c",
+            "on-primary": "#00363d",
+            "surface-container-highest": "#333539",
+            "primary-fixed": "#9cf0ff",
+            "on-secondary-container": "#a3badf",
+            "secondary-fixed": "#d4e3ff",
+            "secondary-fixed-dim": "#b1c8ee",
+            "surface-bright": "#37393e",
+            "surface-container-low": "#1a1c20",
+            "tertiary-container": "#ffc769",
+            "inverse-surface": "#e2e2e8",
+            "secondary-container": "#344a6a",
+            "tertiary-fixed": "#ffdeac",
+            "surface-dim": "#111318",
+            "secondary": "#b1c8ee",
+            "background": "#111318",
+            "error-container": "#93000a",
+            "on-primary-container": "#00626e",
+            "on-tertiary-fixed": "#281900",
+            "surface-tint": "#00daf3",
+            "on-secondary-fixed": "#011c3a",
+            "inverse-on-surface": "#2f3035",
+            "primary-container": "#00e5ff",
+            "on-error-container": "#ffdad6",
+            "on-secondary-fixed-variant": "#314867",
+            "on-tertiary": "#432c00",
+            "on-primary-fixed-variant": "#004f58",
+            "outline": "#849396",
+            "surface-container-high": "#282a2e",
+            "surface-container-lowest": "#0c0e12",
+            "on-tertiary-container": "#775200",
+            "error": "#ffb4ab",
+            "inverse-primary": "#006875",
+            "surface-container": "#1e2024",
+            "on-background": "#e2e2e8",
+            "surface": "#111318",
+            "tertiary-fixed-dim": "#ffba38",
+            "on-tertiary-fixed-variant": "#604100",
+            "primary-fixed-dim": "#00daf3",
+            "on-surface-variant": "#bac9cc",
+            "on-error": "#690005"
+          },
+          fontFamily: {
+            "headline": ["Space Grotesk"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          },
+          borderRadius: {"DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px"},
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      background-color: #111318;
+      color: #e2e2e8;
+      font-family: 'Inter', sans-serif;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    }
+    .glass-panel {
+      background: rgba(12, 14, 18, 0.6);
+      backdrop-filter: blur(20px);
+    }
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #111318;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #3b494c;
+    }
+  </style>
+</head>
+<body class="overflow-hidden">
+<!-- TopNavBar Implementation -->
+<header class="bg-[#111318] text-[#00E5FF] font-['Space_Grotesk'] tracking-tight text-sm flex justify-between items-center w-full px-6 h-16 fixed top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="text-xl font-bold tracking-tighter text-[#c3f5ff] uppercase">EnZIME</div>
+<nav class="hidden md:flex gap-6">
+<a class="text-[#00E5FF] font-bold border-b border-[#00E5FF] transition-colors duration-200 uppercase" href="#">Library</a>
+<a class="text-[#3b494c] hover:text-[#c3f5ff] transition-colors duration-200 uppercase" href="#">Navigator</a>
+<a class="text-[#3b494c] hover:text-[#c3f5ff] transition-colors duration-200 uppercase" href="#">Graph</a>
+<a class="text-[#3b494c] hover:text-[#c3f5ff] transition-colors duration-200 uppercase" href="#">Settings</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+<input class="bg-surface-container-low border-b border-outline-variant focus:border-primary outline-none py-1 pl-10 pr-4 text-xs font-label tracking-widest uppercase text-on-surface w-64" placeholder="GLOBAL_SEARCH_QUERY" type="text"/>
+</div>
+<button class="hover:text-[#c3f5ff] transition-colors duration-200 active:scale-95 duration-100">
+<span class="material-symbols-outlined">settings_input_component</span>
+</button>
+<button class="hover:text-[#c3f5ff] transition-colors duration-200 active:scale-95 duration-100">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- SideNavBar Implementation -->
+<aside class="fixed left-0 top-0 h-screen w-20 bg-[#1a1c20] flex flex-col items-center py-4 z-40 mt-16">
+<div class="flex flex-col items-center gap-8 w-full">
+<div class="group relative py-3 px-2 w-full flex flex-col items-center gap-1 bg-[#282a2e] text-[#00E5FF] border-l-2 border-[#00E5FF]">
+<span class="material-symbols-outlined">folder_open</span>
+<span class="font-['Space_Grotesk'] tracking-wider text-[8px] uppercase">Library</span>
+</div>
+<div class="group relative py-3 px-2 w-full flex flex-col items-center gap-1 text-[#3b494c] hover:bg-[#282a2e] hover:text-[#c3f5ff] transition-all duration-300">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-['Space_Grotesk'] tracking-wider text-[8px] uppercase">Navigator</span>
+</div>
+<div class="group relative py-3 px-2 w-full flex flex-col items-center gap-1 text-[#3b494c] hover:bg-[#282a2e] hover:text-[#c3f5ff] transition-all duration-300">
+<span class="material-symbols-outlined">hub</span>
+<span class="font-['Space_Grotesk'] tracking-wider text-[8px] uppercase">Graph</span>
+</div>
+<div class="group relative py-3 px-2 w-full flex flex-col items-center gap-1 text-[#3b494c] hover:bg-[#282a2e] hover:text-[#c3f5ff] transition-all duration-300">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-['Space_Grotesk'] tracking-wider text-[8px] uppercase">Settings</span>
+</div>
+</div>
+<div class="mt-auto flex flex-col items-center gap-6 w-full pb-20">
+<div class="group relative py-3 px-2 w-full flex flex-col items-center gap-1 text-[#3b494c] hover:bg-[#282a2e] hover:text-[#c3f5ff] transition-all duration-300">
+<span class="material-symbols-outlined">search</span>
+</div>
+<div class="group relative py-3 px-2 w-full flex flex-col items-center gap-1 text-[#3b494c] hover:bg-[#282a2e] hover:text-[#c3f5ff] transition-all duration-300">
+<span class="material-symbols-outlined">edit_note</span>
+</div>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-20 mt-16 h-[calc(100vh-64px)] overflow-hidden flex">
+<!-- Left Visualization Zone: Archive Grid -->
+<section class="flex-1 overflow-y-auto p-8">
+<div class="flex justify-between items-end mb-12">
+<div>
+<h1 class="font-headline text-4xl font-light tracking-tight text-primary uppercase">Archive Library</h1>
+<p class="font-label text-xs tracking-[0.2em] text-outline mt-2">LOCAL_STORAGE_INDEX // 04 VOLUMES LOADED</p>
+</div>
+<button class="bg-gradient-to-br from-primary to-primary-container text-on-primary px-6 py-3 font-headline font-bold uppercase tracking-wider text-xs flex items-center gap-2 hover:brightness-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-sm">add_box</span>
+          Import New Archive
+        </button>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+<!-- Archive Card 1 -->
+<div class="bg-surface-container-low p-6 group hover:bg-surface-container-high transition-colors duration-300">
+<div class="flex justify-between items-start mb-6">
+<div>
+<div class="flex items-center gap-2 text-primary-container mb-1">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">dataset</span>
+<span class="font-label text-[10px] tracking-widest uppercase font-bold">ZIM Volume</span>
+</div>
+<h3 class="font-headline text-2xl font-medium tracking-tight">Wikipedia 2024</h3>
+</div>
+<div class="text-right">
+<span class="block font-label text-[10px] text-outline uppercase tracking-widest mb-1">Sync Status</span>
+<span class="text-primary-container font-headline text-lg font-bold">100%</span>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-4 py-4 border-y border-outline-variant/15">
+<div>
+<span class="block font-label text-[9px] text-outline uppercase tracking-widest mb-1">Total Size</span>
+<span class="font-headline text-sm">94.2 GB</span>
+</div>
+<div>
+<span class="block font-label text-[9px] text-outline uppercase tracking-widest mb-1">Entry Count</span>
+<span class="font-headline text-sm">6.8M Items</span>
+</div>
+<div>
+<span class="block font-label text-[9px] text-outline uppercase tracking-widest mb-1">Last Indexed</span>
+<span class="font-headline text-sm">02 APR 24</span>
+</div>
+</div>
+<div class="mt-6 flex justify-between items-center">
+<div class="flex gap-4">
+<button class="text-outline hover:text-primary transition-colors duration-200">
+<span class="material-symbols-outlined text-xl">open_in_new</span>
+</button>
+<button class="text-outline hover:text-primary transition-colors duration-200">
+<span class="material-symbols-outlined text-xl">database</span>
+</button>
+</div>
+<div class="w-32 h-1 bg-surface-container-highest relative">
+<div class="absolute inset-0 bg-primary-container w-full"></div>
+</div>
+</div>
+</div>
+<!-- Archive Card 2: Indexing In Progress -->
+<div class="bg-surface-container-low p-6 group border-l-2 border-tertiary">
+<div class="flex justify-between items-start mb-6">
+<div>
+<div class="flex items-center gap-2 text-tertiary mb-1">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">sync</span>
+<span class="font-label text-[10px] tracking-widest uppercase font-bold">Task: Indexing</span>
+</div>
+<h3 class="font-headline text-2xl font-medium tracking-tight">Project Gutenberg</h3>
+</div>
+<div class="text-right">
+<span class="block font-label text-[10px] text-outline uppercase tracking-widest mb-1">ETA: 04:12</span>
+<span class="text-tertiary font-headline text-lg font-bold">64.2%</span>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-4 py-4 border-y border-outline-variant/15">
+<div>
+<span class="block font-label text-[9px] text-outline uppercase tracking-widest mb-1">Total Size</span>
+<span class="font-headline text-sm">12.5 GB</span>
+</div>
+<div>
+<span class="block font-label text-[9px] text-outline uppercase tracking-widest mb-1">Entry Count</span>
+<span class="font-headline text-sm">70K Items</span>
+</div>
+<div>
+<span class="block font-label text-[9px] text-outline uppercase tracking-widest mb-1">Last Indexed</span>
+<span class="font-headline text-sm">IN_PROGRESS</span>
+</div>
+</div>
+<div class="mt-6">
+<div class="h-1 bg-surface-container-highest relative overflow-hidden">
+<div class="absolute inset-0 bg-tertiary w-[64%]"></div>
+</div>
+<div class="flex justify-between mt-2">
+<span class="text-[9px] font-label text-outline uppercase tracking-widest">Parsing: Metadata_Header_004.bin</span>
+<span class="text-[9px] font-label text-tertiary uppercase tracking-widest">Active Process</span>
+</div>
+</div>
+</div>
+<!-- Archive Card 3 -->
+<div class="bg-surface-container-low p-6 group hover:bg-surface-container-high transition-colors duration-300">
+<div class="flex justify-between items-start mb-6">
+<div>
+<div class="flex items-center gap-2 text-primary-container mb-1">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">shield</span>
+<span class="font-label text-[10px] tracking-widest uppercase font-bold">Local Vault</span>
+</div>
+<h3 class="font-headline text-2xl font-medium tracking-tight">Personal Obsidian Vault</h3>
+</div>
+<div class="text-right">
+<span class="block font-label text-[10px] text-outline uppercase tracking-widest mb-1">Sync Status</span>
+<span class="text-primary-container font-headline text-lg font-bold">100%</span>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-4 py-4 border-y border-outline-variant/15">
+<div>
+<span class="block font-label text-[9px] text-outline uppercase tracking-widest mb-1">Total Size</span>
+<span class="font-headline text-sm">450 MB</span>
+</div>
+<div>
+<span class="block font-label text-[9px] text-outline uppercase tracking-widest mb-1">Entry Count</span>
+<span class="font-headline text-sm">1,204 Items</span>
+</div>
+<div>
+<span class="block font-label text-[9px] text-outline uppercase tracking-widest mb-1">Last Indexed</span>
+<span class="font-headline text-sm">10 MIN AGO</span>
+</div>
+</div>
+<div class="mt-6 flex justify-between items-center">
+<div class="flex gap-4">
+<button class="text-outline hover:text-primary transition-colors duration-200">
+<span class="material-symbols-outlined text-xl">open_in_new</span>
+</button>
+<button class="text-outline hover:text-primary transition-colors duration-200">
+<span class="material-symbols-outlined text-xl">edit</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Archive Card 4: Stats Summary -->
+<div class="bg-surface-container-lowest p-6 border border-outline-variant/15 flex flex-col justify-center items-center text-center">
+<span class="material-symbols-outlined text-outline-variant text-5xl mb-4">analytics</span>
+<h4 class="font-headline text-lg text-outline mb-2">Aggregate Library Health</h4>
+<div class="flex gap-8 mt-4">
+<div>
+<span class="block font-label text-[10px] text-outline uppercase tracking-widest">Total Volumes</span>
+<span class="text-primary font-headline text-2xl">04</span>
+</div>
+<div class="w-px h-10 bg-outline-variant/30"></div>
+<div>
+<span class="block font-label text-[10px] text-outline uppercase tracking-widest">Disc Allocation</span>
+<span class="text-primary font-headline text-2xl">107 GB</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Instrumentation Sidebar -->
+<aside class="w-80 bg-surface-container-low h-full flex flex-col border-l border-outline-variant/10">
+<!-- Recent Activity -->
+<div class="p-6 border-b border-outline-variant/10">
+<h2 class="font-headline text-xs font-bold uppercase tracking-widest text-primary mb-6">Recent Activity</h2>
+<div class="space-y-6">
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-primary text-lg">history_edu</span>
+<div>
+<p class="text-xs font-body text-on-surface">Modified "Neuro-Link Prototypes" in Obsidian Vault</p>
+<span class="text-[9px] font-label text-outline uppercase">14:23:01 // UTC</span>
+</div>
+</div>
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-tertiary text-lg">database</span>
+<div>
+<p class="text-xs font-body text-on-surface">Gutenberg Indexing Phase 3 Started</p>
+<span class="text-[9px] font-label text-outline uppercase">12:10:45 // UTC</span>
+</div>
+</div>
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-outline text-lg">search</span>
+<div>
+<p class="text-xs font-body text-on-surface">Global query: "Quantum Cryptography"</p>
+<span class="text-[9px] font-label text-outline uppercase">YESTERDAY // 21:05</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Navigation History -->
+<div class="p-6 flex-1 overflow-y-auto">
+<h2 class="font-headline text-xs font-bold uppercase tracking-widest text-primary mb-6">Navigation History</h2>
+<div class="space-y-2">
+<div class="group flex items-center justify-between p-2 hover:bg-surface-container-high cursor-pointer transition-colors">
+<div class="flex items-center gap-3">
+<span class="w-1 h-4 bg-primary-container"></span>
+<span class="text-xs font-label uppercase tracking-wider text-on-surface">Wikipedia :: Home</span>
+</div>
+<span class="material-symbols-outlined text-xs text-outline opacity-0 group-hover:opacity-100">arrow_forward</span>
+</div>
+<div class="group flex items-center justify-between p-2 hover:bg-surface-container-high cursor-pointer transition-colors">
+<div class="flex items-center gap-3">
+<span class="w-1 h-4 bg-outline-variant"></span>
+<span class="text-xs font-label uppercase tracking-wider text-outline">Gutenberg :: Browsing</span>
+</div>
+<span class="material-symbols-outlined text-xs text-outline opacity-0 group-hover:opacity-100">arrow_forward</span>
+</div>
+<div class="group flex items-center justify-between p-2 hover:bg-surface-container-high cursor-pointer transition-colors">
+<div class="flex items-center gap-3">
+<span class="w-1 h-4 bg-outline-variant"></span>
+<span class="text-xs font-label uppercase tracking-wider text-outline">System :: Archive Settings</span>
+</div>
+<span class="material-symbols-outlined text-xs text-outline opacity-0 group-hover:opacity-100">arrow_forward</span>
+</div>
+</div>
+</div>
+<!-- System Health HUD -->
+<div class="mt-auto p-6 bg-surface-container-lowest">
+<div class="flex justify-between items-center mb-4">
+<span class="text-[9px] font-label text-primary uppercase tracking-[0.2em]">System Telemetry</span>
+<span class="flex h-2 w-2 rounded-full bg-primary-container animate-pulse"></span>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center text-[10px] font-label">
+<span class="text-outline uppercase">CPU Usage</span>
+<span class="text-on-surface">24.5%</span>
+</div>
+<div class="h-0.5 bg-outline-variant/20 relative">
+<div class="absolute inset-y-0 left-0 bg-primary-container w-[24.5%]"></div>
+</div>
+<div class="flex justify-between items-center text-[10px] font-label">
+<span class="text-outline uppercase">Memory Buffer</span>
+<span class="text-on-surface">1.4 GB / 8 GB</span>
+</div>
+<div class="h-0.5 bg-outline-variant/20 relative">
+<div class="absolute inset-y-0 left-0 bg-primary-container w-[18%]"></div>
+</div>
+</div>
+</div>
+</aside>
+</main>
+<!-- Telemetry HUD Bottom Bar -->
+<footer class="fixed bottom-0 left-0 w-full z-50 flex justify-between px-8 items-center bg-[#1a1c20]/60 backdrop-blur-xl h-10 border-t border-[#3b494c]/15 shadow-[0_-40px_40px_rgba(0,218,243,0.06)]">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-2 text-[#00E5FF]">
+<span class="material-symbols-outlined text-xs">analytics</span>
+<span class="font-['Inter'] text-[9px] font-medium tracking-widest uppercase">Telemetry Active</span>
+</div>
+<div class="flex items-center gap-2 text-[#3b494c]">
+<span class="material-symbols-outlined text-xs">explore_off</span>
+<span class="font-['Inter'] text-[9px] font-medium tracking-widest uppercase">Offline Protocol</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="text-[9px] font-label text-outline uppercase tracking-widest">Coord: 40.7128° N, 74.0060° W</span>
+<div class="flex items-center gap-2 text-[#00E5FF]">
+<span class="material-symbols-outlined text-xs">database</span>
+<span class="font-['Inter'] text-[9px] font-medium tracking-widest uppercase">System Stable</span>
+</div>
+</div>
+</footer>
+</body></html>

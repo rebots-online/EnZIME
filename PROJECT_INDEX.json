@@ -1,0 +1,147 @@
+{
+  "_parity_notice": "Paired with PROJECT_INDEX.md. Both must be in the project root with matching timestamps and data. If they disagree, both are suspect — regenerate from source.",
+  "meta": {
+    "generated": "2026-05-26",
+    "project": "EnZIME Suite",
+    "version": "0.1.0",
+    "branch": "master",
+    "head": "2e066ca",
+    "license": "AGPL-3.0-or-later",
+    "repository": "https://git.robin.mba/rcheung/EnZIME"
+  },
+  "apps": {
+    "reader": {
+      "name": "EnZIME",
+      "identifier": "mba.robin.enzime",
+      "backend": "src-tauri/",
+      "frontend": "src/",
+      "features": ["desktop", "play", "sideload"],
+      "default_feature": "desktop"
+    },
+    "creator": {
+      "name": "EnZIME Creator",
+      "identifier": "mba.robin.enzime.creator",
+      "path": "creator/",
+      "status": "scaffolded"
+    },
+    "extension": {
+      "name": "EnZIME Extension",
+      "path": "extension/",
+      "status": "scaffolded",
+      "files": ["extension/src/background.ts", "extension/src/content.ts"]
+    }
+  },
+  "workspace": {
+    "members": ["src-tauri", "src-tauri/anzimmermanlib/rust", "bridge"],
+    "exclude": ["vendor/tauri", "vendor/litert-lm"]
+  },
+  "entry_points": [
+    {"name": "Reader binary", "path": "src-tauri/src/main.rs"},
+    {"name": "Reader lib", "path": "src-tauri/src/lib.rs"},
+    {"name": "Frontend", "path": "src/App.tsx"},
+    {"name": "Bridge binary", "path": "bridge/src/main.rs"},
+    {"name": "Creator binary", "path": "creator/src-tauri/src/main.rs"},
+    {"name": "Extension BG", "path": "extension/src/background.ts"},
+    {"name": "Extension content", "path": "extension/src/content.ts"}
+  ],
+  "rust_modules": {
+    "ai": {
+      "path": "src-tauri/src/ai/",
+      "files": ["mod.rs", "audio.rs", "context.rs", "gemma_audio.rs", "null.rs", "sampler.rs", "tokens.rs", "probe.rs", "litert/mod.rs", "litert/config.rs"],
+      "traits": ["LlmRuntime", "AudioEncoder", "Tts"],
+      "types": ["Variant"]
+    },
+    "billing": {
+      "path": "src-tauri/src/billing/",
+      "files": ["mod.rs", "mode.rs", "paywall.rs", "revenuecat.rs", "local_payload.rs", "restore.rs"],
+      "traits": ["EntitlementController"],
+      "types": ["BillingMode", "RestoreResult"]
+    },
+    "pack_catalog": {
+      "path": "src-tauri/src/pack_catalog/",
+      "files": ["mod.rs", "manifest.rs", "bundled.rs", "local.rs", "lan.rs", "media.rs", "progress.rs", "types.rs"],
+      "traits": ["PackCatalog"],
+      "types": ["ZimPack", "PackProgress"]
+    },
+    "sidecar": {
+      "path": "src-tauri/src/sidecar/",
+      "files": ["mod.rs", "chunk.rs", "codec.rs", "identity.rs", "payload.rs", "sign.rs", "store.rs", "trust.rs", "verify.rs", "voice_blob.rs"],
+      "types": ["Sidecar", "SidecarMeta", "Payload", "SidecarSigner", "SidecarStore", "SidecarIndex", "TrustLevel", "TrustEntry", "TrustDb", "VoiceClipBlobStore"]
+    },
+    "model_fetcher": {
+      "path": "src-tauri/src/model_fetcher/",
+      "files": ["mod.rs", "manifest.rs", "mirror.rs", "null.rs", "progress.rs", "pad.rs", "media.rs"],
+      "traits": ["ModelFetcher"],
+      "types": ["DownloadProgress"]
+    },
+    "storage": {
+      "path": "src-tauri/src/storage/",
+      "files": ["mod.rs", "annotations.rs", "bookmarks.rs", "chat.rs", "migrations.rs", "settings.rs"],
+      "types": ["Storage"]
+    },
+    "other": {
+      "commands": "src-tauri/src/commands.rs",
+      "state": "src-tauri/src/state.rs",
+      "error": "src-tauri/src/error.rs",
+      "launch": "src-tauri/src/launch/",
+      "app_update": "src-tauri/src/app_update/",
+      "global_search": "src-tauri/src/global_search/",
+      "paths": "src-tauri/src/paths/mod.rs",
+      "log": "src-tauri/src/log/mod.rs",
+      "panic": "src-tauri/src/panic/mod.rs",
+      "window_state": "src-tauri/src/window_state/mod.rs",
+      "platform_android": "src-tauri/src/platform_android/"
+    }
+  },
+  "bridge": {
+    "path": "bridge/src/",
+    "files": ["main.rs", "lib.rs", "webhook.rs", "rc.rs", "hmac.rs", "ledger.rs", "health.rs"]
+  },
+  "frontend": {
+    "components": [
+      "AnnotationsList", "ArticleViewer", "BookmarksList", "ChatPane",
+      "FirstLaunchGate", "GlobalSearchBar", "MediaImportFlow", "MessageItem",
+      "MessageList", "ModelDownloadProgress", "PackCatalogBrowser",
+      "PackInstallProgress", "PaywallOverlay", "PeerTrustManager",
+      "SettingsPane", "SidecarExportButton", "SidecarImportFlow",
+      "UpdateNotification", "VariantBadge", "VariantOverridePanel", "ZimBrowser"
+    ],
+    "stores": ["app", "chat", "entitlement", "pack", "sidecar", "variant", "zim"],
+    "other": ["theme.ts", "bridge.ts"]
+  },
+  "scripts": [
+    "build-android.sh", "build-linux.sh", "build-windows.sh",
+    "sign-release.sh", "sign-mirror-manifest.sh", "sign-pack-catalog.sh",
+    "version-bump.sh", "hooks/pre-push"
+  ],
+  "dependencies": {
+    "tauri": {"version": "2", "source": "vendored"},
+    "anzimmermanlib": {"source": "path (src-tauri/anzimmermanlib/rust)"},
+    "rusqlite": "0.31",
+    "ed25519-dalek": "2.1",
+    "reqwest": "0.12",
+    "tokio": "1",
+    "serde": "1.0",
+    "serde_json": "1.0",
+    "ciborium": "0.2",
+    "axum": {"version": "0.8", "crate": "bridge"}
+  },
+  "gotchas": [
+    "No LFS to GitHub — scripts/hooks/pre-push blocks LFS blobs; GitHub is mirror-only.",
+    "INV-OFFLINE — every feature must work in airplane mode; online is additive only.",
+    "INV-NO-EXPO — no Expo/RN runtime; Tauri 2 + Vite only.",
+    "INV-NO-APPLE — no Apple targets on ideological grounds.",
+    "Vendored SDKs — Tauri and LiteRT-LM are source-vendored, not crate deps.",
+    "Three flavors — desktop/play/sideload are compile-time features, not runtime toggles.",
+    "Versioning — MAJOR.MINOR.BUILD (no PATCH); MINOR autoincrements on every CI invocation.",
+    "Forgejo = canonical — SSH remotes only (git@git.robin.mba); HTTPS can 504 on large pushes."
+  ],
+  "stats": {
+    "rust_source_files": 75,
+    "typescript_files": 29,
+    "total_source_lines": 7352,
+    "bridge_files": 7,
+    "scripts": 8,
+    "gotchas": 8
+  }
+}

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-sidecar-create"
+description = "Enables the sidecar_create command without any pre-configured scope."
+commands.allow = ["sidecar_create"]
+
+[[permission]]
+identifier = "deny-sidecar-create"
+description = "Denies the sidecar_create command without any pre-configured scope."
+commands.deny = ["sidecar_create"]

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ZIM Reader | Library</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/font/static/Geist-Regular.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .active-nav-indicator {
+      position: absolute;
+      left: 0;
+      width: 4px;
+      height: 24px;
+      background-color: #4fdbc8;
+      border-radius: 0 4px 4px 0;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #051424;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #3c4947;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #14b8a6;
+    }
+  </style>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "tertiary-fixed": "#dae2fd",
+            "surface": "#051424",
+            "secondary-fixed": "#62fae3",
+            "on-tertiary-fixed-variant": "#3f465c",
+            "surface-container-low": "#0d1c2d",
+            "surface-bright": "#2c3a4c",
+            "inverse-surface": "#d4e4fa",
+            "on-primary": "#003731",
+            "outline": "#859490",
+            "primary-fixed-dim": "#4fdbc8",
+            "on-background": "#d4e4fa",
+            "error-container": "#93000a",
+            "surface-tint": "#4fdbc8",
+            "surface-variant": "#273647",
+            "surface-container-lowest": "#010f1f",
+            "secondary-container": "#03c6b2",
+            "tertiary": "#bec6e0",
+            "on-primary-fixed-variant": "#005048",
+            "primary-fixed": "#71f8e4",
+            "on-tertiary-container": "#323a4f",
+            "on-surface": "#d4e4fa",
+            "surface-dim": "#051424",
+            "inverse-on-surface": "#233143",
+            "secondary-fixed-dim": "#3cddc7",
+            "on-secondary-container": "#004d44",
+            "tertiary-container": "#9ca4bd",
+            "on-surface-variant": "#bbcac6",
+            "on-secondary-fixed": "#00201c",
+            "on-error": "#690005",
+            "on-secondary": "#003731",
+            "outline-variant": "#3c4947",
+            "on-secondary-fixed-variant": "#005047",
+            "on-tertiary-fixed": "#131b2e",
+            "on-primary-container": "#00423b",
+            "surface-container": "#122131",
+            "on-primary-fixed": "#00201c",
+            "surface-container-high": "#1c2b3c",
+            "error": "#ffb4ab",
+            "secondary": "#44e2cd",
+            "primary-container": "#14b8a6",
+            "inverse-primary": "#006b5f",
+            "background": "#051424",
+            "on-error-container": "#ffdad6",
+            "surface-container-highest": "#273647",
+            "on-tertiary": "#283044",
+            "tertiary-fixed-dim": "#bec6e0",
+            "primary": "#4fdbc8"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "margin-desktop": "40px",
+            "base": "8px",
+            "margin-mobile": "16px",
+            "container-max": "1024px",
+            "gutter": "24px"
+          },
+          "fontFamily": {
+            "body-md": ["Geist"],
+            "headline-lg": ["Space Grotesk"],
+            "display-lg": ["Space Grotesk"],
+            "label-md": ["Space Grotesk"],
+            "headline-md": ["Space Grotesk"],
+            "code": ["Geist"]
+          },
+          "fontSize": {
+            "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+            "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+            "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+            "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+            "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "500"}],
+            "code": ["14px", {"lineHeight": "1.4", "fontWeight": "400"}]
+          }
+        },
+      },
+    }
+  </script>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen">
+<!-- Side Navigation Rail (Shared Component: SideNavBar) -->
+<aside class="bg-surface dark:bg-surface h-screen w-[72px] fixed left-0 top-0 border-r border-outline-variant dark:border-outline-variant flex flex-col items-center py-base space-y-gutter z-50">
+<div class="mb-8 mt-2">
+<div class="font-display-lg text-primary text-[28px] tracking-tighter font-bold">EZ</div>
+</div>
+<nav class="flex flex-col items-center space-y-8 w-full">
+<!-- Library (Active) -->
+<a class="relative flex flex-col items-center text-primary dark:text-primary font-bold transition-transform duration-150 scale-95 group" href="#">
+<div class="active-nav-indicator"></div>
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">library_books</span>
+<span class="font-label-md text-[10px] mt-1 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest">Library</span>
+</a>
+<!-- Downloads -->
+<a class="flex flex-col items-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant/50 transition-colors w-full py-2 group" href="#">
+<span class="material-symbols-outlined text-[28px]">dynamic_feed</span>
+<span class="font-label-md text-[10px] mt-1 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest text-center">Data</span>
+</a>
+<!-- Bookmarks -->
+<a class="flex flex-col items-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant/50 transition-colors w-full py-2 group" href="#">
+<span class="material-symbols-outlined text-[28px]">bookmarks</span>
+<span class="font-label-md text-[10px] mt-1 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest">Saves</span>
+</a>
+<!-- Annotations -->
+<a class="flex flex-col items-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant/50 transition-colors w-full py-2 group" href="#">
+<span class="material-symbols-outlined text-[28px]">edit_note</span>
+<span class="font-label-md text-[10px] mt-1 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest">Notes</span>
+</a>
+</nav>
+<div class="mt-auto pb-4 w-full flex flex-col items-center space-y-6">
+<a class="flex flex-col items-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant/50 transition-colors w-full py-2 group" href="#">
+<span class="material-symbols-outlined text-[28px]">settings</span>
+</a>
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center overflow-hidden">
+<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB80fRMNmdjra_7WzUL6xH1uw2Nh2Zx2oxLj-bEt36WrnoA4jwyYxp1iWqCCnTRbdwozB4PXZKdzSjxBJ_wvhW5YVJ4ayg9zfrV6FYeH0enDVKvHDk_AVtjntezDAn64pA_7ekXmBLOvEXQvsneui5flyx5A7kHDUg-3A_W05bHAbPci6AfNpxpg0u0nhZtePayO0GPGLor3xbZjbH-nV0-nvvfuLoTWcz7RYV0ca6ciHso5b5Y5Q9R-ozt4HsTk9zxrQNBRH7GFKA"/>
+</div>
+</div>
+</aside>
+<!-- Top App Bar (Shared Component: TopAppBar) -->
+<header class="bg-surface dark:bg-surface docked full-width top-0 sticky border-b border-outline-variant dark:border-outline-variant flex justify-between items-center w-full px-margin-desktop py-base ml-[72px] max-w-[calc(100%-72px)] z-40">
+<div class="flex-1 max-w-2xl relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-3 pl-12 pr-4 font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all" placeholder="Search all your knowledge..." type="text"/>
+</div>
+<div class="flex items-center space-x-6">
+<div class="flex items-center space-x-2 bg-surface-container-high px-3 py-1.5 rounded-full border border-outline-variant/50">
+<span class="flex h-2 w-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-label-md text-label-md text-primary tracking-normal">On-device AI ready</span>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 opacity-90 hover:opacity-100">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-[72px] p-margin-desktop grid grid-cols-12 gap-gutter max-w-[1600px] mx-auto">
+<!-- Center Content Column -->
+<div class="col-span-12 lg:col-span-9 space-y-10">
+<!-- Continue Reading Hero -->
+<section>
+<div class="relative overflow-hidden rounded-xl bg-surface-container border border-outline-variant group cursor-pointer transition-all hover:border-primary/50">
+<div class="flex flex-col md:flex-row h-full md:h-64">
+<!-- Thumbnail -->
+<div class="md:w-1/3 w-full h-48 md:h-full relative overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A macro cinematic photograph of a vibrant green leaf showing complex crystalline cell structures and sunlight filtering through, high contrast lighting with deep nocturnal shadows, teal color accents on the leaf edges, hyper-realistic nature photography for an educational encyclopedia feel." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6GNOFXB5jTRXZvMtkD5GWinjuFcXUGL-MWUrgI4C3JPSljYiLSjW6anKq9aT25a48X2eF4kgd0G8hA1OjScyj0bqN9VfnHfM-ZXd9lbnzZy7iTDcY_l4t4Ag0faIw6AVLSJB5oZn8igJkf9Hpjyb5EZmXnbBz0tsC_LMIqA99UWoaqSH7kYxlr4MDX4vmTkxsG6g048kvQnu6x4NbBK6A4sa8Cc8tDSKmlkq_Bl5yRjSvxGDWR5xcM2OV3oqox96fLU14xcEcTSo"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container via-transparent to-transparent"></div>
+</div>
+<!-- Details -->
+<div class="p-8 flex-1 flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="font-label-md text-primary bg-primary/10 px-2 py-0.5 rounded text-[10px] uppercase tracking-widest">Continue Reading</span>
+<span class="text-on-surface-variant font-body-md text-sm">• Wikipedia (English)</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-4">Photosynthesis</h1>
+<p class="text-on-surface-variant font-body-md max-w-lg line-clamp-2">
+                  The process by which green plants and some other organisms use sunlight to synthesize foods with the help of chlorophyll.
+                </p>
+</div>
+<div class="flex items-center gap-6 mt-6">
+<button class="bg-primary text-on-primary px-8 py-2 rounded-lg font-label-md text-label-md hover:bg-primary-fixed-dim transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">play_arrow</span>
+                  Resume
+                </button>
+<div class="flex-1 max-w-[200px]">
+<div class="flex justify-between items-center mb-1.5">
+<span class="text-[10px] font-label-md text-on-surface-variant uppercase">Reading Progress</span>
+<span class="text-[10px] font-label-md text-primary">64%</span>
+</div>
+<div class="w-full h-1 bg-outline-variant rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[64%] shadow-[0_0_8px_rgba(20,184,166,0.4)]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Your Packs Section -->
+<section class="space-y-6">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-md text-headline-md text-on-surface">Your packs</h2>
+<button class="text-primary font-label-md text-label-md flex items-center gap-2 hover:underline">
+            Manage Storage
+            <span class="material-symbols-outlined text-[18px]">storage</span>
+</button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+<!-- Pack Card 1 -->
+<div class="bg-surface-container border border-outline-variant rounded-lg p-4 flex flex-col group hover:border-primary/50 transition-all cursor-pointer">
+<div class="aspect-[3/4] rounded mb-4 overflow-hidden relative">
+<img class="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500" data-alt="A stack of classic antique books with weathered leather covers arranged in a dark moody library setting, soft teal glow from a hidden light source illuminating the textures of the paper, cinematic and professional photography aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOT6jcI8vDeA-0AAfjE5cC4LNqX8Y0M5CKeEBB4o1hkQHL0JQGPQft3QStT3alJp36w_Lzqu5R6SBAakntBjKmXWvoIpLKKgk-uOT5ZfLBQDReLbnob19U4KalEBJ1DYmZH6Auh-eVSAt0mU2k3F4mzcLCd-JH9_JaaEyLTdTH4oi5NsPJrjuzHEJcCkSLoTGkZbdW8dS2JxjoqTFFYNg4XmYllfa7fiWfJDrDT9am2L1g_yhu7SqVUGiYPt4lcfvZUn2_yR0waCc"/>
+</div>
+<h3 class="font-label-md text-on-surface mb-1 truncate">Wikipedia (English)</h3>
+<div class="flex flex-col space-y-1">
+<div class="flex items-center gap-2 text-[12px] text-on-surface-variant font-code uppercase">
+<span class="material-symbols-outlined text-[14px]">database</span>
+                84.2 GB
+              </div>
+<div class="flex items-center gap-2 text-[12px] text-on-surface-variant font-code uppercase">
+<span class="material-symbols-outlined text-[14px]">article</span>
+                6.5M Articles
+              </div>
+</div>
+</div>
+<!-- Pack Card 2 -->
+<div class="bg-surface-container border border-outline-variant rounded-lg p-4 flex flex-col group hover:border-primary/50 transition-all cursor-pointer">
+<div class="aspect-[3/4] rounded mb-4 overflow-hidden relative">
+<img class="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500" data-alt="A close up of a modern medical stethoscope resting on a clean clinical surface, soft clinical blue and teal lighting, sterile and high-tech medical environment aesthetic, minimalist and clean composition." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBy1HaojkJEHQ3YrKiUAkSCnhOs2AbIzirrO1Wh1Iwqle4BDS6m_KE3gzAyoNMwPieQ9DdiSFzg3CvkYqkoQXpSQm5Be5SjCYllUoS_-0kSJ9XuR2Kg7ZTl8UWpF_QhCvy6bUEUaONxBCS-OM6DxXUhjJYkw_Waca7cbfGEJwUz0n82Xpf8UjKFWq98lT4IhTD4cP1REoSb0qP5Ciqy50i_uCKL_C01Rw0244OkLM0FKdf8m3U3HrfEKdvX8-4ClrQdWOltSRsiUi0"/>
+</div>
+<h3 class="font-label-md text-on-surface mb-1 truncate">Where There Is No Doctor</h3>
+<div class="flex flex-col space-y-1">
+<div class="flex items-center gap-2 text-[12px] text-on-surface-variant font-code uppercase">
+<span class="material-symbols-outlined text-[14px]">database</span>
+                1.4 GB
+              </div>
+<div class="flex items-center gap-2 text-[12px] text-on-surface-variant font-code uppercase">
+<span class="material-symbols-outlined text-[14px]">article</span>
+                12k Articles
+              </div>
+</div>
+</div>
+<!-- Pack Card 3 -->
+<div class="bg-surface-container border border-outline-variant rounded-lg p-4 flex flex-col group hover:border-primary/50 transition-all cursor-pointer">
+<div class="aspect-[3/4] rounded mb-4 overflow-hidden relative">
+<img class="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500" data-alt="A vintage military compass and a weathered field map resting on rough burlap fabric, dim dramatic lighting with deep shadows and subtle teal highlights on the brass compass, rugged outdoor survival aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuASMZUfNazshebkwH5pWnX3_Cwy9k75UBplfOc-AnL2XFhf6W1nsyi9jNAlDJ3StndaKm5kD_boLvN0DwQtyptn9W_4TLU-zMqjywPUEMq0r9EmAgfmbIQOl9z3xB4GkpZqVaH_PJYNV03OLH4oC0y7zgs2NY1u0Kwu9WwoDavCrv4nCScKOgRwX0Wlh0_S4GcUbpUonYLxntIGlBCl_Mo0IYmmSKzBbo0_ypen2O4HCy41vr5g5GZJvHmDN7pGEGwTX87kmgZXA70"/>
+</div>
+<h3 class="font-label-md text-on-surface mb-1 truncate">Military Survival Manuals</h3>
+<div class="flex flex-col space-y-1">
+<div class="flex items-center gap-2 text-[12px] text-on-surface-variant font-code uppercase">
+<span class="material-symbols-outlined text-[14px]">database</span>
+                820 MB
+              </div>
+<div class="flex items-center gap-2 text-[12px] text-on-surface-variant font-code uppercase">
+<span class="material-symbols-outlined text-[14px]">article</span>
+                4k Articles
+              </div>
+</div>
+</div>
+<!-- Pack Card 4 -->
+<div class="bg-surface-container border border-outline-variant rounded-lg p-4 flex flex-col group hover:border-primary/50 transition-all cursor-pointer">
+<div class="aspect-[3/4] rounded mb-4 overflow-hidden relative">
+<img class="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500" data-alt="Close-up of a typewriter key hitting paper, ink smudges and crisp letter textures, atmospheric dark library setting with teal nocturnal shadows, intellectual and academic visual style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbhUAf6_f2zP1bdvrRcqBtuaGFmPXBsUtzPSRBEf9MIypYYm3IxFJCeJbYNZ4WuA9F1V0IKso7VJPBDmWKnJ3oZy5tgKlGxkEQDaTIpETwy-GdIfhd3x2UVevEb6Y0LB6HpFteyBaZ-vnZbzhdc0KFQd86kBJe8nHLhwdlhhbqaYXJZV7KTY1L_x8fLHAAbef6x1lQTa2WLhizI2IkOAigiSSAqP8prcNDCbp8DUB0Tf-vKs5KxPNGrBymZ6gM3lPHGx9fXBlhsB8"/>
+</div>
+<h3 class="font-label-md text-on-surface mb-1 truncate">Wiktionary</h3>
+<div class="flex flex-col space-y-1">
+<div class="flex items-center gap-2 text-[12px] text-on-surface-variant font-code uppercase">
+<span class="material-symbols-outlined text-[14px]">database</span>
+                12.8 GB
+              </div>
+<div class="flex items-center gap-2 text-[12px] text-on-surface-variant font-code uppercase">
+<span class="material-symbols-outlined text-[14px]">article</span>
+                1.2M Articles
+              </div>
+</div>
+</div>
+<!-- Add Pack Card -->
+<div class="border-2 border-dashed border-outline-variant rounded-lg p-4 flex flex-col items-center justify-center group hover:border-primary hover:bg-primary/5 transition-all cursor-pointer min-h-[300px]">
+<div class="w-12 h-12 rounded-full border border-outline-variant flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">add</span>
+</div>
+<span class="font-label-md text-on-surface-variant group-hover:text-primary uppercase tracking-widest text-[12px]">Get more packs</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Sidebar (Annotations & Status) -->
+<aside class="col-span-12 lg:col-span-3 space-y-8">
+<!-- Recent Annotations -->
+<section class="bg-surface-container-low border border-outline-variant rounded-xl p-6">
+<h3 class="font-label-md text-on-surface uppercase tracking-widest text-[12px] mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">edit_note</span>
+          Recent annotations
+        </h3>
+<div class="space-y-6">
+<!-- Annotation 1 -->
+<div class="group cursor-pointer">
+<h4 class="font-label-md text-on-surface group-hover:text-primary transition-colors text-[13px] mb-1">Stomata - Cellular Gas Exchange</h4>
+<p class="text-on-surface-variant font-body-md text-[13px] line-clamp-2 italic leading-relaxed border-l-2 border-primary/30 pl-3 py-1">
+              "The density of stomata varies considerably with environmental conditions..."
+            </p>
+<div class="flex justify-between items-center mt-2">
+<span class="text-[10px] font-code text-outline uppercase">2 hours ago</span>
+<span class="text-[10px] font-code text-primary uppercase">Wikipedia</span>
+</div>
+</div>
+<!-- Annotation 2 -->
+<div class="group cursor-pointer">
+<h4 class="font-label-md text-on-surface group-hover:text-primary transition-colors text-[13px] mb-1">First Aid - Hemorrhage Control</h4>
+<p class="text-on-surface-variant font-body-md text-[13px] line-clamp-2 italic leading-relaxed border-l-2 border-primary/30 pl-3 py-1">
+              "Direct pressure should be applied for at least 10 minutes without checking..."
+            </p>
+<div class="flex justify-between items-center mt-2">
+<span class="text-[10px] font-code text-outline uppercase">Yesterday</span>
+<span class="text-[10px] font-code text-primary uppercase">No Doctor</span>
+</div>
+</div>
+<!-- Annotation 3 -->
+<div class="group cursor-pointer">
+<h4 class="font-label-md text-on-surface group-hover:text-primary transition-colors text-[13px] mb-1">Survival - Water Purification</h4>
+<p class="text-on-surface-variant font-body-md text-[13px] line-clamp-2 italic leading-relaxed border-l-2 border-primary/30 pl-3 py-1">
+              "Boiling remains the most effective method in alpine environments..."
+            </p>
+<div class="flex justify-between items-center mt-2">
+<span class="text-[10px] font-code text-outline uppercase">3 days ago</span>
+<span class="text-[10px] font-code text-primary uppercase">Survival</span>
+</div>
+</div>
+</div>
+<button class="w-full mt-8 py-2 border border-outline-variant rounded font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest hover:bg-surface-variant/30 transition-colors">
+          View all notes
+        </button>
+</section>
+<!-- Hardware Status Summary -->
+<section class="bg-surface-container-low border border-outline-variant rounded-xl p-6">
+<h3 class="font-label-md text-on-surface uppercase tracking-widest text-[12px] mb-4">Hardware Integrity</h3>
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<span class="font-code text-[12px] text-on-surface-variant uppercase">Local Indexing</span>
+<span class="h-2 w-2 rounded-full bg-[#22c55e]"></span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-code text-[12px] text-on-surface-variant uppercase">Model Temp</span>
+<span class="font-code text-[12px] text-on-surface">32°C</span>
+</div>
+<div class="space-y-1.5">
+<div class="flex justify-between items-center">
+<span class="font-code text-[11px] text-outline uppercase">RAM Usage</span>
+<span class="font-code text-[11px] text-on-surface">4.2 / 16GB</span>
+</div>
+<div class="w-full h-1 bg-outline-variant rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[26%]"></div>
+</div>
+</div>
+</div>
+</section>
+</aside>
+</main>
+<!-- Interaction Scripts -->
+<script>
+    // Micro-interaction for search bar focus
+    const searchInput = document.querySelector('input[type="text"]');
+    searchInput.addEventListener('focus', () => {
+      searchInput.parentElement.classList.add('scale-[1.01]');
+    });
+    searchInput.addEventListener('blur', () => {
+      searchInput.parentElement.classList.remove('scale-[1.01]');
+    });
+
+    // Subtle fade-in animation for content cards
+    const cards = document.querySelectorAll('.bg-surface-container');
+    cards.forEach((card, index) => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(10px)';
+      card.style.transition = `all 0.5s ease ${index * 0.05}s`;
+      
+      setTimeout(() => {
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+      }, 100);
+    });
+  </script>
+</body></html>

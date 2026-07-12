@@ -1,0 +1,85 @@
+# E-BLD-5: Forgejo CI build matrix
+# Matrix: [platform, flavor] × valid combinations
+# E-BLD-25: Forgejo runner labels use [label] syntax without 'self-hosted'
+
+name: Build
+
+on:
+  push:
+    branches: [master]
+  pull_request: {}
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ${{ matrix.platform }}
+    container:
+      image: ${{ matrix.container_image }}
+    strategy:
+      matrix:
+        include:
+          # linux-amd64 × desktop
+          - platform: linux-amd64
+            flavor: desktop
+            target_triple: x86_64-unknown-linux-gnu
+            artifact_paths: |
+              src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb
+              src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
+            container_image: git.robin.mba/rcheung/ci-images/tauri-linux:rust1.83-node24-2026q2
+            build_script: scripts/build-linux.sh
+          # linux-amd64 × sideload
+          - platform: linux-amd64
+            flavor: sideload
+            target_triple: x86_64-unknown-linux-gnu
+            artifact_paths: |
+              src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb
+              src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
+            container_image: git.robin.mba/rcheung/ci-images/tauri-linux:rust1.83-node24-2026q2
+            build_script: scripts/build-linux.sh
+          # windows-x64-cross × desktop
+          - platform: windows-x64-cross
+            flavor: desktop
+            target_triple: x86_64-pc-windows-msvc
+            artifact_paths: |
+              src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi
+              src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+            container_image: git.robin.mba/rcheung/ci-images/tauri-windows-cross:rust1.83-xwin0.21.4-2026q2
+            build_script: scripts/build-windows.sh
+          # windows-x64-cross × sideload
+          - platform: windows-x64-cross
+            flavor: sideload
+            target_triple: x86_64-pc-windows-msvc
+            artifact_paths: |
+              src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi
+              src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+            container_image: git.robin.mba/rcheung/ci-images/tauri-windows-cross:rust1.83-xwin0.21.4-2026q2
+            build_script: scripts/build-windows.sh
+          # android × sideload
+          - platform: android
+            flavor: sideload
+            artifact_paths: |
+              src-tauri/gen/android/app/build/outputs/apk/*.apk
+              src-tauri/gen/android/app/build/outputs/bundle/*.aab
+            container_image: git.robin.mba/rcheung/ci-images/tauri-android:sdk35-ndk27.2.12479018-rust1.83-2026q2
+            build_script: scripts/build-android.sh
+          # android × play
+          - platform: android
+            flavor: play
+            artifact_paths: |
+              src-tauri/gen/android/app/build/outputs/apk/*.apk
+              src-tauri/gen/android/app/build/outputs/bundle/*.aab
+            container_image: git.robin.mba/rcheung/ci-images/tauri-android:sdk35-ndk27.2.12479018-rust1.83-2026q2
+            build_script: scripts/build-android.sh
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ${{ matrix.platform }} ${{ matrix.flavor }}
+        run: bash ${{ matrix.build_script }} ${{ matrix.flavor }}
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: enzime-${{ matrix.platform }}-${{ matrix.flavor }}
+          path: ${{ matrix.artifact_paths }}
+          retention-days: 7

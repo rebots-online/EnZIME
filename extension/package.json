@@ -1,0 +1,13 @@
+{
+  "name": "enzime-extension",
+  "private": true,
+  "version": "0.0.0",
+  "description": "EnZIME Extension — browser-side page clipper that feeds the EnZIME Creator app (bootstrap stub)",
+  "scripts": {
+    "build": "echo 'TS build toolchain pending — see ./CHECKLIST.md X0 rows; architect session decides Vite vs esbuild' && exit 1",
+    "dev": "echo 'TS build toolchain pending — see ./CHECKLIST.md X0 rows' && exit 1"
+  },
+  "devDependencies": {
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "deliveries": [
+    {
+      "module_name": "qwen-pack",
+      "delivery_type": "install-time",
+      "conditions": []
+    },
+    {
+      "module_name": "gemma-pack-q4",
+      "delivery_type": "install-time",
+      "conditions": [
+        {
+          "device-feature": "android.hardware.gpu",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

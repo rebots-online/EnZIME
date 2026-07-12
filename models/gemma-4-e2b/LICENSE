@@ -1,0 +1,14 @@
+GEMMA TERMS OF USE — PLACEHOLDER
+
+The real Gemma 4 e2b LICENSE text must be pasted here verbatim from
+the upstream model card upon weight acquisition (M-GEMMA 3.2). Until
+then, this file documents the slot.
+
+Source-of-truth at: https://ai.google.dev/gemma/terms (or equivalent
+upstream URL at acquisition time).
+
+Operator acknowledgement required at M-GEMMA 3.2 execution:
+- Read Gemma Terms of Use
+- Accept on Hugging Face / Google AI Studio
+- Paste full text into this file
+- Confirm downstream redistribution complies with the license

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-enzime-version"
+description = "Enables the enzime_version command without any pre-configured scope."
+commands.allow = ["enzime_version"]
+
+[[permission]]
+identifier = "deny-enzime-version"
+description = "Denies the enzime_version command without any pre-configured scope."
+commands.deny = ["enzime_version"]

@@ -1,0 +1,10 @@
+{
+  "name": "enzime-creator-frontend",
+  "private": true,
+  "version": "0.0.0",
+  "description": "EnZIME Creator frontend — Vite + React + TypeScript (scaffold pending)",
+  "scripts": {
+    "dev": "echo 'Vite scaffold pending — see ../CHECKLIST.md C0.9 (frontend init)' && exit 1",
+    "build": "echo 'Vite scaffold pending — see ../CHECKLIST.md C0.9 (frontend init)' && exit 1"
+  }
+}

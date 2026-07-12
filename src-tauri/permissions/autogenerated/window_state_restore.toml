@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-window-state-restore"
+description = "Enables the window_state_restore command without any pre-configured scope."
+commands.allow = ["window_state_restore"]
+
+[[permission]]
+identifier = "deny-window-state-restore"
+description = "Denies the window_state_restore command without any pre-configured scope."
+commands.deny = ["window_state_restore"]

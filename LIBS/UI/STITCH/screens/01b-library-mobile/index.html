@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-lowest": "#010f1f",
+            "primary-container": "#14b8a6",
+            "tertiary-fixed-dim": "#bec6e0",
+            "secondary-fixed": "#62fae3",
+            "on-error": "#690005",
+            "outline-variant": "#3c4947",
+            "on-secondary-fixed-variant": "#005047",
+            "on-primary": "#003731",
+            "on-background": "#d4e4fa",
+            "on-primary-container": "#00423b",
+            "surface-container-low": "#0d1c2d",
+            "tertiary-container": "#9ca4bd",
+            "inverse-on-surface": "#233143",
+            "outline": "#859490",
+            "primary-fixed": "#71f8e4",
+            "on-surface-variant": "#bbcac6",
+            "inverse-primary": "#006b5f",
+            "surface-container": "#122131",
+            "surface-tint": "#4fdbc8",
+            "error": "#ffb4ab",
+            "secondary-container": "#03c6b2",
+            "on-tertiary-fixed": "#131b2e",
+            "on-secondary-container": "#004d44",
+            "on-surface": "#d4e4fa",
+            "on-error-container": "#ffdad6",
+            "tertiary": "#bec6e0",
+            "background": "#051424",
+            "surface-variant": "#273647",
+            "surface": "#051424",
+            "error-container": "#93000a",
+            "surface-bright": "#2c3a4c",
+            "primary": "#4fdbc8",
+            "on-tertiary-container": "#323a4f",
+            "secondary": "#44e2cd",
+            "surface-container-high": "#1c2b3c",
+            "primary-fixed-dim": "#4fdbc8",
+            "on-primary-fixed": "#00201c",
+            "on-primary-fixed-variant": "#005048",
+            "on-tertiary-fixed-variant": "#3f465c",
+            "tertiary-fixed": "#dae2fd",
+            "surface-dim": "#051424",
+            "surface-container-highest": "#273647",
+            "secondary-fixed-dim": "#3cddc7",
+            "on-tertiary": "#283044",
+            "on-secondary": "#003731",
+            "inverse-surface": "#d4e4fa",
+            "on-secondary-fixed": "#00201c"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "margin-desktop": "40px",
+            "gutter": "24px",
+            "container-max": "1024px",
+            "margin-mobile": "16px",
+            "base": "8px"
+          },
+          "fontFamily": {
+            "label-md": ["Space Grotesk"],
+            "headline-md": ["Space Grotesk"],
+            "headline-lg-mobile": ["Space Grotesk"],
+            "body-lg": ["Geist"],
+            "display-lg": ["Space Grotesk"],
+            "code": ["Geist"],
+            "body-md": ["Geist"],
+            "headline-lg": ["Space Grotesk"]
+          },
+          "fontSize": {
+            "label-md": ["14px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600" }],
+            "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "500" }],
+            "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "600" }],
+            "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+            "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "code": ["14px", { "lineHeight": "1.4", "fontWeight": "400" }],
+            "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+            "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "600" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      background-color: #051424;
+      color: #d4e4fa;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .active-indicator {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="font-body-md text-body-md selection:bg-primary/30">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 h-16 flex justify-between items-center px-margin-mobile bg-background border-b border-outline-variant">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">memory</span>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary tracking-tight">EnZIME</h1>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1.5 bg-surface-container px-2 py-1 rounded-full border border-outline-variant">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+<span class="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">AI READY</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">search</span>
+</button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="pt-20 pb-28 px-margin-mobile max-w-container-max mx-auto space-y-8">
+<!-- Global Search -->
+<section class="relative">
+<div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline">search</span>
+</div>
+<input class="w-full h-14 pl-12 pr-4 bg-surface-container rounded-xl border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline text-body-md" placeholder="Search all your knowledge..." type="text"/>
+</section>
+<!-- Recent Notes Strip -->
+<section class="space-y-3">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-md text-headline-md text-on-surface">Recent notes</h2>
+<span class="material-symbols-outlined text-outline text-lg">history</span>
+</div>
+<div class="flex gap-3 overflow-x-auto no-scrollbar pb-1">
+<button class="flex-none flex items-center gap-2 px-4 py-2.5 bg-surface-container-high border border-outline-variant rounded-full hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-primary text-sm">edit_note</span>
+<span class="font-label-md">Stomata mechanisms</span>
+</button>
+<button class="flex-none flex items-center gap-2 px-4 py-2.5 bg-surface-container-high border border-outline-variant rounded-full hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-primary text-sm">medical_services</span>
+<span class="font-label-md">First Aid: Burn care</span>
+</button>
+<button class="flex-none flex items-center gap-2 px-4 py-2.5 bg-surface-container-high border border-outline-variant rounded-full hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-primary text-sm">construction</span>
+<span class="font-label-md">Knots: Bowline</span>
+</button>
+</div>
+</section>
+<!-- Continue Reading -->
+<section class="space-y-4">
+<div class="group relative overflow-hidden bg-surface-container-low rounded-xl border border-outline-variant p-4">
+<div class="absolute top-0 right-0 w-32 h-full opacity-20 pointer-events-none">
+
+</div>
+<div class="flex gap-4 relative z-10">
+<div class="w-24 h-32 rounded-lg overflow-hidden bg-surface-variant flex-none">
+<img alt="Photosynthesis" class="w-full h-full object-cover" data-alt="A macro photography shot of a vibrant green leaf showing intricate vein structures and cellular textures, backlit by soft golden hour sunlight. The style is hyper-realistic and scientific, emphasizing biological resilience and natural utility. The color palette is dominated by deep forest greens and bright emerald highlights." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAGC_YpWS-OG_d7npaiwqJoACSeMZeulpi1h1haYPuRNl3VcYGRrLamBpG7xubYoL5nQIaJYwsMJfGwebNVXdXn84RcT1S84iZ7ONFzrmNsEr_MiTSSVse1YNPgVBZISpNfc6reZL1uMHUP_pZV7wh6C1qwX9e-DtlJKx4VmW_s_q-nTPar7SrPYnU_Z621fwWlQBH4IleYGnMpXamwmMXySZkiKQAjkTfNdHbSpTbdiye5ydbnw3-08tFDjLd6b9v5ZyPOoGsjj0"/>
+</div>
+<div class="flex flex-col justify-between py-1 flex-1">
+<div>
+<div class="flex items-center gap-1.5 text-primary mb-1">
+<span class="material-symbols-outlined text-xs">book</span>
+<span class="font-label-md text-[11px] uppercase tracking-wider">Wikipedia (English)</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface leading-tight">Photosynthesis</h3>
+<p class="text-on-surface-variant text-sm mt-1 line-clamp-2">The process by which green plants and some other organisms use sunlight...</p>
+</div>
+<div class="mt-4 space-y-3">
+<div class="w-full bg-surface-variant h-1 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[65%]" style="box-shadow: 0 0 8px #14b8a666;"></div>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-xs text-outline">65% complete • 4m left</span>
+<button class="px-6 py-2 bg-primary text-on-primary font-label-md rounded-full active:scale-95 transition-transform">
+                  Resume
+                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Your Packs -->
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-md text-headline-md text-on-surface">Your packs</h2>
+<button class="text-primary font-label-md hover:underline decoration-2 underline-offset-4">Manage</button>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<!-- Pack 1 -->
+<div class="p-4 bg-surface-container rounded-xl border border-outline-variant flex flex-col justify-between aspect-square active:border-primary transition-colors cursor-pointer">
+<div class="space-y-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">language</span>
+<h4 class="font-label-md text-on-surface leading-tight">Wikipedia (English)</h4>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-1.5 text-xs text-outline">
+<span class="material-symbols-outlined text-xs">database</span>
+<span>42GB</span>
+</div>
+<div class="flex items-center gap-1.5 text-xs text-outline">
+<span class="material-symbols-outlined text-xs">article</span>
+<span>6.5M articles</span>
+</div>
+</div>
+</div>
+<!-- Pack 2 -->
+<div class="p-4 bg-surface-container rounded-xl border border-outline-variant flex flex-col justify-between aspect-square active:border-primary transition-colors cursor-pointer">
+<div class="space-y-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">medical_information</span>
+<h4 class="font-label-md text-on-surface leading-tight">Where There Is No Doctor</h4>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-1.5 text-xs text-outline">
+<span class="material-symbols-outlined text-xs">database</span>
+<span>1.4GB</span>
+</div>
+<div class="flex items-center gap-1.5 text-xs text-outline">
+<span class="material-symbols-outlined text-xs">article</span>
+<span>12K articles</span>
+</div>
+</div>
+</div>
+<!-- Pack 3 -->
+<div class="p-4 bg-surface-container rounded-xl border border-outline-variant flex flex-col justify-between aspect-square active:border-primary transition-colors cursor-pointer">
+<div class="space-y-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">security</span>
+<h4 class="font-label-md text-on-surface leading-tight">Military Survival Manuals</h4>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-1.5 text-xs text-outline">
+<span class="material-symbols-outlined text-xs">database</span>
+<span>820MB</span>
+</div>
+<div class="flex items-center gap-1.5 text-xs text-outline">
+<span class="material-symbols-outlined text-xs">article</span>
+<span>4K articles</span>
+</div>
+</div>
+</div>
+<!-- Pack 4 -->
+<div class="p-4 bg-surface-container rounded-xl border border-outline-variant flex flex-col justify-between aspect-square active:border-primary transition-colors cursor-pointer">
+<div class="space-y-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">dictionary</span>
+<h4 class="font-label-md text-on-surface leading-tight">Wiktionary</h4>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-1.5 text-xs text-outline">
+<span class="material-symbols-outlined text-xs">database</span>
+<span>12.8GB</span>
+</div>
+<div class="flex items-center gap-1.5 text-xs text-outline">
+<span class="material-symbols-outlined text-xs">article</span>
+<span>1.2M articles</span>
+</div>
+</div>
+</div>
+<!-- Get more packs tile -->
+<div class="p-4 rounded-xl border-2 border-dashed border-outline-variant flex flex-col items-center justify-center gap-2 aspect-square group hover:border-primary transition-colors cursor-pointer bg-surface-container/30">
+<div class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center group-hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">add</span>
+</div>
+<span class="font-label-md text-outline group-hover:text-primary transition-colors text-center">Get more packs</span>
+</div>
+</div>
+</section>
+<!-- Hardware Summary -->
+<section class="mt-8 pt-8 border-t border-outline-variant">
+<div class="bg-surface-container-lowest p-4 rounded-lg border border-outline-variant space-y-2 font-code text-code">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="text-on-surface-variant">NODE_01 STATUS</span>
+</div>
+<span class="text-primary uppercase">Active</span>
+</div>
+<div class="flex justify-between text-[11px] text-outline">
+<span>STORAGE: 112GB / 512GB</span>
+<span>RAM: 3.2GB / 16GB</span>
+</div>
+<div class="w-full bg-surface-variant h-1 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[22%]"></div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center h-20 bg-surface-container-low border-t border-outline-variant rounded-t-xl">
+<!-- Library (Active) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 active:scale-95 transition-transform duration-150" href="#">
+<div class="bg-secondary-container text-on-secondary-container rounded-full px-6 py-1 mb-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shelves</span>
+</div>
+<span class="font-label-md text-label-md text-primary">Library</span>
+</a>
+<!-- Catalog -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined mb-1">explore</span>
+<span class="font-label-md text-label-md">Catalog</span>
+</a>
+<!-- Notebook -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined mb-1">edit_note</span>
+<span class="font-label-md text-label-md">Notebook</span>
+</a>
+<!-- Settings -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined mb-1">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<script>
+    // Subtle interaction logic
+    document.querySelectorAll('.active\\:scale-95').forEach(button => {
+      button.addEventListener('touchstart', () => {
+        button.style.transform = 'scale(0.95)';
+      });
+      button.addEventListener('touchend', () => {
+        button.style.transform = 'scale(1)';
+      });
+    });
+
+    // Offline mode simulation - ensuring UI is always "ready"
+    console.log("EnZIME Library: Offline Engine Initialized. Knowledge packs mounted.");
+  </script>
+</body></html>

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-sidecar-export-json"
+description = "Enables the sidecar_export_json command without any pre-configured scope."
+commands.allow = ["sidecar_export_json"]
+
+[[permission]]
+identifier = "deny-sidecar-export-json"
+description = "Denies the sidecar_export_json command without any pre-configured scope."
+commands.deny = ["sidecar_export_json"]

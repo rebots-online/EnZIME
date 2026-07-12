@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EnZIME // Neural Archive Interface — Synthesis Brief</title>
+<meta name="description" content="EnZIME — the offline-first ZIM reader with on-device AI. Internal synthesis pitch.">
+<!--
+  EnZIME — internal synthesis pitch / marketing PRD.
+  Single self-contained file. ZERO external requests by design: the pitch
+  for an offline-first product runs offline itself (airplane-mode credible).
+  Visual identity transcribed from EnZIMErgent/design_guidelines.json
+  ("Cyberpunk Neon", Netrunner framing). Fonts are LOCAL-ONLY stacks — the
+  zero-request constraint overrides the usual "use a distinctive webfont"
+  guidance; character comes from condensed-techno locals, weight, tracking,
+  and uppercase HUD treatment instead.
+  Content renders from the DATA arrays in the <script> block — add a USP,
+  a lineage row, a roadmap milestone by editing data, not markup.
+-->
+<style>
+:root{
+  /* ---- palette (design_guidelines.json) ---- */
+  --bg:#050505; --bg2:#0a0a0a; --bg3:#121212;
+  --glass:rgba(18,20,26,.72);
+  --ink:#ffffff; --ink2:#b6b6b6; --muted:#6a6a6a; --faint:#3a3a3a;
+  --cyan:#00ffff; --green:#39ff14; --magenta:#ff00ff; --amber:#faff00; --red:#ff003c;
+  --cyan-dim:rgba(0,255,255,.16); --green-dim:rgba(57,255,20,.16); --mag-dim:rgba(255,0,255,.16);
+  --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.18);
+  --glow-cyan:0 0 14px rgba(0,255,255,.45); --glow-green:0 0 14px rgba(57,255,20,.40);
+  --glow-mag:0 0 14px rgba(255,0,255,.42); --glow-txt:0 0 6px rgba(255,255,255,.35);
+  --r:4px; --r2:8px;
+  --display:'Bahnschrift','DIN Condensed','Oswald Condensed','Rajdhani','Orbitron',ui-sans-serif,system-ui,sans-serif;
+  --mono:'JetBrains Mono','Cascadia Code','SFMono-Regular','Consolas','Liberation Mono',ui-monospace,monospace;
+  --body:ui-sans-serif,'Segoe UI',system-ui,'Helvetica Neue',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--ink2);
+  font-family:var(--body); font-size:16px; line-height:1.62;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+/* atmospheric layers */
+body::before{ /* grid */
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:
+    linear-gradient(rgba(0,255,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,255,255,.025) 1px,transparent 1px);
+  background-size:46px 46px;
+  mask-image:radial-gradient(ellipse 120% 80% at 50% 0%,#000 35%,transparent 78%);
+}
+body::after{ /* grain + scanlines */
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.5;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.012) 0 1px,transparent 1px 3px);
+  mix-blend-mode:screen;
+}
+.glow-orbs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.glow-orbs i{position:absolute;border-radius:50%;filter:blur(90px);opacity:.22}
+.glow-orbs i:nth-child(1){width:520px;height:520px;background:var(--cyan);top:-160px;left:-120px}
+.glow-orbs i:nth-child(2){width:460px;height:460px;background:var(--magenta);top:38%;right:-180px;opacity:.16}
+.glow-orbs i:nth-child(3){width:400px;height:400px;background:var(--green);bottom:-160px;left:30%;opacity:.13}
+main,nav,footer{position:relative;z-index:1}
+
+/* ---- nav ---- */
+nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);
+  background:linear-gradient(180deg,rgba(5,5,5,.92),rgba(5,5,5,.55));
+  border-bottom:1px solid var(--line);}
+.navwrap{max-width:1180px;margin:0 auto;padding:12px 26px;display:flex;align-items:center;gap:20px}
+.brand{font-family:var(--display);font-weight:700;font-size:21px;letter-spacing:3px;color:var(--ink);
+  text-shadow:var(--glow-txt);display:flex;align-items:center;gap:9px;white-space:nowrap}
+.brand b{color:var(--cyan);text-shadow:var(--glow-cyan)}
+.brand .dot{width:8px;height:8px;background:var(--green);border-radius:50%;box-shadow:var(--glow-green);animation:pulse 2.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.navlinks{margin-left:auto;display:flex;gap:4px;flex-wrap:wrap}
+.navlinks a{font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--muted);text-decoration:none;padding:7px 11px;border-radius:var(--r);transition:.18s}
+.navlinks a:hover{color:var(--cyan);background:var(--cyan-dim);box-shadow:inset 0 0 0 1px rgba(0,255,255,.3)}
+.navcta{font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;text-decoration:none;
+  color:var(--bg);background:var(--cyan);padding:8px 14px;border-radius:var(--r);font-weight:700;
+  box-shadow:var(--glow-cyan);transition:.18s}
+.navcta:hover{background:var(--green);box-shadow:var(--glow-green)}
+
+/* ---- shared section frame ---- */
+section{max-width:1180px;margin:0 auto;padding:88px 26px;scroll-margin-top:70px}
+.kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--cyan);display:inline-flex;align-items:center;gap:9px;margin-bottom:18px;text-shadow:var(--glow-cyan)}
+.kicker::before{content:"";width:26px;height:1px;background:var(--cyan);box-shadow:var(--glow-cyan)}
+.kicker.g{color:var(--green);text-shadow:var(--glow-green)}.kicker.g::before{background:var(--green);box-shadow:var(--glow-green)}
+.kicker.m{color:var(--magenta);text-shadow:var(--glow-mag)}.kicker.m::before{background:var(--magenta);box-shadow:var(--glow-mag)}
+h2{font-family:var(--display);font-weight:700;color:var(--ink);line-height:1.04;letter-spacing:.5px;
+  font-size:clamp(30px,4.6vw,52px);margin-bottom:18px}
+h2 em{font-style:normal;color:var(--cyan);text-shadow:var(--glow-cyan)}
+h2 em.g{color:var(--green);text-shadow:var(--glow-green)}
+.lead{font-size:clamp(16px,1.6vw,19px);color:var(--ink2);max-width:62ch}
+.eyebadge{font-family:var(--mono);font-size:10.5px;letter-spacing:1.5px;color:var(--muted);
+  border:1px solid var(--line2);border-radius:999px;padding:3px 10px;text-transform:uppercase}
+
+/* ---- hero ---- */
+.hero{max-width:1180px;margin:0 auto;padding:96px 26px 70px;position:relative;z-index:1}
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center}
+.hero h1{font-family:var(--display);font-weight:700;color:var(--ink);line-height:.96;
+  font-size:clamp(46px,8vw,98px);letter-spacing:1px;margin-bottom:10px}
+.hero h1 .z{color:var(--cyan);text-shadow:0 0 26px rgba(0,255,255,.7)}
+.hero .sub{font-family:var(--display);font-size:clamp(19px,2.4vw,30px);color:var(--ink);letter-spacing:1px;
+  margin-bottom:22px;font-weight:600}
+.hero .sub .bar{color:var(--magenta);text-shadow:var(--glow-mag)}
+.hero p.t{font-size:17.5px;max-width:54ch;margin-bottom:30px}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+.btn{font-family:var(--mono);font-size:12px;letter-spacing:1.4px;text-transform:uppercase;text-decoration:none;
+  padding:13px 22px;border-radius:var(--r);font-weight:700;transition:.18s;display:inline-flex;align-items:center;gap:9px;cursor:pointer;border:none}
+.btn.primary{background:var(--cyan);color:var(--bg);box-shadow:var(--glow-cyan)}
+.btn.primary:hover{background:var(--green);box-shadow:var(--glow-green);transform:translateY(-2px)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line2)}
+.btn.ghost:hover{border-color:var(--cyan);color:var(--cyan);box-shadow:var(--glow-cyan)}
+/* hero HUD card */
+.hud{background:var(--glass);border:1px solid var(--line2);border-radius:var(--r2);padding:22px;position:relative;backdrop-filter:blur(6px)}
+.hud .corner{position:absolute;width:14px;height:14px;border:1.5px solid var(--cyan)}
+.hud .corner.tl{top:-1px;left:-1px;border-right:0;border-bottom:0}
+.hud .corner.tr{top:-1px;right:-1px;border-left:0;border-bottom:0}
+.hud .corner.bl{bottom:-1px;left:-1px;border-right:0;border-top:0}
+.hud .corner.br{bottom:-1px;right:-1px;border-left:0;border-top:0}
+.hud-h{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;
+  display:flex;justify-content:space-between;margin-bottom:16px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.hud-h .live{color:var(--green);text-shadow:var(--glow-green)}
+.readout{display:grid;grid-template-columns:1fr 1fr;gap:14px 10px}
+.readout .r{display:flex;flex-direction:column}
+.readout .n{font-family:var(--display);font-size:30px;font-weight:700;color:var(--ink);line-height:1}
+.readout .n.c{color:var(--cyan);text-shadow:var(--glow-cyan)}
+.readout .n.g{color:var(--green);text-shadow:var(--glow-green)}
+.readout .n.m{color:var(--magenta);text-shadow:var(--glow-mag)}
+.readout .l{font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-top:5px}
+
+/* ---- problem cards ---- */
+.cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:38px}
+.pcard{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r2);padding:24px;position:relative;overflow:hidden;transition:.2s}
+.pcard:hover{border-color:var(--line2);transform:translateY(-3px)}
+.pcard .idx{font-family:var(--mono);font-size:11px;color:var(--red);letter-spacing:1px}
+.pcard h3{font-family:var(--display);font-size:21px;color:var(--ink);margin:8px 0 10px;letter-spacing:.4px}
+.pcard p{font-size:14.5px;color:var(--ink2)}
+.pcard .scar{position:absolute;right:-30px;top:-30px;font-family:var(--display);font-size:120px;color:rgba(255,0,60,.06);font-weight:700}
+
+/* ---- USP feature blocks ---- */
+.feature{display:grid;grid-template-columns:1fr 1fr;gap:42px;align-items:center;padding:34px 0;border-top:1px solid var(--line)}
+.feature:first-of-type{border-top:0}
+.feature.flip .vis{order:2}
+.feature h3{font-family:var(--display);font-size:clamp(24px,3vw,34px);color:var(--ink);letter-spacing:.5px;margin-bottom:14px}
+.feature .meta{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;color:var(--cyan);text-transform:uppercase;margin-bottom:12px;display:block}
+.feature ul{list-style:none;margin-top:16px;display:flex;flex-direction:column;gap:10px}
+.feature li{padding-left:22px;position:relative;font-size:15px}
+.feature li::before{content:"▸";position:absolute;left:0;color:var(--green);text-shadow:var(--glow-green)}
+.feature li b{color:var(--ink)}
+.vis{background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r2);min-height:280px;position:relative;overflow:hidden}
+
+/* ladder table */
+.ladder{width:100%;border-collapse:collapse;font-size:13.5px}
+.ladder th,.ladder td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--line)}
+.ladder th{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+.ladder td:first-child{font-family:var(--mono);color:var(--cyan)}
+.ladder tr:last-child td{border-bottom:0}
+.ladder .b{color:var(--ink)}
+.ladder .tag{font-family:var(--mono);font-size:9.5px;padding:2px 7px;border-radius:3px;letter-spacing:1px}
+.tag.bundled{background:var(--green-dim);color:var(--green)}
+.tag.cloud{background:var(--mag-dim);color:var(--magenta)}
+
+/* ---- PLANNER widget ---- */
+.planner{background:linear-gradient(160deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r2);
+  padding:0;overflow:hidden;margin-top:8px}
+.planner-top{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.planner-top .t{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--cyan);text-transform:uppercase}
+.planner-top .badge{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1px}
+.planner-body{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.controls{padding:24px 24px;border-right:1px solid var(--line)}
+.ctl{margin-bottom:26px}
+.ctl:last-child{margin-bottom:0}
+.ctl .lab{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:11px}
+.ctl .lab .k{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;color:var(--ink);text-transform:uppercase}
+.ctl .lab .v{font-family:var(--display);font-size:17px;color:var(--cyan);text-shadow:var(--glow-cyan)}
+.ctl .hint{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:8px;letter-spacing:.5px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;background:var(--faint);border-radius:2px;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+  background:var(--cyan);box-shadow:var(--glow-cyan);cursor:pointer;border:2px solid var(--bg)}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--cyan);
+  box-shadow:var(--glow-cyan);cursor:pointer;border:2px solid var(--bg)}
+.toggle{display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
+.toggle .sw{width:46px;height:24px;border-radius:999px;background:var(--faint);position:relative;transition:.2s;flex-shrink:0;border:1px solid var(--line2)}
+.toggle .sw::after{content:"";position:absolute;width:18px;height:18px;border-radius:50%;background:var(--muted);top:2px;left:2px;transition:.2s}
+.toggle.on .sw{background:var(--green-dim);border-color:var(--green)}
+.toggle.on .sw::after{left:24px;background:var(--green);box-shadow:var(--glow-green)}
+.toggle .tl{font-family:var(--mono);font-size:11px;letter-spacing:1px;color:var(--ink);text-transform:uppercase}
+.plan-out{padding:24px;display:flex;flex-direction:column}
+.plan-out .ph{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.plan-headline{font-family:var(--display);font-size:clamp(22px,2.6vw,30px);color:var(--ink);line-height:1.06;letter-spacing:.3px;margin-bottom:4px}
+.plan-headline .hl{color:var(--green);text-shadow:var(--glow-green)}
+.plan-budget{font-family:var(--mono);font-size:12px;color:var(--cyan);margin-bottom:18px;letter-spacing:.5px}
+.plan-list{list-style:none;display:flex;flex-direction:column;gap:13px;margin-bottom:18px}
+.plan-list li{display:flex;flex-direction:column;gap:6px}
+.plan-list .row1{display:flex;align-items:center;gap:9px}
+.plan-list .pip{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.plan-list .nm{color:var(--ink);flex:1;font-size:13.5px}
+.plan-list .gb{font-family:var(--mono);font-size:11px;letter-spacing:.3px;white-space:nowrap}
+.plan-list .gb b{font-weight:600}
+.plan-list .gb .tot{color:var(--muted)}
+.plan-list .gb .w{font-size:9px;margin-left:8px;letter-spacing:.5px}
+.plan-list .bar{height:4px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;margin-left:18px}
+.plan-list .bar i{display:block;height:100%;border-radius:2px;transition:width .28s cubic-bezier(.2,.7,.2,1)}
+.plan-tech{margin-top:auto;border-top:1px solid var(--line);padding-top:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.plan-tech .pt{display:flex;flex-direction:column}
+.plan-tech .pn{font-family:var(--display);font-size:20px;color:var(--cyan);text-shadow:var(--glow-cyan);line-height:1}
+.plan-tech .pl{font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-top:5px}
+h2 sup,.lead sup{color:var(--amber);font-size:.5em;font-weight:700;text-shadow:0 0 8px rgba(250,255,0,.5);vertical-align:super}
+.fold-note{margin-top:26px;background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r2);padding:24px 26px}
+.fold-note .star{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--amber);text-transform:uppercase;display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.fold-note .star::before{content:"*";font-size:20px;line-height:0;color:var(--amber);text-shadow:0 0 10px rgba(250,255,0,.6)}
+.fold-note h4{font-family:var(--display);font-size:21px;color:var(--ink);letter-spacing:.4px;margin-bottom:12px}
+.fold-note p{font-size:14.5px;color:var(--ink2);margin-bottom:12px}
+.fold-note p:last-child{margin-bottom:0}
+.fold-note b{color:var(--ink)}
+.fold-note .punch{color:var(--green);text-shadow:var(--glow-green)}
+
+/* ---- CHAT-WITH-ZIM interactive demo ---- */
+.chatw{margin-top:8px;background:linear-gradient(165deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r2);overflow:hidden}
+.chatw-top{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.chatw-top .t{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;color:var(--cyan);text-transform:uppercase;display:flex;align-items:center;gap:9px}
+.chatw-top .t .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:var(--glow-green)}
+.chatw-top .badge{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.5px}
+.chatw-top .badge b{color:var(--green)}
+.chatlog{padding:20px;min-height:280px;max-height:440px;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
+.msg{display:flex;gap:12px;max-width:92%}
+.msg .av{width:30px;height:30px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700}
+.msg.user{align-self:flex-end;flex-direction:row-reverse}
+.msg.user .av{background:var(--mag-dim);color:var(--magenta);border:1px solid var(--magenta)}
+.msg.bot .av{background:var(--cyan-dim);color:var(--cyan);border:1px solid var(--cyan);box-shadow:var(--glow-cyan)}
+.msg .bub{border-radius:var(--r2);padding:13px 16px;font-size:14.5px;line-height:1.6}
+.msg.user .bub{background:var(--mag-dim);border:1px solid rgba(255,0,255,.3);color:var(--ink)}
+.msg.bot .bub{background:var(--bg);border:1px solid var(--line2);color:var(--ink2)}
+.msg.bot .bub b{color:var(--ink)}
+.msg.bot .bub .step{display:block;margin-top:9px;padding-left:16px;position:relative}
+.msg.bot .bub .step::before{content:"▸";position:absolute;left:0;color:var(--green)}
+.retr{margin:4px 0 2px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.retr .lbl{font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-right:2px}
+.retr .src{font-family:var(--mono);font-size:10px;color:var(--cyan);background:var(--cyan-dim);border:1px solid rgba(0,255,255,.25);border-radius:3px;padding:2px 7px}
+.cursor{display:inline-block;width:8px;height:15px;background:var(--cyan);box-shadow:var(--glow-cyan);vertical-align:text-bottom;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+.chatfoot{padding:8px 16px;border-top:1px solid var(--line);font-family:var(--mono);font-size:9.5px;letter-spacing:.5px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.chatfoot .ok{color:var(--green)}
+.chips{padding:14px 16px 4px;display:flex;flex-wrap:wrap;gap:8px;border-top:1px solid var(--line)}
+.chip{font-family:var(--body);font-size:12.5px;color:var(--ink2);background:var(--bg2);border:1px solid var(--line2);border-radius:999px;padding:7px 13px;cursor:pointer;transition:.16s;text-align:left}
+.chip:hover{border-color:var(--cyan);color:var(--cyan);box-shadow:var(--glow-cyan)}
+.chip.hot{border-color:rgba(57,255,20,.4);color:var(--green)}
+.chip.hot:hover{border-color:var(--green);box-shadow:var(--glow-green)}
+.chatin{display:flex;gap:10px;padding:14px 16px 16px}
+.chatin input{flex:1;background:var(--bg);border:1px solid var(--line2);border-radius:var(--r);color:var(--ink);font-family:var(--body);font-size:14px;padding:11px 14px;outline:none}
+.chatin input:focus{border-color:var(--cyan);box-shadow:var(--glow-cyan)}
+.chatin input::placeholder{color:var(--muted)}
+.chatin button{background:var(--cyan);color:var(--bg);border:none;border-radius:var(--r);font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0 18px;cursor:pointer;transition:.16s}
+.chatin button:hover{background:var(--green);box-shadow:var(--glow-green)}
+.chatin button:disabled{opacity:.4;cursor:not-allowed}
+
+/* ---- READER + NOTEBOOK split (co-visible, USP #2) ---- */
+.split{margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r2);overflow:hidden;min-height:440px}
+.pane{display:flex;flex-direction:column;min-width:0}
+.pane.reader{border-right:1px solid var(--line2)}
+.pane-top{padding:12px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--bg3)}
+.pane-top .pt{font-family:var(--mono);font-size:10.5px;letter-spacing:1.5px;color:var(--cyan);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pane-top .pt.g{color:var(--green)}
+.pane-top .meta2{font-family:var(--mono);font-size:9px;letter-spacing:.5px;color:var(--muted);white-space:nowrap}
+.pens{display:flex;gap:6px;align-items:center;padding:10px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.pens .lbl{font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-right:2px}
+.pen{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:.15s}
+.pen.sel{border-color:var(--ink);transform:scale(1.12)}
+.pen .x{font-size:9px}
+.read-body{padding:18px 20px;font-size:14px;line-height:1.78;color:var(--ink2);overflow-y:auto;flex:1}
+.read-body h5{font-family:var(--display);font-size:18px;color:var(--ink);letter-spacing:.4px;margin-bottom:4px}
+.read-body .apath{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:14px}
+.read-body p{margin-bottom:13px}
+.snip{cursor:pointer;border-radius:2px;padding:0 1px;transition:background .15s;border-bottom:1px dotted var(--faint)}
+.snip:hover{background:rgba(255,255,255,.05)}
+.snip.hl{border-bottom:none}
+.read-hint{font-family:var(--mono);font-size:9.5px;color:var(--muted);letter-spacing:.5px;padding:0 20px 16px}
+.nb-synth{padding:13px 18px;border-bottom:1px solid var(--line);background:rgba(57,255,20,.04)}
+.nb-synth .h{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--green);text-transform:uppercase;margin-bottom:6px}
+.nb-synth .s{font-size:13px;color:var(--ink2)}
+.nb-synth .s b{color:var(--ink)}
+.nb-body{padding:14px 18px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:11px}
+.note{background:var(--bg);border:1px solid var(--line);border-left:3px solid var(--cyan);border-radius:var(--r);padding:11px 13px;position:relative;animation:notein .35s ease}
+@keyframes notein{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
+.note .nq{font-size:13px;color:var(--ink);line-height:1.5;margin-bottom:7px}
+.note .nm{display:flex;justify-content:space-between;gap:8px;font-family:var(--mono);font-size:9.5px;color:var(--muted);letter-spacing:.3px;flex-wrap:wrap}
+.note .nm .src{color:var(--cyan)}
+.note .nm .ses{color:var(--muted)}
+.note.live{border-left-color:var(--green)}
+.note.live .nm .ses{color:var(--green)}
+.nb-empty{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;padding:30px 10px;line-height:1.7}
+@media(max-width:760px){.split{grid-template-columns:1fr}.pane.reader{border-right:0;border-bottom:1px solid var(--line2)}}
+
+/* ---- mesh / generic feature grid ---- */
+.fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:36px}
+.fcard{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r2);padding:22px;transition:.2s;position:relative}
+.fcard:hover{border-color:var(--cyan);box-shadow:var(--glow-cyan)}
+.fcard .ic{font-family:var(--mono);font-size:11px;color:var(--green);letter-spacing:1px;margin-bottom:10px;text-transform:uppercase}
+.fcard h4{font-family:var(--display);font-size:20px;color:var(--ink);margin-bottom:8px;letter-spacing:.4px}
+.fcard p{font-size:14px;color:var(--ink2)}
+.fcard .roadmap{position:absolute;top:14px;right:14px;font-family:var(--mono);font-size:8.5px;letter-spacing:1px;
+  color:var(--amber);border:1px solid rgba(250,255,0,.3);border-radius:3px;padding:2px 6px;text-transform:uppercase}
+
+/* ---- lineage ---- */
+.lineage{margin-top:36px;display:flex;flex-direction:column;gap:0}
+.lrow{display:grid;grid-template-columns:170px 1fr;gap:24px;padding:22px 0;border-top:1px solid var(--line);position:relative}
+.lrow .gen{font-family:var(--mono);font-size:12px;color:var(--cyan);letter-spacing:1px}
+.lrow .gen .d{font-size:10px;color:var(--muted);display:block;margin-top:4px}
+.lrow .body h4{font-family:var(--display);font-size:19px;color:var(--ink);margin-bottom:6px;letter-spacing:.4px}
+.lrow .body .rescue{font-size:14px;color:var(--ink2);margin-top:8px}
+.lrow .body .rescue b{color:var(--green)}
+.lrow .body .taught{font-size:13.5px;color:var(--muted)}
+
+/* ---- market segments ---- */
+.seg{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:34px}
+.scard{background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--magenta);border-radius:var(--r2);padding:22px}
+.scard h4{font-family:var(--display);font-size:21px;color:var(--ink);margin-bottom:6px;letter-spacing:.4px}
+.scard .sz{font-family:var(--mono);font-size:11px;color:var(--cyan);letter-spacing:.5px;margin-bottom:10px}
+.scard p{font-size:14px;color:var(--ink2)}
+.modelbar{margin-top:30px;background:var(--bg3);border:1px solid var(--line2);border-radius:var(--r2);padding:24px}
+.modelbar h4{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--green);text-transform:uppercase;margin-bottom:16px}
+.chmat{width:100%;border-collapse:collapse;font-size:13.5px}
+.chmat th,.chmat td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+.chmat th{font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+.chmat td:first-child{color:var(--ink);font-weight:600}
+.chmat tr:last-child td{border-bottom:0}
+
+/* ---- roadmap ---- */
+.road{margin-top:34px;position:relative;padding-left:26px}
+.road::before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:1px;background:linear-gradient(180deg,var(--cyan),var(--magenta))}
+.ritem{position:relative;padding:0 0 26px 22px}
+.ritem::before{content:"";position:absolute;left:-26px;top:4px;width:11px;height:11px;border-radius:50%;background:var(--bg);border:2px solid var(--cyan);box-shadow:var(--glow-cyan)}
+.ritem.done::before{background:var(--green);border-color:var(--green);box-shadow:var(--glow-green)}
+.ritem.next::before{background:var(--bg);border-color:var(--magenta);box-shadow:var(--glow-mag)}
+.ritem .when{font-family:var(--mono);font-size:11px;letter-spacing:1px;color:var(--cyan);text-transform:uppercase}
+.ritem .when .st{font-size:9px;margin-left:8px;padding:2px 7px;border-radius:3px}
+.st.s-done{background:var(--green-dim);color:var(--green)}
+.st.s-prog{background:var(--cyan-dim);color:var(--cyan)}
+.st.s-next{background:var(--mag-dim);color:var(--magenta)}
+.ritem h4{font-family:var(--display);font-size:19px;color:var(--ink);margin:6px 0 5px;letter-spacing:.3px}
+.ritem p{font-size:14px;color:var(--ink2)}
+
+/* ---- ask ---- */
+.ask{background:linear-gradient(150deg,rgba(0,255,255,.05),rgba(255,0,255,.04));border:1px solid var(--line2);border-radius:var(--r2);padding:38px;margin-top:8px}
+.ask-grid{display:grid;grid-template-columns:1fr 1fr;gap:38px}
+.useoffunds{list-style:none;display:flex;flex-direction:column;gap:14px}
+.useoffunds li{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:baseline}
+.useoffunds .pct{font-family:var(--display);font-size:26px;color:var(--cyan);text-shadow:var(--glow-cyan);min-width:62px}
+.useoffunds .ud b{color:var(--ink);font-family:var(--display);font-size:16px;letter-spacing:.4px}
+.useoffunds .ud p{font-size:13px;color:var(--ink2)}
+.askbig{font-family:var(--display);font-size:clamp(34px,5vw,58px);color:var(--green);text-shadow:var(--glow-green);line-height:1;letter-spacing:.5px}
+.asksub{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:1px;margin-top:8px}
+
+/* ---- footer ---- */
+footer{border-top:1px solid var(--line2);margin-top:40px;background:linear-gradient(180deg,transparent,rgba(0,255,255,.03))}
+.fwrap{max-width:1180px;margin:0 auto;padding:48px 26px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px}
+.fwrap .who{font-family:var(--display);font-size:24px;color:var(--ink);letter-spacing:.5px}
+.fwrap .who span{color:var(--cyan);text-shadow:var(--glow-cyan)}
+.fwrap a{color:var(--green);text-decoration:none;border-bottom:1px solid transparent;transition:.15s}
+.fwrap a:hover{border-color:var(--green);text-shadow:var(--glow-green)}
+.fwrap .meta{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:1px;line-height:2;text-align:right}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+
+@media(max-width:880px){
+  .hero-grid,.feature,.planner-body,.ask-grid{grid-template-columns:1fr}
+  .feature.flip .vis{order:0}
+  .cols3,.fgrid,.seg{grid-template-columns:1fr}
+  .controls{border-right:0;border-bottom:1px solid var(--line)}
+  .lrow{grid-template-columns:1fr;gap:8px}
+  .navlinks{display:none}
+  section{padding:64px 20px}
+}
+@media(prefers-reduced-motion:reduce){.rv{transition:none;opacity:1;transform:none}.glow-orbs i{animation:none}}
+</style>
+</head>
+<body>
+<div class="glow-orbs"><i></i><i></i><i></i></div>
+
+<nav>
+  <div class="navwrap">
+    <div class="brand"><span class="dot"></span>En<b>ZIME</b></div>
+    <div class="navlinks">
+      <a href="#chat">Chat</a><a href="#planner">Planner</a><a href="#annotate">Annotate</a>
+      <a href="#mesh">Mesh</a><a href="#graph">3D</a><a href="#moat">Moat</a>
+      <a href="#lineage">Lineage</a><a href="#market">Market</a><a href="#roadmap">Roadmap</a>
+    </div>
+    <a class="navcta" href="#ask">The Ask</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ===================== HERO ===================== -->
+<header class="hero">
+  <div class="hero-grid">
+    <div class="rv in">
+      <div class="kicker">Neural Archive Interface · Internal Synthesis Brief</div>
+      <h1>En<span class="z">ZIME</span></h1>
+      <div class="sub">The whole library. In your pocket. <span class="bar">No signal required.</span></div>
+      <p class="t">EnZIME reads ZIM archives — all of Wikipedia, Stack&nbsp;Exchange, Project&nbsp;Gutenberg, Wiktionary — sizes them to whatever storage your device can spare, and lets you <b style="color:var(--ink)">talk to them with an on-device AI</b>. Entirely offline. No account. No telemetry. No per-token cloud bill.</p>
+      <div class="hero-cta">
+        <a class="btn primary" href="#planner">▶ Run the planner</a>
+        <a class="btn ghost" href="#lineage">Read the lineage</a>
+      </div>
+    </div>
+    <div class="hud rv in">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <div class="hud-h"><span>// SYSTEM_STATUS</span><span class="live" id="clk">● LIVE</span></div>
+      <div class="readout">
+        <div class="r"><div class="n c">100<small style="font-size:14px"> GB</small></div><div class="l">Full Wikipedia, archived</div></div>
+        <div class="r"><div class="n g">0</div><div class="l">Cloud calls in default path</div></div>
+        <div class="r"><div class="n m">5</div><div class="l">Device AI rungs · 1 bundled</div></div>
+        <div class="r"><div class="n c">∞</div><div class="l">Offline runtime, airplane mode</div></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== PROBLEM ===================== -->
+<section id="problem">
+  <div class="rv"><div class="kicker m">01 · The Problem</div>
+  <h2>Knowledge is offline-shaped.<br><em>The tools aren't.</em></h2>
+  <p class="lead">ZIM files already hold human knowledge in a single sideloadable archive. Every reader built on top of them throws away three things that matter.</p></div>
+  <div class="cols3" id="problemCards"></div>
+</section>
+
+<!-- ===================== CHAT ===================== -->
+<section id="chat">
+  <div class="rv"><div class="kicker">02 · The Product — Chat-with-ZIM</div>
+  <h2>Ask the archive. <em class="g">It answers — on-device.</em></h2>
+  <p class="lead">Point a question at the archive and an on-device model answers against the <em>actual archive content</em>, not just its own training data. In airplane mode. By voice if you want. <b style="color:var(--ink)">Try it — pick a question below, or type your own.</b></p></div>
+
+  <div class="chatw rv">
+    <div class="chatw-top">
+      <span class="t"><span class="dot"></span>CHAT-WITH-ZIM</span>
+      <span class="badge">MODEL: <b>gemma4:e2b · Q4</b> · LiteRT-LM · on-device · <b>0</b> cloud calls</span>
+    </div>
+    <div class="chatlog" id="chatlog"></div>
+    <div class="chips" id="chatchips"></div>
+    <div class="chatin">
+      <input id="chatinput" type="text" autocomplete="off" placeholder="Ask the archive anything — works with the radios off…">
+      <button id="chatsend">Ask</button>
+    </div>
+    <div class="chatfoot">
+      <span>// AIRPLANE MODE · NETWORK OFF · ANSWERED ENTIRELY ON-DEVICE</span>
+      <span class="ok" id="chatstat">● READY</span>
+    </div>
+  </div>
+
+  <div class="feature rv" style="margin-top:24px">
+    <div>
+      <span class="meta">// On-device inference · cloud is opt-in only</span>
+      <h3>Every device gets a working AI</h3>
+      <p>A first-launch probe benchmarks the device and picks the largest model it can sustain — then falls down a five-rung ladder if needed. The bottom rung ships <b style="color:var(--ink)">inside the binary</b>, so the app has a working AI even on a phone that has never touched a network.</p>
+      <ul>
+        <li><b>Voice questions</b> ride the model's native audio encoder — speak to the archive, no separate STT engine.</li>
+        <li><b>Dual-tier weights:</b> a ~500&nbsp;MB universal floor, a ~3&nbsp;GB full-multimodal upgrade for devices that pass a real capability check — capability, not a marketing tier.</li>
+        <li><b>Cloud is a terminal rung</b> behind an explicit per-conversation opt-in. The app never silently routes your reading to someone else's server.</li>
+      </ul>
+    </div>
+    <div class="vis" style="padding:18px">
+      <table class="ladder" id="ladderTbl"></table>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PLANNER ===================== -->
+<section id="planner">
+  <div class="rv"><div class="kicker">03 · The Product — Dynamic Download &rsquo;Daption</div>
+  <h2>100&nbsp;GB is an <em class="g">all-or-nothing</em><sup>*</sup> everywhere else.<br>We made it a slider.</h2>
+  <p class="lead">Full English Wikipedia is ~100&nbsp;GB. Your phone has 12&nbsp;GB free. Every other reader forces the impossible download or nothing at all — so the answer is usually <em>nothing</em>. EnZIME asks one human question — <em>how much can you spare?</em> — picks a sane default from the storage actually free this session, and derives the depth, breadth, and media tradeoff for you. As storage wanes or replenishes, the plan re-derives. The alternative isn't a worse experience; it's <em class="g">no access at all.</em> Move the sliders.</p></div>
+
+  <div class="planner rv">
+    <div class="planner-top">
+      <span class="t">// DYNAMIC DOWNLOAD &rsquo;DAPTION · ZIMREDUCER ENGINE</span>
+      <span class="badge" id="freeReadout">DEVICE FREE: 12 GB</span>
+    </div>
+    <div class="planner-body">
+      <div class="controls">
+        <div class="ctl">
+          <div class="lab"><span class="k">Device free storage</span><span class="v" id="vFree">12 GB</span></div>
+          <input type="range" id="sFree" min="2" max="512" step="1" value="12">
+          <div class="hint">In the app this is read automatically via navigator.storage.estimate() / the Tauri fs API. Here, set it by hand.</div>
+        </div>
+        <div class="ctl">
+          <div class="lab"><span class="k">Appetite</span><span class="v" id="vApp">As much as I'll spare</span></div>
+          <input type="range" id="sApp" min="10" max="90" step="1" value="75">
+          <div class="hint">One qualitative knob — "a little" to "as much as I'll spare." The app converts it to a fill fraction and works out depth &amp; breadth so you never do byte-math.</div>
+        </div>
+        <div class="ctl">
+          <div class="lab"><span class="k">Corpus</span><span class="v" id="vCorp" style="font-size:14px">Wikipedia — All</span></div>
+          <input type="range" id="sCorp" min="0" max="3" step="1" value="0">
+          <div class="hint" id="corpHint">The reference archive to plan against.</div>
+        </div>
+        <div class="ctl">
+          <div class="toggle on" id="tMedia"><div class="sw"></div><span class="tl" id="mediaLab">Include images &amp; media</span></div>
+          <div class="hint">Strip media and the same budget buys far more text. The planner re-derives instantly.</div>
+        </div>
+      </div>
+      <div class="plan-out">
+        <div class="ph">// COMPUTED PLAN</div>
+        <div class="plan-headline" id="planHead"></div>
+        <div class="plan-budget" id="planBudget"></div>
+        <ul class="plan-list" id="planList"></ul>
+        <div class="plan-tech">
+          <div class="pt"><div class="pn" id="ptDepth">3</div><div class="pl">Link depth</div></div>
+          <div class="pt"><div class="pn" id="ptBreadth">62%</div><div class="pl">Article breadth</div></div>
+          <div class="pt"><div class="pn" id="ptSize">9 GB</div><div class="pl">Planned download</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fold-note rv">
+    <div class="star">Why this is a blocker, not a convenience</div>
+    <h4>The store itself is the wall — and it falls hardest on the people who need the archive most.</h4>
+    <p>An app on Google Play <b>cannot just ship a 100&nbsp;GB archive.</b> Play caps what an app delivers — roughly a 200&nbsp;MB base download and about a 4&nbsp;GB ceiling even with Play Asset Delivery — and apps that side-load massive downloads outside the store's own mechanisms risk policy rejection. So the shelf options collapse to two: a <b>small curated bundle the store permits</b>, or <b>"go fetch the whole 100&nbsp;GB yourself"</b> — which no phone can hold.</p>
+    <p>For a casual reader that's an annoyance. For a <b>prepper, a field medic, a teacher in a low-bandwidth region</b> — the people for whom offline knowledge is the entire point — it means the vital archive is effectively <b>unreachable on the device they actually carry.</b> The platform's policy, not the technology, is the blocker.</p>
+    <p>EnZIME removes the wall from both sides: the planner makes the archive <span class="punch">fit the device</span>, and the suite also ships through <span class="punch">sideload APK and direct desktop channels</span> — so a store's size policy can never stand between a user and the knowledge they're carrying for a reason.</p>
+  </div>
+</section>
+
+<!-- ===================== ANNOTATE ===================== -->
+<section id="annotate">
+  <div class="rv"><div class="kicker">04 · The Annotation Suite</div>
+  <h2>Read like you <em>own</em> it.</h2>
+  <p class="lead">Most readers let you highlight a whole section. EnZIME anchors to an arbitrary text range — and your <em class="g">notebook sits open beside what you're reading</em>, so insight from this passage lands next to notes from last week's article without ever leaving the page. <b style="color:var(--ink)">Pick a pen, highlight a sentence — watch it cross-link into the notebook.</b></p></div>
+
+  <div class="split rv">
+    <div class="pane reader">
+      <div class="pane-top"><span class="pt">▤ READER</span><span class="meta2" id="rdMeta">SESSION · TODAY</span></div>
+      <div class="pens" id="pens"><span class="lbl">Pen</span></div>
+      <div class="read-body" id="readBody"></div>
+      <div class="read-hint">↑ click any underlined sentence to highlight + capture it · click again to remove</div>
+    </div>
+    <div class="pane notebook">
+      <div class="pane-top"><span class="pt g">✎ NOTEBOOK</span><span class="meta2" id="nbMeta">3 SOURCES · ALWAYS ON SCREEN</span></div>
+      <div class="nb-synth"><div class="h">// Synthesis across sessions</div><div class="s" id="nbSynth"></div></div>
+      <div class="nb-body" id="nbBody"></div>
+    </div>
+  </div>
+
+  <div class="feature rv" style="margin-top:24px">
+    <div>
+      <span class="meta">// W3C-range anchoring · never silently lost</span>
+      <h3>Highlights, notes, voice, ink — and a notebook that's always beside you</h3>
+      <ul>
+        <li><b>The notebook is co-visible, not a separate tab.</b> You never memorize a passage and context-switch away to record it — reader and notebook share the screen, so synthesis happens in place.</li>
+        <li><b>Synthesize across sessions.</b> Today's highlight files itself next to notes from earlier articles and earlier days; the notebook is where a week of reading becomes one connected understanding.</li>
+        <li><b>Rich-text highlights &amp; bookmarks</b> on any span, plus <b>voice notes</b> (spoken margin comments) and <b>drawing</b> (ink pinned to the passage) — all anchored to the same range, surviving re-render and font changes.</li>
+        <li><b>The anti-loss promise:</b> if anchoring ever genuinely fails, the annotation is kept with a "needs reattach" badge — <b>never silently dropped.</b></li>
+      </ul>
+    </div>
+    <div class="vis" id="annoVis"></div>
+  </div>
+</section>
+
+<!-- ===================== MESH ===================== -->
+<section id="mesh">
+  <div class="rv"><div class="kicker g">05 · Sharing &amp; the Knowledge Mesh</div>
+  <h2>Your highlights travel as a <em class="g">file.</em></h2>
+  <p class="lead">Annotations live as a portable sidecar keyed to the archive — never embedded in it. That one decision makes them exportable, shareable, and composable, with no server in the loop and no lock-in.</p></div>
+  <div class="fgrid" id="meshCards"></div>
+</section>
+
+<!-- ===================== 3D GRAPH ===================== -->
+<section id="graph">
+  <div class="rv"><div class="kicker m">06 · Graph Edition</div>
+  <h2>Fly the <em>link graph</em> of everything you carry.</h2>
+  <p class="lead">A 6-DoF semantic navigator — rescued from the Graph Edition / ThinkSpace attempts — turns your offline library into a force-directed 3D space you fly through. Clusters are topics; edges are the links the planner followed to build your slice.</p></div>
+  <div class="vis rv" id="graphVis" style="min-height:340px;margin-top:30px"></div>
+</section>
+
+<!-- ===================== MOAT ===================== -->
+<section id="moat">
+  <div class="rv"><div class="kicker">07 · Why Now / The Moat</div>
+  <h2>The defensibility isn't a feature. <em class="g">It's the posture.</em></h2></div>
+  <div class="fgrid" id="moatCards"></div>
+</section>
+
+<!-- ===================== MARKET ===================== -->
+<section id="market">
+  <div class="rv"><div class="kicker m">08 · Market &amp; Model</div>
+  <h2>Built for people the cloud <em>abandons.</em></h2>
+  <p class="lead">Four segments share one need the dominant readers don't serve: knowledge that survives the network. Sizing below is an internal first-order estimate, with its basis stated — not external diligence.</p></div>
+  <div class="seg" id="segCards"></div>
+  <div class="modelbar rv">
+    <h4>// Channels &amp; monetization — processor-agnostic by design</h4>
+    <table class="chmat" id="chmatTbl"></table>
+    <p style="font-size:13.5px;color:var(--ink2);margin-top:16px">No party owns more than one of {distribution · payment · identity · entitlement}. The store-bound tier is the floor; the sideload and desktop tiers — where post-install payment modularity and the operator-curated, signed pack catalog live — are the architecture. The catalog is the editorial revenue surface: curation, not a tollbooth.</p>
+  </div>
+</section>
+
+<!-- ===================== LINEAGE ===================== -->
+<section id="lineage">
+  <div class="rv"><div class="kicker g">09 · Lineage — The Synthesis Receipt</div>
+  <h2>Every reboot left something <em class="g">worth keeping.</em></h2>
+  <p class="lead">This document exists to rescue them. Each generation proved a piece; the current build is the union, not the latest fork.</p></div>
+  <div class="lineage" id="lineageRows"></div>
+</section>
+
+<!-- ===================== ROADMAP ===================== -->
+<section id="roadmap">
+  <div class="rv"><div class="kicker">10 · Status &amp; Roadmap</div>
+  <h2>Where it actually <em>is.</em></h2>
+  <p class="lead">Honest status. The v1.0 architecture is attested and the build gates are in flight; pitch-led features below are queued for the architecture pass that turns this brief into entity rows.</p></div>
+  <div class="road" id="roadItems"></div>
+</section>
+
+<!-- ===================== ASK ===================== -->
+<section id="ask">
+  <div class="rv"><div class="kicker m">11 · The Ask</div>
+  <h2>What it takes to <em class="g">ship the suite.</em></h2></div>
+  <div class="ask rv">
+    <div class="ask-grid">
+      <div>
+        <div class="askbig">$180K</div>
+        <div class="asksub">// 12-MONTH SOLOPRENEUR RUNWAY · INTERNAL ESTIMATE</div>
+        <p style="margin-top:20px;font-size:14.5px">A deliberately small raise to carry one operator and self-hosted infrastructure through Reader v1.0 launch and the Creator + Extension suite members. Derived bottom-up from the roadmap below — no team to fund, no cloud cost-per-user floor, no office. The figure is a planning estimate for internal scoping, not a closed round.</p>
+      </div>
+      <div>
+        <ul class="useoffunds" id="useFunds"></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="fwrap">
+    <div>
+      <div class="who">En<span>ZIME</span> // Neural Archive Interface</div>
+      <p style="font-size:13.5px;color:var(--ink2);margin-top:8px;max-width:46ch">Internal synthesis brief. Distilled from the full EnZIM* lineage on disk. Every claim traces to a shipped or attested artifact.</p>
+    </div>
+    <div class="meta">
+      ROBIN L. M. CHEUNG, MBA<br>
+      <a href="mailto:robinsaiworld@gmail.com">robinsaiworld@gmail.com</a><br>
+      WATCH · get.enzime<br>
+      <span style="color:var(--faint)">OFFLINE-FIRST · ZERO TELEMETRY · USER-OWNED</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+"use strict";
+/* ============ CONTENT DATA (the modularity seam — edit data, not markup) ============ */
+
+const PROBLEMS = [
+  {n:"ERR_01", h:"All-or-nothing archives", scar:"GB",
+   p:"Full English Wikipedia is ~100 GB. A 64 GB phone with 12 GB free can't take it — so every existing reader offers the whole thing or nothing at all."},
+  {n:"ERR_02", h:"Knowledge treated as a lookup", scar:"?",
+   p:"Kiwix and friends render ZIM as static pages. You can read; you can't mark up, cross-reference, question, or carry your own layer of understanding."},
+  {n:"ERR_03", h:"Connectivity assumed", scar:"⚡",
+   p:"The moment a reader needs the network — to fetch, to think, to sync — it fails exactly when it's needed most: the outage, the border, the dead zone, the disaster."}
+];
+
+const LADDER = [
+  {r:"RUNG 1", v:"Gemma 4 E4B", size:"~2–3 GB", tgt:"Flagship — multimodal ceiling", tag:""},
+  {r:"RUNG 2", v:"Gemma 4 E2B", size:"~1.5–3 GB", tgt:"Mid-range / recent flagships", tag:""},
+  {r:"RUNG 3", v:"Qwen3 · 0.6–1.5B", size:"~500–800 MB", tgt:"Older / constrained — text RAG floor", tag:""},
+  {r:"RUNG 4", v:"Bonsai 1-bit", size:"~125–375 MB", tgt:"Very constrained — ships in the binary", tag:"bundled"},
+  {r:"RUNG 5", v:"Cloud frontier", size:"—", tgt:"Terminal · explicit opt-in only", tag:"cloud"}
+];
+
+/* corpora for the planner — sizes in GB. media = with-images, text = stripped.
+   Numbers seeded from the design prototype's ZIM_LIBRARY + the ~100 GB full-Wikipedia anchor. */
+const CORPORA = [
+  {name:"Wikipedia — All", media:100, text:45,
+   cats:[["Medicine & Survival",18],["Science & Tech",26],["History & Geography",24],["Culture & Arts",18],["Everything else",14]]},
+  {name:"Stack Exchange — Full", media:78, text:60,
+   cats:[["Programming",40],["Server & Ops",16],["Math & Science",20],["Everything else",24]]},
+  {name:"Project Gutenberg", media:25, text:14,
+   cats:[["Reference & How-to",22],["Classics & Literature",40],["History & Biography",20],["Everything else",18]]},
+  {name:"Wiktionary — English", media:1.2, text:1.0,
+   cats:[["Core vocabulary",55],["Etymology & usage",25],["Rare & archaic",20]]}
+];
+
+const APPETITE_WORDS = [[18,"Just a taste"],[36,"A little"],[55,"A fair bit"],[74,"Generous"],[200,"As much as I'll spare"]];
+
+const MESH = [
+  {ic:"// SIDECAR", h:"Export &amp; import", p:"Your whole annotation set for an archive is a portable JSON document. Move it between devices and ZIM versions, or into third-party tools — no continued involvement from us.", rm:""},
+  {ic:"// SHARED LAYER", h:"Study-group layers", p:"A group builds a shared highlight-and-note layer over one textbook ZIM without ever modifying the source archive. Composable understanding, source untouched.", rm:""},
+  {ic:"// PEER TRUST", h:"Signed LAN sharing", p:"Each install holds a per-device ed25519 identity. Packs and sidecars travel device-to-device over LAN with explicit, gossip-able trust — no central reputation server.", rm:"seamed"},
+  {ic:"// SYNC", h:"Cross-device sync", p:"The sidecar is sync-ready: LAN-first reconciliation of your own layer across your own devices, keeping the no-server, no-lock-in promise intact.", rm:"roadmap"},
+  {ic:"// CAPTURE", h:"Share-to-app ZIMs", p:"Clip a web page on the desktop or via the browser extension and fold it into a personal ZIM the Reader treats like any other archive — the suite's content flywheel.", rm:"roadmap"},
+  {ic:"// READ-ALOUD", h:"Passage read-back", p:"A seamed TTS surface reads passages aloud through native OS voices — hands-free reference while the network stays off.", rm:"seamed"}
+];
+
+const MOAT = [
+  {ic:"// TIMING", h:"On-device inflection", p:"Small models crossed the usefulness line. A 500 MB–3 GB model now does real RAG on a phone — the thing that makes Chat-with-ZIM possible was impossible 24 months ago.", rm:""},
+  {ic:"// CLEAN-ROOM", h:"AnZimmermanLib", p:"A from-scratch, licensing-clean ZIM library — read today, write next. Personal and published ZIM creation is ours to ship without GPL contamination or a vendor dependency.", rm:""},
+  {ic:"// INVARIANT", h:"Offline-first as structure", p:"Every asset has a non-network load path: SD card, USB, LAN peer, disc, sibling device. Offline isn't a fallback bolted on — it's an invariant nothing in the codebase may violate.", rm:""},
+  {ic:"// FLYWHEEL", h:"The suite, not the app", p:"Reader consumes ZIMs · Extension clips the web · Creator publishes ZIMs. Each member feeds the others — a content loop a single reader app can't replicate.", rm:""}
+];
+
+const SEGMENTS = [
+  {h:"Resilience &amp; preparedness", sz:"Est. 12–18M preparedness-active households (US/EU), first-order from emergency-prep market reports",
+   p:"Survival, medical, and repair knowledge that works when the grid and the towers don't. The prepper market already buys offline knowledge — on paper and on dead-weight Kiwix dumps. EnZIME makes it interactive and right-sized to the device they'll actually carry."},
+  {h:"Education &amp; study groups", sz:"Est. 50M+ students in low-bandwidth or device-shared contexts globally",
+   p:"Shared annotation layers over textbook and reference ZIMs, with voice and ink in the margins. A classroom or study group builds collective understanding on archives that cost nothing to host and need no connectivity to use."},
+  {h:"Degoogled &amp; privacy", sz:"Est. 3–6M custom-ROM / privacy-handset users, from de-Googled community scale",
+   p:"A reader with zero telemetry, no account, on-device AI, and user-owned exportable files is exactly what this community asks for and rarely gets. Sideload-first, Play-optional, Stripe/BTCPay where they want it."},
+  {h:"Connectivity-poor regions", sz:"Est. 2.6B people with limited or intermittent internet (broad ITU-scale anchor)",
+   p:"Where bandwidth is metered, throttled, or absent, a one-time sideload of a right-sized archive plus an on-device tutor is transformative. The planner's whole reason to exist is making 100 GB usable on the device and the data plan people actually have."}
+];
+
+const CHANNELS = [
+  ["Google Play (AAB)","play","PAD install-time model packs","Play Billing via RevenueCat","Play Store native"],
+  ["Sideload APK","sideload","Mirror fetch · degoogled-friendly","Stripe / BTCPay by flag","Signed in-app updater"],
+  ["Linux · AppImage","desktop","Mirror + local filesystem","Direct / offline-signed","Signed release manifest"],
+  ["Windows · MSI","desktop","Mirror + local filesystem","Direct / offline-signed","Signed release manifest"]
+];
+
+const LINEAGE = [
+  {gen:"Zimmer-era libs", d:"clean-room ZIM, multi-lang", h:"The licensing-clean foundation",
+   taught:"Proved a ZIM read/write library could be built from the spec alone — no GPL contamination.",
+   rescue:"Rescued: <b>AnZimmermanLib</b> as the suite's owned ZIM engine, read today and write next."},
+  {gen:"emergent-EnZIME", d:"Expo · the first build", h:"The feature surface",
+   taught:"Shipped storage-aware filtered download, range annotations, and a roadmap full of ambition (3D graph, share-to-app, sync).",
+   rescue:"Rescued: the <b>roadmap itself</b> — the lost 3D graph and capture features are back in this brief, not abandoned."},
+  {gen:"EnZIMErgent", d:"Expo · the spec", h:"The canonical USPs &amp; ethos",
+   taught:"Crystallized the six USPs, the 5-rung AI ladder with bundled fallback, robust range re-anchoring, and the Cyberpunk Neon identity.",
+   rescue:"Rescued: the <b>never-silently-lost</b> anchoring promise and the device-ladder framing, intact."},
+  {gen:"ThinkSpace / Graph Ed.", d:"design refinement", h:"The human-appetite turn",
+   taught:"Replaced byte-math + separate depth/breadth knobs with one qualitative appetite slider, and prototyped 6-DoF semantic navigation.",
+   rescue:"Rescued: the <b>appetite planner</b> above, and the 3D Graph Edition concept."},
+  {gen:"EnZIME (Tauri)", d:"production rearchitecture", h:"The production posture",
+   taught:"Dropped Expo for Tauri 2 + Rust, locked INV-OFFLINE, dual-tier Qwen/Gemma, ed25519-signed packs/updates/peer-trust, zero telemetry.",
+   rescue:"This is the <b>union</b> — every rescued piece, on a production substrate, attested in ARCHITECTURE.md."}
+];
+
+const ROADMAP = [
+  {when:"v1.0 — Architecture", st:"s-done", stl:"ATTESTED", h:"Reader architecture locked", p:"~305-entity ARCHITECTURE.md attested; INV-OFFLINE, build flavors, entitlement seam, signing keys all decided and recorded."},
+  {when:"v1.0 — Build gates", st:"s-prog", stl:"IN FLIGHT", h:"Compile-clean across flavors", p:"Desktop / sideload / play cargo checks, Vite build, Android enablement (gen/android, signing, versionCode) — the final gate wave."},
+  {when:"v1.0 — Launch", st:"s-next", stl:"NEXT", h:"Reader ships to four channels", p:"AppImage, MSI, sideload APK, Play AAB with install-time model packs; get.enzime landing live."},
+  {when:"v1.x — Pitch-led", st:"s-next", stl:"QUEUED", h:"Architect the brief back in", p:"3D Graph Edition, share-to-app capture, and cross-device sync get entity rows + checklist tasks — marketing-led development, deliberately."},
+  {when:"v2 — Suite", st:"s-next", stl:"PLANNED", h:"Creator &amp; Extension", p:"Creator publishes ZIMs; the MV3 Extension clips the web into them. The flywheel closes: clip → publish → read → annotate → share."}
+];
+
+const USEFUNDS = [
+  {pct:"45%", h:"Engineering runway", p:"One operator, twelve months, through Reader launch and into the Creator + Extension suite members."},
+  {pct:"25%", h:"Model &amp; pack infra", p:"On-device model variant hosting, the operator-curated signed pack catalog, and mirror/update delivery — all self-hosted."},
+  {pct:"18%", h:"Distribution", p:"Store fees, code-signing certificates, device test matrix across the Android / Linux / Windows targets."},
+  {pct:"12%", h:"Contingency", p:"Thermal/throughput surprises on constrained devices, and the architecture passes that turn pitch-led features into shipped ones."}
+];
+
+/* ============ RENDER ============ */
+const $=(s,r=document)=>r.querySelector(s), el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
+
+// problems
+PROBLEMS.forEach(p=>{const c=el("div","pcard");
+  c.innerHTML=`<span class="scar">${p.scar}</span><div class="idx">${p.n}</div><h3>${p.h}</h3><p>${p.p}</p>`;
+  $("#problemCards").append(c);});
+
+// ladder
+LADDER.forEach((r,i)=>{const tr=el("tr");
+  const tag=r.tag?` <span class="tag ${r.tag}">${r.tag.toUpperCase()}</span>`:"";
+  tr.innerHTML=`<td>${r.r}</td><td class="b">${r.v}${tag}</td><td>${r.size}</td><td>${r.tgt}</td>`;
+  if(i===0)$("#ladderTbl").innerHTML=`<tr><th>Rung</th><th>Variant</th><th>Size</th><th>Target</th></tr>`;
+  $("#ladderTbl").append(tr);});
+
+// mesh + moat
+MESH.forEach(m=>{const c=el("div","fcard");
+  c.innerHTML=`${m.rm?`<span class="roadmap">${m.rm}</span>`:""}<div class="ic">${m.ic}</div><h4>${m.h}</h4><p>${m.p}</p>`;
+  $("#meshCards").append(c);});
+MOAT.forEach(m=>{const c=el("div","fcard");
+  c.innerHTML=`<div class="ic">${m.ic}</div><h4>${m.h}</h4><p>${m.p}</p>`;
+  $("#moatCards").append(c);});
+
+// segments
+SEGMENTS.forEach(s=>{const c=el("div","scard");
+  c.innerHTML=`<h4>${s.h}</h4><div class="sz">${s.sz}</div><p>${s.p}</p>`;
+  $("#segCards").append(c);});
+
+// channel matrix
+$("#chmatTbl").innerHTML=`<tr><th>Channel</th><th>Flavor</th><th>Model delivery</th><th>Payment</th><th>Updates</th></tr>`+
+  CHANNELS.map(c=>`<tr><td>${c[0]}</td><td style="font-family:var(--mono);color:var(--cyan);font-size:12px">${c[1]}</td><td>${c[2]}</td><td>${c[3]}</td><td>${c[4]}</td></tr>`).join("");
+
+// lineage
+LINEAGE.forEach(l=>{const r=el("div","lrow");
+  r.innerHTML=`<div class="gen">${l.gen}<span class="d">${l.d}</span></div>
+    <div class="body"><h4>${l.h}</h4><div class="taught">${l.taught}</div><div class="rescue">${l.rescue}</div></div>`;
+  $("#lineageRows").append(r);});
+
+// roadmap
+ROADMAP.forEach(r=>{const i=el("div","ritem "+(r.st==="s-done"?"done":r.st==="s-next"?"next":""));
+  i.innerHTML=`<div class="when">${r.when}<span class="st ${r.st}">${r.stl}</span></div><h4>${r.h}</h4><p>${r.p}</p>`;
+  $("#roadItems").append(i);});
+
+// use of funds
+USEFUNDS.forEach(u=>{const li=el("li");
+  li.innerHTML=`<span class="pct">${u.pct}</span><div class="ud"><b>${u.h}</b><p>${u.p}</p></div>`;
+  $("#useFunds").append(li);});
+
+/* ============ PLANNER LOGIC ============ */
+const sFree=$("#sFree"), sApp=$("#sApp"), sCorp=$("#sCorp"), tMedia=$("#tMedia");
+let mediaOn=true;
+const PIP=["#39ff14","#00ffff","#ff00ff","#faff00","#ff8a28"];
+
+function appetiteWord(v){for(const[t,w]of APPETITE_WORDS)if(v<=t)return w;return "As much as I'll spare";}
+function coverWord(f){return f>=1?"Complete":f>=.7?"Deep":f>=.45?"Solid":f>=.22?"Outlines":"Headlines";}
+function coverColor(f){return f>=1?"var(--green)":f>=.7?"var(--cyan)":f>=.45?"var(--cyan)":f>=.22?"var(--amber)":"var(--muted)";}
+function fmtSize(g){return g<0.05?"0":(g<1?Math.round(g*1000)+" MB":(g<10?g.toFixed(1):Math.round(g))+" GB");}
+
+function plan(){
+  const free=+sFree.value, appPct=+sApp.value/100, corp=CORPORA[+sCorp.value];
+  const corpSize=mediaOn?corp.media:corp.text;
+  const budget=Math.max(.4, free*appPct);             // GB the user will spend
+  const coverage=Math.min(1, budget/corpSize);        // fraction of the corpus that fits
+  const planned=Math.min(budget, corpSize);
+
+  // depth 1..4 and breadth% derived from coverage (the "byte-math done for you")
+  const depth=Math.max(1,Math.min(4,Math.round(1+coverage*3)));
+  const breadth=Math.round(Math.min(100, 18+coverage*82));
+
+  // readouts
+  $("#vFree").textContent=free+" GB";
+  $("#freeReadout").textContent="DEVICE FREE: "+free+" GB";
+  $("#vApp").textContent=appetiteWord(+sApp.value);
+  $("#vCorp").textContent=corp.name;
+  $("#ptDepth").textContent=depth;
+  $("#ptBreadth").textContent=breadth+"%";
+  $("#ptSize").textContent=(planned<10?planned.toFixed(1):Math.round(planned))+" GB";
+  $("#planBudget").textContent=`SPENDING ${budget<10?budget.toFixed(1):Math.round(budget)} GB OF ${free} GB · ${corp.name.toUpperCase()} ${mediaOn?"· WITH MEDIA":"· TEXT-ONLY"}`;
+
+  // headline
+  const cw=coverWord(coverage);
+  $("#planHead").innerHTML = coverage>=1
+    ? `The entire archive — <span class="hl">complete</span>, on this device.`
+    : `<span class="hl">${cw}</span> coverage of ${corp.name.split(" — ")[0]}, sized to what you'll spare.`;
+
+  // category breakdown — earlier categories fill first (the depth/breadth tradeoff made visible)
+  // each shows the actual GB given of the category's full GB, plus a proportion bar.
+  const list=$("#planList"); list.innerHTML="";
+  let remaining=coverage*corp.cats.reduce((a,c)=>a+c[1],0); // weighted budget across cats (units of 100)
+  corp.cats.forEach((c,i)=>{
+    const give=Math.max(0,Math.min(c[1],remaining)); remaining-=give;
+    const f=give/c[1];                         // fraction of THIS area covered
+    const fullGB=corpSize*(c[1]/100);          // this area's full size in the chosen corpus
+    const coverGB=corpSize*(give/100);         // GB actually planned for this area
+    const col=PIP[i%PIP.length];
+    const li=el("li");
+    li.innerHTML=`<div class="row1">
+        <span class="pip" style="background:${col};box-shadow:0 0 8px ${col}"></span>
+        <span class="nm">${c[0]}</span>
+        <span class="gb"><b style="color:${coverColor(f)}">${fmtSize(coverGB)}</b><span class="tot"> / ${fmtSize(fullGB)}</span><span class="w" style="color:${coverColor(f)}">${f<=0.01?"—":coverWord(f).toUpperCase()}</span></span>
+      </div>
+      <div class="bar"><i style="width:${Math.round(f*100)}%;background:${col};box-shadow:0 0 6px ${col}"></i></div>`;
+    list.append(li);
+  });
+}
+
+sFree.addEventListener("input",plan);
+sApp.addEventListener("input",plan);
+sCorp.addEventListener("input",()=>{$("#corpHint").textContent="Planning against: "+CORPORA[+sCorp.value].name;plan();});
+tMedia.addEventListener("click",()=>{mediaOn=!mediaOn;tMedia.classList.toggle("on",mediaOn);
+  $("#mediaLab").textContent=mediaOn?"Include images & media":"Text only (no media)";plan();});
+plan();
+
+/* ============ CHAT-WITH-ZIM (simulated, interactive — on-device gemma4:e2b) ============ */
+// Each answer is grounded in named ZIM articles ("retrieved" before the model speaks),
+// then streamed line-by-line for an on-device token-stream feel. No network, ever.
+const CHAT_PROMPTS=[
+  {id:"dog", hot:true, label:"Help! My dog's paw is caught in a crevasse — first aid + how to fashion a hoist to get the goodest boi out!"},
+  {id:"charcoal", label:"Safe activated-charcoal dose for a 20 kg dog that ate something toxic?"},
+  {id:"water", label:"No power for 3 days — how do I make creek water safe to drink?"},
+  {id:"summary", label:"Summarize the dispute between sections 3 and 5 of this article."}
+];
+const ANSWERS={
+  dog:{ sources:["A/First_aid/Animal_trauma","A/Wilderness/Crevasse_rescue","A/Knots/Trucker's_hitch","A/Mechanical_advantage/Z-drag"],
+    lines:[
+      {k:"p",html:"Okay — breathe. Pulling from your offline first-aid and rope-rescue packs, here's a calm sequence. <b>Stabilize before you lift.</b>"},
+      {k:"step",html:"<b>Settle &amp; protect.</b> Keep him still and warm; a panicked thrash worsens a trapped limb. Improvise a muzzle from a leash or strap — even the gentlest dog bites when the pain spikes."},
+      {k:"step",html:"<b>Don't yank straight out.</b> If the paw is wedged, hauling against the wedge can deglove it. Clear loose debris by hand and widen the <i>opening</i>, not the limb's path."},
+      {k:"step",html:"<b>Ease it free.</b> A little slick — water, even saliva — plus gentle rotation back along the way it went in usually releases a wedged paw."},
+      {k:"p",html:"If you need real lifting force, <b>build a 3:1 hoist (a Z-drag)</b> — three rope strands multiply your pull threefold, so one person lifts slow and controlled:"},
+      {k:"step",html:"Anchor a line to something solid <i>above</i> — tree, rock horn, or a braced pack frame."},
+      {k:"step",html:"Rig a <b>trucker's hitch</b> (or a prusik) to form the 3:1 Z. Pad every rope-to-dog contact; run a folded jacket as a sling under the <b>chest</b>, never the neck."},
+      {k:"step",html:"Haul smoothly on the count of three — no jerks. As he rises, guide the paw clear of the lip."},
+      {k:"p",html:"<b>After:</b> check the toes for cold/blue (circulation), bleeding, and any grinding that says fracture. Keep him warm, immobilize the leg if it's hurt, and head for help. <span style=\"color:var(--green)\">Assembled from four articles in your offline packs — no signal used.</span>"}
+    ]},
+  charcoal:{ sources:["A/First_aid/Toxicology","A/Veterinary/Activated_charcoal"],
+    lines:[
+      {k:"p",html:"From your veterinary first-aid pack: <b>activated charcoal is dosed at roughly 1–3 g per kg of body weight.</b>"},
+      {k:"step",html:"For a 20 kg dog that's about <b>20–60 g</b>, mixed into a slurry with water."},
+      {k:"step",html:"<b>Do NOT give it</b> if the dog is unconscious, seizing, or swallowed a corrosive or a petroleum product — charcoal won't bind those and aspiration is the bigger risk."},
+      {k:"p",html:"This is a stabilizing measure, not a cure — the same pack lists the nearest-help triage steps. <span style=\"color:var(--green)\">Answered on-device.</span>"}
+    ]},
+  water:{ sources:["A/Survival/Water_purification","A/Chemistry/Chlorination"],
+    lines:[
+      {k:"p",html:"Three field methods from your survival pack, best first:"},
+      {k:"step",html:"<b>Boil</b> — a rolling boil for 1 minute (3 minutes above ~2000 m) kills everything biological. Most reliable if you have any fuel."},
+      {k:"step",html:"<b>Plain bleach</b> — 2 drops of unscented 5–6% household bleach per litre, stir, wait 30 min. Faint chlorine smell = it worked."},
+      {k:"step",html:"<b>Cloth + sun</b> — pre-filter through tight-woven cloth, then a clear PET bottle in direct sun for 6 h (SODIS) handles microbes when nothing else is available."},
+      {k:"p",html:"None of these remove chemical pollutants — the pack flags which sources to avoid entirely. <span style=\"color:var(--green)\">Retrieved offline.</span>"}
+    ]},
+  summary:{ sources:["A/Mitochondrion#s3","A/Mitochondrion#s5"],
+    lines:[
+      {k:"p",html:"Reading the loaded article directly: <b>§3 (Origin)</b> argues the endosymbiotic case — mitochondria as once-free-living bacteria — citing their own circular DNA and double membrane."},
+      {k:"step",html:"<b>§5 (References)</b> carries the dissent: papers questioning how much of the original genome actually transferred to the nucleus, and whether some features are convergent rather than inherited."},
+      {k:"p",html:"So the tension is <b>inheritance vs. convergence</b> — §3 reads the shared traits as ancestry; §5's sources read some as independent adaptation. <span style=\"color:var(--green)\">Grounded in the article you have open, not my training data.</span>"}
+    ]}
+};
+function classifyTyped(t){t=t.toLowerCase();
+  if(/dog|paw|crevasse|hoist|goodest|pup|leg.*stuck|stuck.*leg/.test(t))return"dog";
+  if(/charcoal|dose|poison|toxic|ate|swallow/.test(t))return"charcoal";
+  if(/water|drink|purif|boil|creek|river/.test(t))return"water";
+  if(/summar|section|dispute|this article|§/.test(t))return"summary";
+  return null;}
+const GENERIC={sources:["A/Index","A/Search/Relevance"],
+  lines:[
+    {k:"p",html:"On-device, I retrieve the most relevant passages from whatever ZIM packs you've installed, then answer from <b>them</b> — not from a guess."},
+    {k:"p",html:"This demo scripts a few vivid examples — try a suggested question to watch a full retrieval-grounded answer. In the real app, <b>gemma4:e2b</b> takes any question against your loaded packs, entirely offline. <span style=\"color:var(--green)\">Still zero cloud calls.</span>"}
+  ]};
+
+const clog=$("#chatlog"), cin=$("#chatinput"), csend=$("#chatsend"), cstat=$("#chatstat"), cchips=$("#chatchips");
+let chatBusy=false;
+CHAT_PROMPTS.forEach(p=>{const b=el("button","chip"+(p.hot?" hot":""));b.textContent=(p.hot?"🐾 ":"")+p.label;
+  b.addEventListener("click",()=>ask(p.label,p.id));cchips.append(b);});
+
+function addMsg(cls,html){const m=el("div","msg "+cls);
+  m.innerHTML=`<div class="av">${cls==="user"?"YOU":"ZIM"}</div><div class="bub">${html}</div>`;
+  clog.append(m);clog.scrollTop=clog.scrollHeight;return m.querySelector(".bub");}
+
+function ask(text,id){
+  if(chatBusy)return;
+  chatBusy=true;csend.disabled=true;cin.value="";
+  addMsg("user",text.replace(/</g,"&lt;"));
+  const ans=id?ANSWERS[id]:(ANSWERS[classifyTyped(text)]||GENERIC);
+  const bub=addMsg("bot",'<span class="cursor"></span>');
+  cstat.textContent="● RETRIEVING…";cstat.style.color="var(--amber)";
+  let step=0;
+  function srcThenStream(){
+    // show retrieved sources first
+    const r=`<div class="retr"><span class="lbl">retrieved</span>${ans.sources.map(s=>`<span class="src">[[${s}]]</span>`).join("")}</div>`;
+    bub.innerHTML=r+'<span class="cursor"></span>';clog.scrollTop=clog.scrollHeight;
+    cstat.textContent="● GENERATING · gemma4:e2b";cstat.style.color="var(--cyan)";
+    streamLine();
+  }
+  function streamLine(){
+    if(step>=ans.lines.length){
+      bub.querySelectorAll(".cursor").forEach(c=>c.remove());
+      cstat.textContent="● ANSWERED · 0 CLOUD CALLS";cstat.style.color="var(--green)";
+      chatBusy=false;csend.disabled=false;cin.focus();return;
+    }
+    const ln=ans.lines[step++];
+    const cur=bub.querySelector(".cursor"); if(cur)cur.remove();
+    const node=el(ln.k==="step"?"span":"div", ln.k==="step"?"step":"");
+    if(ln.k==="p")node.style.marginTop=step>1?"10px":"0";
+    node.innerHTML=ln.html;bub.append(node);
+    bub.insertAdjacentHTML("beforeend",'<span class="cursor"></span>');
+    clog.scrollTop=clog.scrollHeight;
+    setTimeout(streamLine, 380+Math.min(ln.html.length*4,520));
+  }
+  setTimeout(srcThenStream, 560);
+}
+csend.addEventListener("click",()=>{const v=cin.value.trim();if(v)ask(v,null);});
+cin.addEventListener("keydown",e=>{if(e.key==="Enter"){const v=cin.value.trim();if(v)ask(v,null);}});
+// seed the conversation so the section never looks empty
+addMsg("bot",'I’m running on this device — <b>gemma4:e2b</b>, no network. Ask me anything, or tap the 🐾 question to see an offline emergency answer.');
+
+/* ============ READER + NOTEBOOK (co-visible, interactive — USP #2) ============ */
+// The reader shows the very article the chat above synthesized (crevasse rescue).
+// Highlighting a sentence captures a note into the notebook — which already holds
+// notes from EARLIER sessions on other articles, so synthesis is visible at a glance.
+const RD_ART={ title:"Crevasse &amp; Improvised-Hoist Rescue", path:"A/Wilderness/Crevasse_rescue",
+  src:"Survival pack · offline",
+  html:`<p>A casualty wedged in a crevasse must be <span class="snip" data-id="s1">stabilized before any extraction is attempted</span>; a panicked struggle tightens the wedge and risks further injury.</p>
+  <p>Where direct lifting is impossible, a <span class="snip" data-id="s2">3:1 mechanical-advantage system — the Z-drag — multiplies hauling force threefold</span>, letting a single rescuer raise a load safely.</p>
+  <p>The system is anchored above the casualty and tensioned with a <span class="snip" data-id="s3">trucker's hitch or a friction prusik</span>; padding protects rope and casualty at every contact point.</p>
+  <p>Once raised, <span class="snip" data-id="s4">circulation, bleeding, and fractures are assessed in that order</span> before the casualty is moved to shelter.</p>` };
+const SNIPS={
+  s1:{note:"Stabilize before extraction — a struggle only tightens the wedge.",tag:"rope rescue"},
+  s2:{note:"Z-drag gives a 3:1 pull — one rescuer can raise a load safely.",tag:"rope rescue"},
+  s3:{note:"Anchor above; tension with a trucker's hitch or a prusik.",tag:"rope rescue"},
+  s4:{note:"After the lift: check circulation → bleeding → fractures, in order.",tag:"first aid"}
+};
+const SEED_NOTES=[
+  {q:"Activated charcoal 1–3 g/kg — but not if the dog is unconscious or it was a corrosive.",src:"A/Veterinary/Activated_charcoal",ses:"Yesterday",tag:"canine first aid",col:"#ffd428"},
+  {q:"2 drops of unscented bleach per litre, stir, wait 30 minutes.",src:"A/Survival/Water_purification",ses:"2 days ago",tag:"water safety",col:"#00e5ff"}
+];
+const PENS=[{n:"Yellow",c:"#ffd428"},{n:"Cyan",c:"#00e5ff"},{n:"Pink",c:"#ff4ab8"},{n:"Green",c:"#3cff9c"}];
+const readBody=$("#readBody"), nbBody=$("#nbBody"), nbSynth=$("#nbSynth"), nbMeta=$("#nbMeta"), pensEl=$("#pens");
+let pen=PENS[1];
+const liveNotes=new Map();
+function hexA(h,a){const n=parseInt(h.slice(1),16);return "rgba("+(n>>16&255)+","+(n>>8&255)+","+(n&255)+","+a+")";}
+PENS.forEach((p,i)=>{const d=el("span","pen"+(i===1?" sel":""));d.style.background=p.c;d.title=p.n;
+  d.addEventListener("click",()=>{pen=p;pensEl.querySelectorAll(".pen").forEach(x=>x.classList.remove("sel"));d.classList.add("sel");});
+  pensEl.append(d);});
+readBody.innerHTML=`<h5>${RD_ART.title}</h5><div class="apath">[[${RD_ART.path}]] · ${RD_ART.src}</div>`+RD_ART.html;
+readBody.querySelectorAll(".snip").forEach(s=>s.addEventListener("click",()=>toggleSnip(s)));
+function noteNode(o,live){const n=el("div","note"+(live?" live":""));n.style.borderLeftColor=o.col;
+  n.innerHTML=`<div class="nq">“${o.q}”</div><div class="nm"><span class="src">[[${o.src}]]</span><span class="ses">${o.ses}</span></div>`;return n;}
+SEED_NOTES.forEach(o=>nbBody.append(noteNode(o,false)));
+function toggleSnip(s){const id=s.dataset.id, info=SNIPS[id];
+  if(liveNotes.has(id)){s.classList.remove("hl");s.style.background="";liveNotes.get(id).node.remove();liveNotes.delete(id);}
+  else{s.classList.add("hl");s.style.background=hexA(pen.c,.32);
+    const o={q:info.note,src:RD_ART.path,ses:"Just now",col:pen.c};
+    const n=noteNode(o,true);nbBody.prepend(n);liveNotes.set(id,{node:n,tag:info.tag,src:RD_ART.path});}
+  updateSynth();
+}
+function updateSynth(){
+  const all=[...SEED_NOTES.map(s=>({tag:s.tag,src:s.src})), ...[...liveNotes.values()].map(v=>({tag:v.tag,src:v.src}))];
+  const srcs=new Set(all.map(a=>a.src)), tags=[...new Set(all.map(a=>a.tag))];
+  nbMeta.textContent=`${srcs.size} SOURCE${srcs.size===1?"":"S"} · ALWAYS ON SCREEN`;
+  nbSynth.innerHTML=`<b>${all.length} notes</b> across <b>${srcs.size} articles</b> — threads: <b>${tags.join(" · ")}</b>.`+
+    (liveNotes.size?` <span style="color:var(--green)">+${liveNotes.size} captured this session, beside what you're reading.</span>`:"");
+}
+updateSynth();
+
+/* ============ DECORATIVE VISUALS (canvas, no assets) ============ */
+// annotation visual — a faux article with neon highlight spans
+$("#annoVis").innerHTML=`
+<div style="padding:26px;font-size:13px;line-height:1.9;color:var(--muted);font-family:var(--mono)">
+  <div style="color:var(--cyan);font-size:11px;letter-spacing:2px;margin-bottom:14px">A/MITOCHONDRION · ¶4</div>
+  …the organelle is bounded by <mark style="background:rgba(57,255,20,.22);color:var(--green);padding:1px 3px;border-radius:2px">a double membrane</mark>, and
+  <mark style="background:rgba(0,255,255,.20);color:var(--cyan);padding:1px 3px;border-radius:2px">generates most of the cell's supply of ATP</mark>,
+  used as a source of chemical energy. <span style="border-bottom:2px wavy var(--magenta)">The number per cell varies widely</span>…
+  <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+    <span style="font-size:10px;border:1px solid var(--green);color:var(--green);border-radius:3px;padding:3px 8px">▤ highlight</span>
+    <span style="font-size:10px;border:1px solid var(--cyan);color:var(--cyan);border-radius:3px;padding:3px 8px">✎ note</span>
+    <span style="font-size:10px;border:1px solid var(--magenta);color:var(--magenta);border-radius:3px;padding:3px 8px">🎙 voice</span>
+    <span style="font-size:10px;border:1px solid var(--amber);color:var(--amber);border-radius:3px;padding:3px 8px">✐ ink</span>
+  </div>
+</div>`;
+
+// 3D graph — animated force-ish node field on canvas
+(function graph(){
+  const host=$("#graphVis"); const cv=el("canvas"); host.append(cv);
+  let W,H,DPR=Math.min(2,window.devicePixelRatio||1);
+  function size(){W=host.clientWidth;H=host.clientHeight;cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+"px";cv.style.height=H+"px";}
+  size();
+  const COL=["#00ffff","#39ff14","#ff00ff","#faff00"];
+  const N=46, nodes=[], edges=[];
+  for(let i=0;i<N;i++)nodes.push({x:Math.random(),y:Math.random(),z:Math.random(),
+    c:COL[i%COL.length], r:1.5+Math.random()*3});
+  for(let i=0;i<N;i++)for(let j=i+1;j<N;j++)if(Math.random()<.05)edges.push([i,j]);
+  let t=0, raf;
+  function frame(){
+    t+=.0032; const ctx=cv.getContext("2d"); ctx.setTransform(DPR,0,0,DPR,0,0); ctx.clearRect(0,0,W,H);
+    const cx=W/2, cy=H/2, R=Math.min(W,H)*.36;
+    const proj=nodes.map(n=>{
+      const a=t+n.x*6.28, b=t*.6+n.y*6.28;
+      const x3=Math.cos(a)*(.4+n.z*.6), y3=(n.y-.5)*1.4, z3=Math.sin(a)*(.4+n.z*.6);
+      const sc=1/(1.8+z3); return {sx:cx+x3*R*sc, sy:cy+y3*R*sc, sc, z:z3, c:n.c, r:n.r};
+    });
+    ctx.lineWidth=.6;
+    edges.forEach(([i,j])=>{const a=proj[i],b=proj[j];
+      const al=.12*Math.min(a.sc,b.sc)*2.2;
+      ctx.strokeStyle="rgba(0,255,255,"+Math.max(.03,Math.min(.3,al))+")";
+      ctx.beginPath();ctx.moveTo(a.sx,a.sy);ctx.lineTo(b.sx,b.sy);ctx.stroke();});
+    proj.sort((a,b)=>a.z-b.z).forEach(p=>{
+      const r=p.r*p.sc*2.4;
+      ctx.beginPath();ctx.fillStyle=p.c;ctx.shadowColor=p.c;ctx.shadowBlur=10*p.sc*2;
+      ctx.globalAlpha=.5+p.sc*1.1;ctx.arc(p.sx,p.sy,Math.max(.8,r),0,6.29);ctx.fill();
+    });
+    ctx.globalAlpha=1;ctx.shadowBlur=0;
+    ctx.font="10px monospace";ctx.fillStyle="rgba(255,255,255,.3)";
+    ctx.fillText("// GRAPH_EDITION · 6-DoF semantic navigation · "+N+" nodes",14,H-14);
+    raf=requestAnimationFrame(frame);
+  }
+  const io=new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting){if(!raf)frame();}else{cancelAnimationFrame(raf);raf=0;}
+  }),{threshold:.05}); io.observe(host);
+  window.addEventListener("resize",size);
+})();
+
+// live clock in hero HUD
+(function clk(){const e=$("#clk");function up(){const d=new Date();
+  e.textContent="● "+d.toTimeString().slice(0,8);}setInterval(up,1000);up();})();
+
+// scroll reveal
+const ro=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");ro.unobserve(e.target);}}),{threshold:.12});
+document.querySelectorAll(".rv").forEach(n=>ro.observe(n));
+</script>
+</body>
+</html>

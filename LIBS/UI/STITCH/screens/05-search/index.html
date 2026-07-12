@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EnZIME | Global Search Results</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Geist:wght@100;300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#4fdbc8",
+                        "error-container": "#93000a",
+                        "tertiary-container": "#9ca4bd",
+                        "on-secondary": "#003731",
+                        "on-error": "#690005",
+                        "on-surface": "#d4e4fa",
+                        "surface-variant": "#273647",
+                        "secondary": "#44e2cd",
+                        "on-tertiary-container": "#323a4f",
+                        "surface-container-low": "#0d1c2d",
+                        "on-surface-variant": "#bbcac6",
+                        "error": "#ffb4ab",
+                        "tertiary": "#bec6e0",
+                        "on-primary": "#003731",
+                        "on-primary-fixed": "#00201c",
+                        "inverse-surface": "#d4e4fa",
+                        "surface-container-highest": "#273647",
+                        "surface-container": "#122131",
+                        "tertiary-fixed": "#dae2fd",
+                        "tertiary-fixed-dim": "#bec6e0",
+                        "secondary-fixed-dim": "#3cddc7",
+                        "outline": "#859490",
+                        "primary": "#4fdbc8",
+                        "surface-bright": "#2c3a4c",
+                        "secondary-container": "#03c6b2",
+                        "primary-fixed-dim": "#4fdbc8",
+                        "on-tertiary": "#283044",
+                        "primary-container": "#14b8a6",
+                        "on-tertiary-fixed-variant": "#3f465c",
+                        "surface": "#051424",
+                        "surface-container-high": "#1c2b3c",
+                        "primary-fixed": "#71f8e4",
+                        "surface-container-lowest": "#010f1f",
+                        "inverse-on-surface": "#233143",
+                        "inverse-primary": "#006b5f",
+                        "on-primary-container": "#00423b",
+                        "on-secondary-fixed-variant": "#005047",
+                        "on-secondary-fixed": "#00201c",
+                        "on-error-container": "#ffdad6",
+                        "secondary-fixed": "#62fae3",
+                        "on-tertiary-fixed": "#131b2e",
+                        "on-background": "#d4e4fa",
+                        "surface-dim": "#051424",
+                        "outline-variant": "#3c4947",
+                        "on-secondary-container": "#004d44",
+                        "on-primary-fixed-variant": "#005048",
+                        "background": "#051424"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-desktop": "40px",
+                        "base": "8px",
+                        "margin-mobile": "16px",
+                        "container-max": "1024px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Space Grotesk"],
+                        "display-lg": ["Space Grotesk"],
+                        "body-md": ["Geist"],
+                        "body-lg": ["Geist"],
+                        "headline-md": ["Space Grotesk"],
+                        "headline-lg-mobile": ["Space Grotesk"],
+                        "headline-lg": ["Space Grotesk"],
+                        "code": ["Geist"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "code": ["14px", {"lineHeight": "1.4", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #051424;
+            color: #d4e4fa;
+            font-family: 'Geist', sans-serif;
+            overflow-x: hidden;
+        }
+        .highlight-teal {
+            background-color: rgba(20, 184, 166, 0.3);
+            color: #4fdbc8;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #010f1f;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #3c4947;
+            border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #4fdbc8;
+        }
+        .result-row:hover {
+            background-color: rgba(39, 54, 71, 0.4);
+        }
+    </style>
+</head>
+<body class="flex min-h-screen">
+<!-- SideNavBar Anchor -->
+<aside class="fixed left-0 top-0 h-full w-[72px] bg-surface dark:bg-surface border-r border-outline-variant dark:border-outline-variant flex flex-col items-center py-base gap-gutter z-50">
+<div class="mb-8">
+<span class="material-symbols-outlined text-primary font-headline-md text-headline-md font-bold" style="font-variation-settings: 'FILL' 1;">terminal</span>
+</div>
+<nav class="flex flex-col gap-6">
+<!-- Search Active -->
+<button class="w-12 h-12 flex flex-col items-center justify-center text-primary dark:text-primary bg-secondary-container/20 rounded-xl transition-all scale-95 active:scale-90" title="Search">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">search</span>
+<span class="font-label-md text-[10px] mt-1">Search</span>
+</button>
+<button class="w-12 h-12 flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant dark:hover:bg-surface-variant transition-colors rounded-xl" title="Library">
+<span class="material-symbols-outlined">library_books</span>
+<span class="font-label-md text-[10px] mt-1">Library</span>
+</button>
+<button class="w-12 h-12 flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant dark:hover:bg-surface-variant transition-colors rounded-xl" title="Downloads">
+<span class="material-symbols-outlined">download</span>
+<span class="font-label-md text-[10px] mt-1">Files</span>
+</button>
+<button class="w-12 h-12 flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant dark:hover:bg-surface-variant transition-colors rounded-xl" title="Settings">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-[10px] mt-1">Settings</span>
+</button>
+</nav>
+<div class="mt-auto flex flex-col items-center gap-4">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">offline_pin</span>
+<span class="font-code text-[10px] text-secondary">OFFLINE</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center overflow-hidden">
+<img alt="Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhc4xDIlofhjihMbTX4ltl87yutFkuEhCL5fES_0OSrgm5Rw3IKmCAu6yl4ihDUwv7o2GcqZmAD90GF_jg0XQq1nPXBVtMJrOdJIemCtZk4eVPkp7UxvwcsbMtbCSoxBqdweHNuf1advbPcsmZJB9otnnUILfWI9lhrW39hNiM78qDTveWKsqWltAZD9SL9wWyJfveU1UZJjXXeKc5Y_6OX9Cw0XDmklva2rqniqdNjYhNZ3XrlS3adCSGP7PZqHuBhZFqetgXo4s"/>
+</div>
+</div>
+</aside>
+<!-- TopAppBar Anchor -->
+<header class="fixed top-0 right-0 left-[72px] h-16 bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline-variant flex items-center justify-between px-margin-desktop z-40">
+<div class="flex items-center gap-4">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary">EnZIME</h1>
+<div class="h-4 w-px bg-outline-variant mx-2"></div>
+<span class="font-label-md text-on-surface-variant">Global Research Node 01</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 px-3 py-1 bg-surface-container rounded-full border border-outline-variant">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+<span class="font-code text-xs text-on-surface">Local AI: Online</span>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-opacity opacity-80 hover:opacity-100">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="ml-[72px] mt-16 flex-1 flex flex-col bg-background">
+<!-- Search Hero Section -->
+<section class="w-full max-w-container-max mx-auto px-margin-desktop py-gutter">
+<div class="relative group">
+<div class="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-primary-container">search</span>
+</div>
+<input class="w-full h-16 pl-14 pr-6 bg-surface-container border-2 border-outline-variant focus:border-primary-container rounded-xl font-headline-md text-headline-md outline-none transition-all placeholder:text-on-surface-variant/30" placeholder="Search offline database..." type="text" value="water purification"/>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 flex gap-2">
+<kbd class="px-2 py-1 bg-surface-container-high rounded border border-outline-variant font-code text-[10px] text-on-surface-variant">ENTER</kbd>
+</div>
+</div>
+<!-- Search Controls -->
+<div class="flex flex-wrap items-center justify-between mt-6 gap-4">
+<div class="flex items-center gap-4">
+<div class="flex p-1 bg-surface-container-low rounded-lg border border-outline-variant">
+<button class="px-4 py-1.5 rounded-md bg-secondary-container text-on-secondary-container font-label-md">All packs</button>
+<button class="px-4 py-1.5 rounded-md text-on-surface-variant hover:text-on-surface font-label-md flex items-center gap-2">
+                            Medical Core
+                            <span class="material-symbols-outlined text-xs">expand_more</span>
+</button>
+</div>
+<div class="flex p-1 bg-surface-container-low rounded-lg border border-outline-variant">
+<button class="px-4 py-1.5 rounded-md text-on-surface-variant font-label-md">Title matches</button>
+<button class="px-4 py-1.5 rounded-md bg-surface-container-high text-primary font-label-md">Full text</button>
+</div>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">history</span>
+<span class="font-code text-xs">Recent: 'solar distill', 'iodine tablets'</span>
+</div>
+</div>
+</section>
+<!-- Status Header -->
+<div class="w-full border-y border-outline-variant bg-surface-container-lowest/50 py-3 px-margin-desktop">
+<div class="max-w-container-max mx-auto flex items-center justify-between">
+<div class="flex items-center gap-3">
+<h2 class="font-label-md text-on-surface">142 results across 3 packs</h2>
+<span class="text-outline-variant text-xs">•</span>
+<span class="font-code text-xs text-secondary-container flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">bolt</span>
+                        searched offline (0.42s)
+                    </span>
+</div>
+<div class="flex items-center gap-4 font-code text-xs text-on-surface-variant">
+<span>Sort: Relevance</span>
+<span class="material-symbols-outlined text-sm">filter_list</span>
+</div>
+</div>
+</div>
+<!-- Results Canvas -->
+<section class="max-w-container-max mx-auto px-margin-desktop py-8 w-full flex-1 custom-scrollbar overflow-y-auto">
+<!-- Pack 1 -->
+<div class="mb-10">
+<div class="flex items-center gap-3 mb-4">
+<span class="bg-primary/10 text-primary border border-primary/20 px-3 py-1 rounded-full font-label-md text-xs uppercase tracking-wider">Where There Is No Doctor</span>
+<div class="h-px flex-1 bg-outline-variant"></div>
+</div>
+<div class="grid gap-2">
+<div class="result-row p-4 rounded-xl border border-outline-variant transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-md text-on-surface group-hover:text-primary transition-colors">Emergency <span class="highlight-teal">water purification</span> at home</h3>
+<div class="flex gap-1">
+<div class="w-1 h-3 bg-primary"></div>
+<div class="w-1 h-3 bg-primary"></div>
+<div class="w-1 h-3 bg-primary"></div>
+<div class="w-1 h-3 bg-primary/20"></div>
+</div>
+</div>
+<p class="font-body-md text-on-surface-variant line-clamp-2">Methods for boiling, using bleach, or iodine to ensure safe drinking supplies. Emphasis on <span class="highlight-teal">water purification</span> in remote environments without utility access...</p>
+<div class="mt-3 flex items-center gap-4 text-xs font-code text-on-surface-variant/60">
+<span>Chapter 4: Hygiene &amp; Sanitation</span>
+<span>•</span>
+<span>Page 412</span>
+</div>
+</div>
+<div class="result-row p-4 rounded-xl border border-transparent hover:border-outline-variant transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-md text-on-surface group-hover:text-primary transition-colors">Prevention of Cholera via <span class="highlight-teal">water purification</span></h3>
+<div class="flex gap-1">
+<div class="w-1 h-3 bg-primary"></div>
+<div class="w-1 h-3 bg-primary"></div>
+<div class="w-1 h-3 bg-primary/20"></div>
+<div class="w-1 h-3 bg-primary/20"></div>
+</div>
+</div>
+<p class="font-body-md text-on-surface-variant line-clamp-2">The critical role of effective <span class="highlight-teal">water purification</span> in preventing large scale outbreaks. Safe storage and the two-container method...</p>
+</div>
+</div>
+</div>
+<!-- AI Suggestion Card -->
+<div class="mb-10 relative overflow-hidden rounded-xl border-2 border-primary/30 bg-surface-container-high p-1">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-[120px]">psychology</span>
+</div>
+<div class="relative bg-surface p-6 rounded-lg flex items-center justify-between gap-8">
+<div class="flex gap-6 items-center">
+<div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center shrink-0 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-on-primary">smart_toy</span>
+</div>
+<div>
+<span class="font-code text-xs text-primary uppercase tracking-[0.2em] mb-1 block">AI Synthesis (Offline Llama-3)</span>
+<h4 class="font-headline-md text-on-surface italic">"How do I purify water without electricity?"</h4>
+</div>
+</div>
+<button class="bg-primary text-on-primary px-8 py-3 rounded-full font-label-md hover:brightness-110 active:scale-95 transition-all shadow-xl shadow-primary/10">
+                        Ask EnZIME AI
+                    </button>
+</div>
+</div>
+<!-- Pack 2 -->
+<div class="mb-10">
+<div class="flex items-center gap-3 mb-4">
+<span class="bg-tertiary-container/10 text-tertiary-container border border-tertiary-container/20 px-3 py-1 rounded-full font-label-md text-xs uppercase tracking-wider">Wikipedia (English)</span>
+<div class="h-px flex-1 bg-outline-variant"></div>
+</div>
+<div class="grid gap-2">
+<div class="result-row p-4 rounded-xl border border-outline-variant transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-md text-on-surface group-hover:text-primary transition-colors">Portable <span class="highlight-teal">water purification</span></h3>
+<div class="flex gap-1">
+<div class="w-1 h-3 bg-primary"></div>
+<div class="w-1 h-3 bg-primary"></div>
+<div class="w-1 h-3 bg-primary"></div>
+<div class="w-1 h-3 bg-primary"></div>
+</div>
+</div>
+<p class="font-body-md text-on-surface-variant line-clamp-2">Portable <span class="highlight-teal">water purification</span> devices – also known as point-of-use (POU) water treatment systems – are self-contained, easily transported units used to purify water from untreated sources...</p>
+<div class="mt-3 flex items-center gap-4 text-xs font-code text-on-surface-variant/60">
+<span>Category: Survival Skills</span>
+<span>•</span>
+<span>14 KB Cache</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Pack 3 -->
+<div class="mb-10">
+<div class="flex items-center gap-3 mb-4">
+<span class="bg-error/10 text-error border border-error/20 px-3 py-1 rounded-full font-label-md text-xs uppercase tracking-wider">Military Survival Manuals</span>
+<div class="h-px flex-1 bg-outline-variant"></div>
+</div>
+<div class="grid gap-2">
+<div class="result-row p-4 rounded-xl border border-outline-variant transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-md text-on-surface group-hover:text-primary transition-colors">FM 21-76: Basic <span class="highlight-teal">water purification</span></h3>
+<div class="flex gap-1">
+<div class="w-1 h-3 bg-primary"></div>
+<div class="w-1 h-3 bg-primary"></div>
+<div class="w-1 h-3 bg-primary/20"></div>
+<div class="w-1 h-3 bg-primary/20"></div>
+</div>
+</div>
+<p class="font-body-md text-on-surface-variant line-clamp-2">The easiest way to purify water is to boil it. This requires a container and a heat source. If you have no container, you can use the sun...</p>
+<div class="mt-3 flex items-center gap-4 text-xs font-code text-on-surface-variant/60">
+<span>Section VI: Basic Survival</span>
+<span>•</span>
+<span>RESTRICTED ACCESS (UNLOCKED)</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Hardware Summary (Utility Pillar) -->
+<div class="fixed bottom-6 right-6 p-4 bg-surface-container border border-outline-variant rounded-xl shadow-2xl z-50 flex flex-col gap-2 w-48 backdrop-blur-md bg-opacity-80">
+<div class="flex justify-between items-center">
+<span class="font-code text-[10px] text-on-surface-variant uppercase">CPU Usage</span>
+<span class="font-code text-[10px] text-secondary">2.4%</span>
+</div>
+<div class="h-1 w-full bg-outline-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[12%]"></div>
+</div>
+<div class="flex justify-between items-center mt-2">
+<span class="font-code text-[10px] text-on-surface-variant uppercase">RAM (LLM)</span>
+<span class="font-code text-[10px] text-primary">4.8 GB</span>
+</div>
+<div class="h-1 w-full bg-outline-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[40%]"></div>
+</div>
+<div class="mt-2 pt-2 border-t border-outline-variant/30 flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_8px_rgba(68,226,205,0.4)]"></div>
+<span class="font-code text-[10px] text-on-surface">DRIVE: OK (1.2TB FREE)</span>
+</div>
+</div>
+<script>
+        // Micro-interaction for result rows
+        document.querySelectorAll('.result-row').forEach(row => {
+            row.addEventListener('click', () => {
+                row.classList.add('scale-[0.99]');
+                setTimeout(() => row.classList.remove('scale-[0.99]'), 100);
+            });
+        });
+
+        // Search bar focus effect
+        const searchInput = document.querySelector('input');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('shadow-2xl', 'shadow-primary/5');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('shadow-2xl', 'shadow-primary/5');
+        });
+    </script>
+</body></html>

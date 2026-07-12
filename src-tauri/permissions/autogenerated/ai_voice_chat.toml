@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-ai-voice-chat"
+description = "Enables the ai_voice_chat command without any pre-configured scope."
+commands.allow = ["ai_voice_chat"]
+
+[[permission]]
+identifier = "deny-ai-voice-chat"
+description = "Denies the ai_voice_chat command without any pre-configured scope."
+commands.deny = ["ai_voice_chat"]

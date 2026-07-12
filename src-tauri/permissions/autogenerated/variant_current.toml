@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-variant-current"
+description = "Enables the variant_current command without any pre-configured scope."
+commands.allow = ["variant_current"]
+
+[[permission]]
+identifier = "deny-variant-current"
+description = "Denies the variant_current command without any pre-configured scope."
+commands.deny = ["variant_current"]

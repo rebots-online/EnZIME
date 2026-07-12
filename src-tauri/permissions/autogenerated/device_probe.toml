@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-device-probe"
+description = "Enables the device_probe command without any pre-configured scope."
+commands.allow = ["device_probe"]
+
+[[permission]]
+identifier = "deny-device-probe"
+description = "Denies the device_probe command without any pre-configured scope."
+commands.deny = ["device_probe"]

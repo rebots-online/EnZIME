@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-zim-metadata"
+description = "Enables the zim_metadata command without any pre-configured scope."
+commands.allow = ["zim_metadata"]
+
+[[permission]]
+identifier = "deny-zim-metadata"
+description = "Denies the zim_metadata command without any pre-configured scope."
+commands.deny = ["zim_metadata"]

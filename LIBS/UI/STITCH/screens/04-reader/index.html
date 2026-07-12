@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EnZIME READER | Photosynthesis</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Geist:wght@300;400;500;600&amp;family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-primary": "#006b5f",
+                        "on-tertiary-fixed-variant": "#3f465c",
+                        "primary-fixed-dim": "#4fdbc8",
+                        "surface": "#051424",
+                        "surface-bright": "#2c3a4c",
+                        "inverse-surface": "#d4e4fa",
+                        "error-container": "#93000a",
+                        "on-error-container": "#ffdad6",
+                        "on-primary-container": "#00423b",
+                        "outline-variant": "#3c4947",
+                        "on-surface-variant": "#bbcac6",
+                        "primary-fixed": "#71f8e4",
+                        "surface-container-low": "#0d1c2d",
+                        "tertiary-container": "#9ca4bd",
+                        "on-secondary-fixed-variant": "#005047",
+                        "on-tertiary-fixed": "#131b2e",
+                        "surface-container": "#122131",
+                        "on-secondary-container": "#004d44",
+                        "outline": "#859490",
+                        "tertiary": "#bec6e0",
+                        "background": "#051424",
+                        "secondary-container": "#03c6b2",
+                        "on-secondary": "#003731",
+                        "surface-container-highest": "#273647",
+                        "on-tertiary-container": "#323a4f",
+                        "error": "#ffb4ab",
+                        "on-background": "#d4e4fa",
+                        "tertiary-fixed": "#dae2fd",
+                        "surface-tint": "#4fdbc8",
+                        "primary": "#4fdbc8",
+                        "surface-variant": "#273647",
+                        "primary-container": "#14b8a6",
+                        "on-primary": "#003731",
+                        "secondary-fixed-dim": "#3cddc7",
+                        "on-surface": "#d4e4fa",
+                        "on-error": "#690005",
+                        "surface-container-lowest": "#010f1f",
+                        "surface-dim": "#051424",
+                        "secondary-fixed": "#62fae3",
+                        "secondary": "#44e2cd",
+                        "tertiary-fixed-dim": "#bec6e0",
+                        "inverse-on-surface": "#233143"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Space Grotesk"],
+                        "code": ["Geist"],
+                        "body-md": ["Geist"],
+                        "label-md": ["Space Grotesk"],
+                        "headline-md": ["Space Grotesk"],
+                        "headline-lg": ["Space Grotesk"],
+                        "body-lg": ["Geist"],
+                        "literata": ["Literata"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #273647;
+            border-radius: 10px;
+        }
+        .reading-surface {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .blinking-caret::after {
+            content: '|';
+            animation: blink 1s infinite;
+            color: #4fdbc8;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .highlight-accent {
+            background-color: rgba(20, 184, 166, 0.25);
+            border-bottom: 2px solid rgba(20, 184, 166, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md selection:bg-primary-container selection:text-on-primary-container overflow-hidden">
+<div class="flex h-screen w-full">
+<!-- LEFT RAIL (Library / Navigation) -->
+<aside class="w-[280px] h-screen bg-surface-container-low flex flex-col border-r border-outline-variant z-30">
+<!-- Header: Active ZIM Pack -->
+<div class="p-4 border-b border-outline-variant">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-14 bg-surface-container-highest flex-shrink-0 rounded shadow-sm overflow-hidden border border-outline-variant relative">
+<img alt="Wikipedia Cover" class="w-full h-full object-cover grayscale opacity-80" data-alt="A stylized book cover for a digital encyclopedia featuring a minimalist white globe icon on a deep charcoal background. The design is technical and clean, reflecting an offline database aesthetic with sharp edges and high contrast. The lighting is cold and professional, fitting the dark mode theme of EnZIME." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAeAAPGgYU1EyRSLmMS7dK0yLUfhgljhCxZHy1WCWHPM0EIpMhG5IOXk5zVBOjD6zzEmnBL4zJizqiYWqyYw9it5tyG6pqvsjVb34MxRRB4UsnYabT-WsKFUeJ-SOfpt3SLoc774tVe3_j4relAT5jZKpZT_WKEjRPnpdv6y5oPH87QesTCayLhe77qoYCCyfIhag-_KWK6JDQpHwnpvTaPOG_3pGi2dnhuT431RnruH4Efh6Xy0WmXeva-BoBCXKNzi_GHBSdoFN0"/>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-primary uppercase tracking-widest">EnZIME</span>
+<span class="font-headline-md text-[16px] leading-tight font-bold">Wikipedia (English)</span>
+</div>
+</div>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="w-full bg-surface-container border border-outline-variant rounded-lg py-2 pl-10 pr-4 text-[13px] text-on-surface placeholder:text-outline focus:outline-none focus:ring-1 focus:ring-primary transition-all" placeholder="Search this pack" type="text"/>
+</div>
+</div>
+<!-- Body: Table of Contents -->
+<nav class="flex-1 overflow-y-auto custom-scrollbar py-2">
+<div class="px-4 py-2 text-on-surface-variant font-label-md text-[11px] uppercase tracking-tighter opacity-60">Recent Articles</div>
+<div class="space-y-0.5">
+<a class="flex items-center px-4 py-2 text-[14px] text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">Chlorophyll</a>
+<a class="flex items-center px-4 py-2 text-[14px] bg-surface-container-highest text-primary border-l-4 border-primary font-bold" href="#">
+                        Photosynthesis
+                    </a>
+<a class="flex items-center px-4 py-2 text-[14px] text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">Calvin Cycle</a>
+<a class="flex items-center px-4 py-2 text-[14px] text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">Light-dependent reactions</a>
+<a class="flex items-center px-4 py-2 text-[14px] text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">ATP Synthase</a>
+<a class="flex items-center px-4 py-2 text-[14px] text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">Cellular Respiration</a>
+<a class="flex items-center px-4 py-2 text-[14px] text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">Stomata</a>
+<a class="flex items-center px-4 py-2 text-[14px] text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">Carbon Fixation</a>
+</div>
+</nav>
+<!-- Footer: Navigation Icons -->
+<footer class="h-14 border-t border-outline-variant bg-surface flex items-center justify-around px-2">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors" title="Library">
+<span class="material-symbols-outlined" data-icon="local_library">local_library</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors" title="Download">
+<span class="material-symbols-outlined" data-icon="download">download</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors" title="Bookmarks">
+<span class="material-symbols-outlined" data-icon="bookmark">bookmark</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors" title="Settings">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</footer>
+</aside>
+<!-- CENTER READING SURFACE -->
+<main class="flex-1 flex flex-col relative overflow-hidden bg-surface">
+<!-- Top Bar (Sticky) -->
+<header class="h-16 flex items-center justify-between px-8 border-b border-outline-variant bg-surface/80 backdrop-blur-md sticky top-0 z-20">
+<div class="flex items-center gap-2 text-on-surface-variant text-[13px] font-label-md">
+<span>Wikipedia (English)</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-on-surface font-medium">Photosynthesis</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-2 hover:bg-surface-container-high rounded-lg text-on-surface-variant"><span class="material-symbols-outlined">star</span></button>
+<button class="p-2 hover:bg-surface-container-high rounded-lg text-on-surface-variant"><span class="material-symbols-outlined">highlight</span></button>
+<div class="mx-2 h-6 w-px bg-outline-variant"></div>
+<button class="px-3 py-1 text-[13px] font-medium border border-outline-variant rounded-l hover:bg-surface-container-high">A−</button>
+<button class="px-3 py-1 text-[13px] font-medium border-y border-r border-outline-variant rounded-r hover:bg-surface-container-high">A+</button>
+</div>
+</header>
+<!-- Scrollable Content Area -->
+<div class="flex-1 overflow-y-auto custom-scrollbar py-12 px-8">
+<article class="reading-surface font-literata text-on-surface">
+<h1 class="font-display-lg text-[48px] leading-[1.1] mb-8 font-bold tracking-tight">Photosynthesis</h1>
+<p class="text-[20px] leading-[1.6] mb-8 text-on-surface opacity-90">
+                        Photosynthesis is a process used by plants and other organisms to convert light energy into chemical energy that, through cellular respiration, can later be released to fuel the organism's activities. This chemical energy is stored in carbohydrate molecules, such as sugars and starches, which are synthesized from carbon dioxide and water.
+                    </p>
+<h2 class="font-headline-lg text-[28px] mb-6 mt-12 border-b border-outline-variant pb-2 font-bold">Mechanism</h2>
+<p class="text-[18px] leading-[1.7] mb-6">
+                        The process of photosynthesis is divided into two main stages: the light-dependent reactions and the light-independent reactions (also known as the Calvin cycle). In the light-dependent reactions, chlorophyll absorbs energy from sunlight and then converts it into chemical energy with the use of water.
+                    </p>
+<!-- Interactive Figure -->
+<figure class="my-10 bg-surface-container-low border border-outline-variant rounded-xl p-6">
+<div class="aspect-video w-full rounded overflow-hidden relative group">
+<img class="w-full h-full object-cover grayscale brightness-75" data-alt="A highly detailed scientific illustration of a plant cell chloroplast. The image uses a technical blueprint aesthetic with teal neon highlights on the thylakoid membranes. Surrounding the chloroplast are dark, deep navy shadows, emphasizing the technical minimalism and offline-first reading environment of the app. The lighting is focused and crisp." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlCEN96MQV3rPutvjQqd50BWfoVkasVxXBRlKMi8wmcujKNUFE1YgWLmvkgEpbhdxsracGpvnNM_TceCuzMtGFrfggBc2vWq3vyucyzUYgYqQwZnuYChSNZZR4cgMo68SedG4fSJWFPz-7v3RUQTbbCqQmd_abM1PLT5qRdXBwAXwJqzzYCKOcvbFoSgTc0uocBrFMXrpDgL2UY0BzD3nuFQsmRGIhs44NwPaK9PRkJebVOmTdfrpVzmssWvUpfx33q0nrQQRhDVI"/>
+<div class="absolute inset-0 bg-primary/10 mix-blend-overlay"></div>
+<button class="absolute bottom-4 right-4 bg-surface/90 text-on-surface px-3 py-1 rounded text-[12px] font-label-md border border-outline-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">fullscreen</span> Expand Diagram
+                            </button>
+</div>
+<figcaption class="mt-4 text-[14px] text-on-surface-variant italic font-body-md text-center">
+                            Fig 1.2: Schematic representation of photon absorption in the thylakoid membrane.
+                        </figcaption>
+</figure>
+<p class="text-[18px] leading-[1.7] mb-6">
+                        The light-dependent reactions release oxygen as a byproduct as water is broken apart. The light-independent reactions use the energy produced by the 
+                        <span class="highlight-accent relative group cursor-pointer">
+                            light-dependent reactions to form carbohydrates from carbon dioxide
+                            <!-- Floating Toolbar (Simulated) -->
+</span></p><div class="absolute -top-14 left-1/2 -translate-x-1/2 flex bg-surface-container-highest border border-primary rounded-lg shadow-xl px-2 py-1 gap-1 z-50 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 hover:bg-surface-container text-primary flex items-center gap-1 text-[12px] font-medium"><span class="material-symbols-outlined text-[16px]">highlight</span> Highlight</button>
+<div class="w-px h-4 bg-outline-variant self-center"></div>
+<button class="p-1.5 hover:bg-surface-container text-on-surface flex items-center gap-1 text-[12px] font-medium"><span class="material-symbols-outlined text-[16px]">add_notes</span> Add note</button>
+<div class="w-px h-4 bg-outline-variant self-center"></div>
+<button class="p-1.5 hover:bg-surface-container text-on-surface flex items-center gap-1 text-[12px] font-medium"><span class="material-symbols-outlined text-[16px]">smart_toy</span> Ask AI</button>
+</div>
+. 
+                        In most plants, photosynthesis occurs in the leaves, where the chloroplasts are concentrated.
+                    <p></p>
+</article>
+</div>
+</main>
+<!-- RIGHT NOTEBOOK PANEL -->
+<aside class="w-[380px] h-screen bg-surface-container-low border-l border-outline-variant flex flex-col z-30">
+<!-- Header: Tabs -->
+<div class="p-4 border-b border-outline-variant bg-surface">
+<div class="flex items-center justify-between mb-4">
+<div class="flex bg-surface-container rounded-lg p-1">
+<button class="px-6 py-1.5 text-[13px] font-bold bg-secondary-container text-on-secondary-container rounded-md">Chat</button>
+<button class="px-6 py-1.5 text-[13px] font-medium text-on-surface-variant hover:text-on-surface">Notes</button>
+</div>
+<div class="flex items-center gap-1.5 px-2 py-1 bg-surface-container-highest rounded-full border border-outline-variant">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+<span class="text-[11px] font-code text-on-surface-variant uppercase tracking-tighter">On-device · Gemma · Offline</span>
+</div>
+</div>
+</div>
+<!-- Chat Content -->
+<div class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
+<!-- User Message -->
+<div class="flex flex-col items-end">
+<div class="bg-surface-container-highest border border-outline-variant px-4 py-3 rounded-2xl rounded-tr-none max-w-[85%]">
+<p class="text-[14px] text-on-surface font-body-md leading-relaxed">Explain the light-dependent reactions simply</p>
+</div>
+<span class="text-[10px] text-on-surface-variant mt-1 mr-1">12:44 PM</span>
+</div>
+<!-- AI Message -->
+<div class="flex flex-col items-start">
+<div class="bg-surface-container border border-outline-variant px-4 py-3 rounded-2xl rounded-tl-none max-w-[90%] relative">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary text-[18px]">smart_toy</span>
+<span class="text-[12px] font-bold text-primary uppercase tracking-widest">EnZIME AI</span>
+</div>
+<div class="text-[14px] text-on-surface font-body-md leading-relaxed space-y-3">
+<p>In simple terms, light-dependent reactions are the "charging" phase. They happen in the thylakoid membranes of chloroplasts:</p>
+<ol class="list-decimal pl-4 space-y-2">
+<li><strong>Sunlight Capture:</strong> Chlorophyll traps light energy.</li>
+<li><strong>Water Splitting:</strong> This energy splits water molecules, releasing Oxygen (what we breathe!).</li>
+<li><strong>Energy Storage:</strong> The energy is stored in molecules called ATP and NADPH, which act like full batteries for the next stage.<span class="blinking-caret"></span></li>
+</ol>
+</div>
+<div class="mt-4 flex">
+<div class="inline-flex items-center gap-2 bg-surface-container-high border border-outline-variant px-2 py-1 rounded text-[11px] font-code text-primary">
+<span class="material-symbols-outlined text-[14px]">link</span>
+                                Cited: Photosynthesis
+                            </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Input Area -->
+<div class="p-4 border-t border-outline-variant bg-surface">
+<div class="relative flex items-center gap-2">
+<div class="relative flex-1">
+<textarea class="w-full bg-surface-container-low border border-outline-variant rounded-xl py-3 pl-4 pr-10 text-[14px] text-on-surface placeholder:text-outline focus:outline-none focus:ring-1 focus:ring-primary resize-none custom-scrollbar" placeholder="Ask about this article..." rows="1"></textarea>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">mic</span>
+</button>
+</div>
+<button class="w-11 h-11 bg-primary text-on-primary rounded-xl flex items-center justify-center hover:brightness-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+<div class="mt-3 flex justify-center">
+<p class="text-[10px] text-outline font-code uppercase tracking-widest">Secure Local Inference • No data leaves device</p>
+</div>
+</div>
+</aside>
+</div>
+<!-- Micro-interaction Script -->
+<script>
+        // Simple script to handle textarea auto-resize
+        const textarea = document.querySelector('textarea');
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+            if (parseInt(this.style.height) > 120) {
+                this.style.height = '120px';
+                this.style.overflowY = 'auto';
+            } else {
+                this.style.overflowY = 'hidden';
+            }
+        });
+    </script>
+</body></html>

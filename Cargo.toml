@@ -1,0 +1,30 @@
+[workspace]
+resolver = "2"
+members = [
+    "src-tauri",
+    "src-tauri/anzimmermanlib/rust",
+    "bridge",
+]
+exclude = [
+    "vendor/tauri",
+    "vendor/litert-lm",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.77"
+license = "AGPL-3.0-or-later"
+repository = "https://git.robin.mba/rcheung/EnZIME"
+
+[workspace.dependencies]
+tauri = { version = "2", features = [] }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
+
+[patch.crates-io]
+tauri = { path = "vendor/tauri/crates/tauri" }
+litert_lm_deps = { path = "vendor/litert-lm" }

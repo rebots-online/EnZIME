@@ -1,0 +1,25 @@
+# E-BLD-6: GitHub mirror CI; cargo check only, LFS disabled
+# Runs on self-hosted GitHub runner CT 111
+
+name: Build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  cargo-check:
+    runs-on: [self-hosted, linux-amd64]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+      - name: Install build dependencies
+        run: |
+          apt-get update
+          apt-get install -y build-essential
+      - name: Run cargo check
+        run: |
+          cd src-tauri
+          cargo check

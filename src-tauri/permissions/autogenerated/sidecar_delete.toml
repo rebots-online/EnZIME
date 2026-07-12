@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-sidecar-delete"
+description = "Enables the sidecar_delete command without any pre-configured scope."
+commands.allow = ["sidecar_delete"]
+
+[[permission]]
+identifier = "deny-sidecar-delete"
+description = "Denies the sidecar_delete command without any pre-configured scope."
+commands.deny = ["sidecar_delete"]

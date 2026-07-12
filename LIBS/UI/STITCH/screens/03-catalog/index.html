@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EnZIME | Dynamic Download</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Geist:wght@100;300;400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#4fdbc8",
+                        "on-tertiary": "#283044",
+                        "primary-fixed-dim": "#4fdbc8",
+                        "surface": "#051424",
+                        "on-tertiary-fixed": "#131b2e",
+                        "surface-container-highest": "#273647",
+                        "on-primary-fixed-variant": "#005048",
+                        "surface-container-lowest": "#010f1f",
+                        "primary-fixed": "#71f8e4",
+                        "on-surface-variant": "#bbcac6",
+                        "on-secondary-fixed": "#00201c",
+                        "surface-dim": "#051424",
+                        "primary": "#4fdbc8",
+                        "secondary-container": "#03c6b2",
+                        "on-primary-container": "#00423b",
+                        "on-error": "#690005",
+                        "primary-container": "#14b8a6",
+                        "tertiary-container": "#9ca4bd",
+                        "surface-bright": "#2c3a4c",
+                        "on-primary": "#003731",
+                        "on-secondary": "#003731",
+                        "on-surface": "#d4e4fa",
+                        "error-container": "#93000a",
+                        "secondary-fixed-dim": "#3cddc7",
+                        "secondary": "#44e2cd",
+                        "on-tertiary-fixed-variant": "#3f465c",
+                        "outline-variant": "#3c4947",
+                        "inverse-primary": "#006b5f",
+                        "surface-container-low": "#0d1c2d",
+                        "surface-container": "#122131",
+                        "inverse-surface": "#d4e4fa",
+                        "surface-variant": "#273647",
+                        "tertiary-fixed": "#dae2fd",
+                        "on-tertiary-container": "#323a4f",
+                        "on-secondary-fixed-variant": "#005047",
+                        "on-secondary-container": "#004d44",
+                        "on-background": "#d4e4fa",
+                        "on-primary-fixed": "#00201c",
+                        "error": "#ffb4ab",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed-dim": "#bec6e0",
+                        "background": "#051424",
+                        "tertiary": "#bec6e0",
+                        "surface-container-high": "#1c2b3c",
+                        "outline": "#859490",
+                        "inverse-on-surface": "#233143",
+                        "secondary-fixed": "#62fae3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "container-max": "1024px",
+                        "margin-desktop": "40px",
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Geist"],
+                        "label-md": ["Space Grotesk"],
+                        "body-md": ["Geist"],
+                        "display-lg": ["Space Grotesk"],
+                        "code": ["Geist"],
+                        "headline-lg-mobile": ["Space Grotesk"],
+                        "headline-lg": ["Space Grotesk"],
+                        "headline-md": ["Space Grotesk"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "code": ["14px", { "lineHeight": "1.4", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "500" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #051424;
+            color: #d4e4fa;
+            font-family: 'Geist', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #051424;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #273647;
+            border-radius: 10px;
+        }
+        .card-glow:hover {
+            box-shadow: 0 0 15px rgba(20, 184, 166, 0.1);
+            border-color: #4fdbc8;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 bg-surface border-b border-outline-variant">
+<div class="flex justify-between items-center w-full px-margin-desktop max-w-container-max mx-auto h-16">
+<div class="flex items-center gap-6">
+<span class="font-display-lg text-headline-md tracking-tighter text-primary">EnZIME</span>
+<h1 class="hidden md:block font-headline-md text-headline-md text-primary opacity-80">Dynamic Download</h1>
+</div>
+<!-- Centered Search -->
+<div class="flex-1 max-w-md mx-8 hidden sm:block">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 pl-10 pr-4 text-on-surface focus:outline-none focus:border-primary transition-all" placeholder="Search knowledge..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex bg-surface-container-high rounded-lg p-1">
+<button class="px-4 py-1.5 text-label-md font-label-md bg-primary text-on-primary-container rounded shadow-sm">Knowledge Packs</button>
+<button class="px-4 py-1.5 text-label-md font-label-md text-on-surface-variant hover:text-on-surface transition-colors">AI Models</button>
+</div>
+<button class="material-symbols-outlined text-primary hover:text-primary-fixed-dim transition-colors">offline_bolt</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">settings</button>
+</div>
+</div>
+</header>
+<main class="flex-1 w-full max-w-container-max mx-auto px-margin-desktop py-8">
+<!-- Filter Bar -->
+<section class="mb-8">
+<div class="flex items-center gap-3 overflow-x-auto pb-4 custom-scrollbar">
+<button class="flex-none px-4 py-1.5 rounded-full bg-primary-container text-on-primary-container font-label-md text-label-md border border-primary">All</button>
+<button class="flex-none px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary transition-all font-label-md text-label-md">Medical</button>
+<button class="flex-none px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary transition-all font-label-md text-label-md">Survival</button>
+<button class="flex-none px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary transition-all font-label-md text-label-md">Reference</button>
+<button class="flex-none px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary transition-all font-label-md text-label-md">Wikipedia</button>
+<button class="flex-none px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary transition-all font-label-md text-label-md">Maps</button>
+<button class="flex-none px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary transition-all font-label-md text-label-md">DIY/Repair</button>
+<button class="flex-none px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary transition-all font-label-md text-label-md">Language</button>
+</div>
+</section>
+<!-- Media Banner -->
+<section class="mb-12">
+<div class="relative overflow-hidden bg-surface-container-low border border-outline-variant rounded-xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 group">
+<div class="absolute inset-0 opacity-10 pointer-events-none">
+
+</div>
+<div class="relative z-10 space-y-2 text-center md:text-left">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">No internet?</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-md">Install massive dataset repositories directly from physical media including SD cards, USB drives, or optical discs.</p>
+</div>
+<div class="relative z-10">
+<button class="flex items-center gap-2 px-6 py-3 border border-primary text-primary font-label-md text-label-md rounded-lg hover:bg-primary/10 transition-all active:scale-95 group">
+<span class="material-symbols-outlined">usb</span>
+                        Import from media
+                    </button>
+</div>
+</div>
+</section>
+<!-- Download Grid -->
+<section>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- (a) Wikipedia Card -->
+<div class="bg-surface-container border border-outline-variant rounded-xl overflow-hidden flex flex-col card-glow transition-all duration-300">
+<div class="h-40 overflow-hidden relative">
+<img class="w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 transition-all" data-alt="A cinematic, wide-angle shot of a massive, futuristic library with glowing teal digital archives and floating holographic data streams. The lighting is moody and focused, highlighting the architectural grandeur of human knowledge stored in a high-tech subterranean vault. Minimalist and sleek aesthetic with clean lines and technical precision." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkzRIYdl3NjEPfZqbSFmqyaYdiWA4oojXrU88TKSGkdid-RwuYxWu_jjADWm2t1lum47vSNNridBfE99rp3GA5tsQR4zcbKSRXy27vpiGs0oNVwc_D6OT4yY8Ye1mqT5QJvMGZdAxBKzc8GB5itWWIY_VlLYMUs1eeCCruNFvFBDqvtT0L0VRxUqhz_NvXf1VKiiOewVaA6rKYnscKgDY8sJpY-LsFd44mLpFfBcygAqYFL1WTJKyJQXFraQHjR5rkP_AAGxcKaHs"/>
+<span class="absolute top-3 right-3 bg-surface/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-code uppercase tracking-widest text-primary border border-primary/20">4.3 GB</span>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-label-md uppercase tracking-wider text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded">Reference</span>
+<span class="text-[10px] font-code text-primary-fixed-dim">EN</span>
+</div>
+<h3 class="font-headline-md text-body-md font-bold text-on-surface mb-4">Wikipedia — English (no images)</h3>
+<div class="mt-auto">
+<button class="w-full bg-primary text-on-primary-container py-2.5 rounded-lg font-label-md text-label-md flex items-center justify-center gap-2 hover:bg-primary-fixed transition-colors active:scale-95">
+<span class="material-symbols-outlined text-[20px]">download</span>
+                                Download
+                            </button>
+</div>
+</div>
+</div>
+<!-- (b) Active Download Card -->
+<div class="bg-surface-container border border-primary/40 rounded-xl overflow-hidden flex flex-col relative ring-1 ring-primary/20">
+<div class="h-40 overflow-hidden relative">
+<img class="w-full h-full object-cover grayscale opacity-40" data-alt="A top-down, technical view of survival gear, including a compass, a rugged knife, and paracord neatly arranged on a dark, slate-grey textured background. The lighting is sharp and high-contrast, casting deep shadows. The color palette is strictly desaturated with a single focal point of glowing teal light reflecting off the metallic surfaces." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmI4heskzPZZ02FG9hmukwZIuk3r1qRHpr9XcNSYlhtPnQdheJFgZVGppUqfzqPDlr6UM8oCUQyqj-_wF1bcz3ZcftdKM9e1RmmW-NGA5gOo5OosyHqHoAbVkIE1UPqeCHggbEEmtEprPTN9mWf6Mu5lIqXmSENLsVX8qIG2svZgVb5-iBpwSs95z1XbN_4HlW9bJrPwkIRu_-PGaW1nhwAc7BEho1gTwn7cseEj4U8qCwo_NmqHeIl7pz_tgSdsd7pxZH6Gooso0"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container to-transparent"></div>
+</div>
+<div class="p-5 flex-1 flex flex-col relative -mt-10">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-label-md uppercase tracking-wider text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded">Survival</span>
+<span class="text-[10px] font-code text-primary-fixed-dim">EN</span>
+</div>
+<h3 class="font-headline-md text-body-md font-bold text-on-surface mb-2">Military Survival Manuals</h3>
+<div class="space-y-3 mb-4">
+<div class="flex justify-between text-[11px] font-code text-on-surface-variant">
+<span>2.1 / 4.3 GB</span>
+<span class="text-primary italic">resumable</span>
+</div>
+<div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[49%] shadow-[0_0_8px_rgba(79,219,200,0.5)]"></div>
+</div>
+</div>
+<div class="mt-auto flex gap-2">
+<button class="flex-1 bg-surface-container-highest text-on-surface border border-outline-variant py-2.5 rounded-lg font-label-md text-label-md flex items-center justify-center gap-2 hover:bg-surface-bright transition-colors">
+<span class="material-symbols-outlined text-[20px]">pause</span>
+                                Pause
+                            </button>
+<button class="px-3 bg-surface-container-highest text-error border border-error/20 py-2.5 rounded-lg flex items-center justify-center hover:bg-error/10 transition-colors">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+</div>
+</div>
+<!-- (c) Installed Card -->
+<div class="bg-surface-container border border-outline-variant rounded-xl overflow-hidden flex flex-col card-glow transition-all duration-300">
+<div class="h-40 overflow-hidden relative">
+<img class="w-full h-full object-cover grayscale opacity-60" data-alt="Close-up of a vintage medical field kit bag, showing detailed fabric texture and a faded red cross symbol. The lighting is atmospheric and dim, suggesting a quiet emergency environment. The overall tone is gritty yet comforting, with a cinematic dark blue-green color grading that aligns with a high-end technical UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAPHo4fArnVf2VuYtmWjsEjRE1s6Ni-RoMsPuLvZM0NFqmWLSr4dO2H3xTGID-J1nqGRaOMOiCRPSGVvv_ul7r9q7dwdUwaL66d1DzPli4R-9fVjTI-OjJF90r0bby0QQbFz_MH2u7L9oiFX9hiP-1lFAorxm30b6hlVlhS6DuLQTc3neUY0ut65HWn3dYO1EUoYHCdkKsh-z4aDUzNO7zZodp6PJ0T_1i7X0J_Zsk0yopwKR8y0lMdk2eYU7vEotoct44KMmR9k0"/>
+<div class="absolute inset-0 bg-surface/40 flex items-center justify-center">
+<span class="bg-primary/90 text-on-primary-container px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                Installed
+                            </span>
+</div>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-label-md uppercase tracking-wider text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded">Medical</span>
+<span class="text-[10px] font-code text-on-surface-variant">86 MB</span>
+</div>
+<h3 class="font-headline-md text-body-md font-bold text-on-surface mb-4">Where There Is No Doctor</h3>
+<div class="mt-auto">
+<button class="w-full border border-primary text-primary py-2.5 rounded-lg font-label-md text-label-md flex items-center justify-center gap-2 hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-[20px]">book</span>
+                                Open
+                            </button>
+</div>
+</div>
+</div>
+<!-- (d) OpenStreetMap Card -->
+<div class="bg-surface-container border border-outline-variant rounded-xl overflow-hidden flex flex-col card-glow transition-all duration-300">
+<div class="h-40 overflow-hidden relative">
+<img class="w-full h-full object-cover grayscale opacity-60" data-alt="A high-contrast topographic map with glowing vector lines representing roads and elevations against a deep black background. Neon teal highlights trace the major pathways. The style is reminiscent of a pilot's tactical display or a advanced GPS interface, emphasizing utility and spatial precision in a dark-mode environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCheNDLyK1bl7rS_Yxc2M6gm2rSOjM3ZDZNfxY7y4x3EQ4WPEdDOR9LDUvpkgJRp10qLqGrwXBwgyypZ0Hc09ynOgHDpG-LZ8SvSAIZjgshCrhrzCZ6nvk5lWU4kcFNLTbSFRCTR-TYHMHyDrEIIlDv2BPVRM-RrVYegij5yeSlLYet8YTQpZI01Bd0Uz4JfRuQBnJyFWEpwJ38gRXlxYJDhmekrEyAGCtPgRCr8RpLdGrYb0e4trkrlM0Q_y2XnLTORaaNNTMDMf4"/>
+<span class="absolute top-3 right-3 bg-surface/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-code text-primary border border-primary/20">1.1 GB</span>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-label-md uppercase tracking-wider text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded">Maps</span>
+<span class="text-[10px] font-code text-on-surface-variant">Offline</span>
+</div>
+<h3 class="font-headline-md text-body-md font-bold text-on-surface mb-4">OpenStreetMap — Regional</h3>
+<div class="mt-auto">
+<button class="w-full bg-surface-container-high text-on-surface-variant border border-outline-variant py-2.5 rounded-lg font-label-md text-label-md flex items-center justify-center gap-2 hover:text-primary hover:border-primary transition-all">
+<span class="material-symbols-outlined text-[20px]">download</span>
+                                Download
+                            </button>
+</div>
+</div>
+</div>
+<!-- (e) Wiktionary Card -->
+<div class="bg-surface-container border border-outline-variant rounded-xl overflow-hidden flex flex-col card-glow transition-all duration-300">
+<div class="h-40 bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-outline-variant text-[64px]" style="font-variation-settings: 'wght' 200;">language</span>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-label-md uppercase tracking-wider text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded">Language</span>
+<span class="text-[10px] font-code text-on-surface-variant">620 MB</span>
+</div>
+<h3 class="font-headline-md text-body-md font-bold text-on-surface mb-4">Wiktionary</h3>
+<div class="mt-auto">
+<button class="w-full bg-surface-container-high text-on-surface-variant border border-outline-variant py-2.5 rounded-lg font-label-md text-label-md flex items-center justify-center gap-2 hover:text-primary hover:border-primary transition-all">
+<span class="material-symbols-outlined text-[20px]">download</span>
+                                Download
+                            </button>
+</div>
+</div>
+</div>
+<!-- (f) Survival Basics -->
+<div class="bg-surface-container border border-outline-variant rounded-xl overflow-hidden flex flex-col card-glow transition-all duration-300">
+<div class="h-40 bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-outline-variant text-[64px]" style="font-variation-settings: 'wght' 200;">local_fire_department</span>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-label-md uppercase tracking-wider text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded">Survival</span>
+<span class="text-[10px] font-code text-on-surface-variant">240 MB</span>
+</div>
+<h3 class="font-headline-md text-body-md font-bold text-on-surface mb-4">Survival Basics</h3>
+<div class="mt-auto">
+<button class="w-full bg-surface-container-high text-on-surface-variant border border-outline-variant py-2.5 rounded-lg font-label-md text-label-md flex items-center justify-center gap-2 hover:text-primary hover:border-primary transition-all">
+<span class="material-symbols-outlined text-[20px]">download</span>
+                                Download
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Hardware Usage (Atmospheric micro-data) -->
+<div class="mt-16 flex flex-wrap gap-8 justify-center border-t border-outline-variant pt-8">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+<span class="font-code text-[12px] text-on-surface-variant uppercase tracking-widest">Inbound: 12.4 MB/s</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="font-code text-[12px] text-on-surface-variant uppercase tracking-widest">Storage: 452 GB Free</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary/40"></div>
+<span class="font-code text-[12px] text-on-surface-variant uppercase tracking-widest">CPU: 12%</span>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest border-t border-outline-variant mt-12">
+<div class="flex flex-col md:flex-row justify-between items-center w-full py-8 px-margin-desktop max-w-container-max mx-auto">
+<div class="flex flex-col gap-2 text-center md:text-left mb-6 md:mb-0">
+<span class="font-headline-md text-headline-md text-primary font-bold">EnZIME</span>
+<p class="font-label-md text-label-md text-secondary uppercase tracking-widest opacity-60">© 2024 EnZIME Local Intelligence. Resilient &amp; Offline.</p>
+</div>
+<div class="flex gap-8">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-secondary-fixed transition-colors" href="#">Documentation</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-secondary-fixed transition-colors" href="#">Terms of Service</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-secondary-fixed transition-colors" href="#">Hardware Requirements</a>
+</div>
+</div>
+</footer>
+<script>
+        // Simple micro-interactions
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('mousedown', () => {
+                btn.style.transform = 'scale(0.97)';
+            });
+            btn.addEventListener('mouseup', () => {
+                btn.style.transform = 'scale(1)';
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'scale(1)';
+            });
+        });
+
+        // Filter chip toggle logic
+        const chips = document.querySelectorAll('.filter-chip');
+        chips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                chips.forEach(c => c.classList.remove('bg-primary-container', 'text-on-primary-container', 'border-primary'));
+                chip.classList.add('bg-primary-container', 'text-on-primary-container', 'border-primary');
+            });
+        });
+    </script>
+</body></html>

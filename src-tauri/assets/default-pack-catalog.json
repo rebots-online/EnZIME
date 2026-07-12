@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "generated_at": 1716600000,
+  "packs": [
+    {
+      "id": "wikipedia_en_simple_mini",
+      "title": "Simple English Wikipedia (Mini)",
+      "description": "A mini edition of the Simple English Wikipedia.",
+      "language": "en",
+      "size_bytes": 1048576,
+      "sha256": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+      "download_url": "https://enzime.robin.mba/packs/wikipedia_en_simple_mini.zim",
+      "license": "CC-BY-SA 3.0",
+      "upstream_url": "https://kiwix.org"
+    }
+  ],
+  "signature": []
+}

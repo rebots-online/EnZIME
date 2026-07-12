@@ -1,0 +1,36 @@
+[package]
+name = "enzime-creator"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "EnZIME Creator — ZIM producer / publisher / editor (placeholder name)"
+
+# Bootstrap stub. Real dependency surface authored by the Creator
+# architect session. Path-deps into the reader's tree are deliberate —
+# anzimmermanlib will be promoted to a top-level crates/ directory when
+# both apps actively use it.
+
+[lib]
+name = "enzime_creator_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+path = "src/lib.rs"
+
+[[bin]]
+name = "enzime-creator"
+path = "src/main.rs"
+
+[dependencies]
+# Shared workspace deps inherited by `*.workspace = true` once real code
+# lands. Empty for now — bootstrap stub does no work.
+
+# anzimmermanlib write-side surface is on the architect-session agenda.
+# Path-dep pre-wired for when the Creator starts emitting ZIMs.
+anzimmermanlib = { path = "../../src-tauri/anzimmermanlib/rust" }
+
+# Tauri 2 — shared vendored copy at suite root
+tauri = { path = "../../vendor/tauri/crates/tauri", features = [] }
+
+[build-dependencies]
+tauri-build = { path = "../../vendor/tauri/crates/tauri-build" }

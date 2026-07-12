@@ -1,0 +1,16 @@
+{
+  "identifier": "desktop-only",
+  "description": "Desktop-flavor extras for Linux/Windows builds. Includes app update apply and window state persistence commands not available on Android.",
+  "local": true,
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "allow-app-update-apply",
+    "allow-window-state-save",
+    "allow-window-state-restore",
+    "core:window:allow-set-title",
+    "core:window:allow-show",
+    "core:window:allow-hide"
+  ]
+}

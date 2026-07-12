@@ -1,0 +1,22 @@
+[package]
+name = "anzimmermanlib"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license = "AGPL-3.0"
+repository.workspace = true
+
+[lib]
+name = "anzimmermanlib"
+crate-type = ["rlib"]
+
+[dependencies]
+digest = "0.10"
+md-5 = "0.10"
+uuid = "1.11"
+thiserror = "2.0"
+zstd = "0.13"
+lzma-rs = "0.3"
+flate2 = "1.0"
+lru = "0.12"
+memmap2 = "0.9"

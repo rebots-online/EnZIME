@@ -1,0 +1,11 @@
+target/
+dist/
+node_modules/
+.tmp/
+*.litertlm
+!models/**/*.litertlm
+
+# secrets — never committed; real values live in ~/Admin-Manual/CREDENTIALS/EnZIME.md
+.env
+*.keystore
+*.jks
