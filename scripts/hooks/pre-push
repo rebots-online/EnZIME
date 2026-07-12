@@ -1,32 +1,37 @@
 #!/bin/bash
 # pre-push hook
 #
-# E-BLD-13: Block LFS blobs from pushing to GitHub mirror.
+# E-BLD-13: Block LFS blobs from pushing to any remote except `forgejo`.
 # This hook enforces the Forgejo-LFS-only policy.
 #
-# E-BLD-31: Per-remote LFS disable sentinel for `github` remote.
+# Roles (2026-07-11 reversal from the original github-mirror convention):
+# `origin` (github.com/rebots-online/EnZIME) is primary/default push target
+# but must NEVER receive LFS blobs (GitHub LFS is metered billing).
+# `forgejo` (forgejo.robin.mba/rcheung/EnZIME) is the full mirror and sole
+# LFS host.
+#
+# E-BLD-31: Per-remote LFS disable sentinel for `origin`.
 # Clone-time setup required:
-#   git config --local remote.github.lfsurl "DISABLED-LFS-DO-NOT-PUSH-BLOBS"
+#   git config --local remote.origin.lfsurl "DISABLED-LFS-DO-NOT-PUSH-BLOBS"
 #
 # The sentinel value "DISABLED-LFS-DO-NOT-PUSH-BLOBS" in lfsurl is a
 # belt-and-suspenders mechanism: this hook blocks pushes, and the invalid
 # lfsurl prevents git-lfs from even attempting to contact the GitHub remote.
-#
-# Forgejo (origin) is the sole LFS host. GitHub is a mirror-only remote
-# for external tool access (Jules, Codex) and must never receive LFS blobs.
 
 set -e
 
 remote="$1"
 url="$2"
 
-# Only check pushes to the github remote
-if [ "$remote" != "github" ]; then
+# forgejo is the sole LFS host — always allowed, delegate straight to git-lfs
+if [ "$remote" = "forgejo" ]; then
+    if command -v git-lfs >/dev/null 2>&1; then
+        exec git lfs pre-push "$@"
+    fi
     exit 0
 fi
 
-# Check if any LFS pointers are being pushed
-# We scan the refs being pushed for Git LFS pointer files
+# Every other remote: block if LFS pointer blobs are part of this push
 z40=0000000000000000000000000000000000000000
 
 while read local_ref local_sha remote_ref remote_sha
@@ -52,10 +57,10 @@ do
         cut -d' ' -f2 | \
         xargs -I {} git cat-file blob {} 2>/dev/null | \
         grep -q 'version https://git-lfs.github.com/spec/v1'; then
-        echo "ERROR: LFS blobs detected in push to 'github' remote."
+        echo "ERROR: LFS blobs detected in push to '$remote' remote."
         echo ""
-        echo "The GitHub mirror is configured to NOT receive LFS blobs."
-        echo "LFS hosting is provided by Forgejo (origin) only."
+        echo "Only 'forgejo' (forgejo.robin.mba/rcheung/EnZIME) may receive LFS blobs."
+        echo "GitHub (origin, primary) must never receive them — metered billing."
         echo ""
         echo "To fix this commit:"
         echo "  1. Ensure LFS files are tracked in .gitattributes"
@@ -63,7 +68,7 @@ do
         echo "  3. Force push the corrected history"
         echo ""
         echo "Per-remote LFS disable (E-BLD-31):"
-        echo "  git config --local remote.github.lfsurl \"DISABLED-LFS-DO-NOT-PUSH-BLOBS\""
+        echo "  git config --local remote.origin.lfsurl \"DISABLED-LFS-DO-NOT-PUSH-BLOBS\""
         exit 1
     fi
 done
