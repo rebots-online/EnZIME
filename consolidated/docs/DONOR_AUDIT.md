@@ -20,3 +20,8 @@ Official references: https://www.revenuecat.com/docs/web/web-billing/web-purchas
 
 ## Limits
 This is a source audit, not a penetration test, production deployment audit, or independent verification of existing billing transactions. Rust/native builds and donor tests were not run. A numerical overall completion estimate would hide major integration gates; use RELEASE_CHECKLIST.md.
+
+## DynDon clarification: foundational access, not generic download UX
+The product's primary prepper journey is “Download Wikipedia ZIM” within a variable shared mba.robin budget, using balanced breadth/depth across topics by default or explicit domain selection. This supersedes the generic acquisition emphasis in the initial consolidation.
+
+EnZIME-v4 contains `crates/dyndon/src/cluster_fit.rs` and `apps/reader/src/routes/library/DownloadPlanDialog.tsx`. The inspected planner filters domains, caps topic groups and priority tiers, then greedily fits ranked clusters. This is substantive reusable work, but global ranking does not guarantee balanced representation, dependency-complete offline reading, or an operational remote-download pipeline. Preserve and extend the planner behind DD-01..08; do not mark those requirements complete from the presence of code or a planning dialog. References: https://github.com/rebots-online/EnZIME-v4/blob/master/crates/dyndon/src/cluster_fit.rs and https://github.com/rebots-online/EnZIME-v4/blob/master/apps/reader/src/routes/library/DownloadPlanDialog.tsx .

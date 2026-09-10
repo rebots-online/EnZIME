@@ -13,6 +13,15 @@
 - [x] Mature PRD with named requirements, platform boundaries and release stages.
 
 ## B. Reader beta — engineering and QA
+### Foundational access gate: DynDon / practical prepper
+- [ ] DD-01: coordinated mba.robin budget, safety reserve and peak/final storage accounting. Owner: storage engineering. Evidence: concurrent reservation and low-space fixtures.
+- [ ] DD-02/03: balanced topic hierarchy by default; explicit domain and depth/breadth controls. Owner: retrieval/planner engineering. Evidence: skewed-domain fixture, per-topic coverage report and deterministic plans at multiple budgets.
+- [ ] DD-04: edition-bound manifest, remote planning without full local source, dependency-complete acquisition and validated sparse-reader or subset-ZIM strategy. Owner: archive engineering. Evidence: actual downloaded Wikipedia fixture and offline resources test.
+- [ ] DD-05/08: pause/restart/resume, integrity and offline rehearsal; accurate selected-plan versus full-archive readiness. Owner: QA. Evidence: network-disabled restart with representative articles, search and notes; unavailable account/billing/model services do not block installed reading.
+- [ ] DD-06: grow/shrink coverage with pinned material, notes and finished work protected. Owner: storage engineering. Evidence: interrupted resize and rollback test.
+- [ ] DD-07: bounded memory and battery-aware operation; verified SD/USB/LAN collection transfer. Owner: platform engineering. Evidence: two-device offline import and private-note consent test.
+
+### Reader and platform integration
 - [ ] ZIM-01/02: wire canonical AnZimmermanLib through adapter; run valid and hostile fixture corpus. Owner: reader engineering. Evidence: native and browser fixture report.
 - [ ] READ-01/02: PDF text layer, search, outline, thumbnails, continuous rendering and annotation rectangles. Owner: reader engineering. Evidence: 500-page and scanned-book tests, screen-reader run.
 - [ ] READ-03: EPUB and sanitized HTML reading, TOC and stable locations. Owner: reader engineering. Evidence: EPUB conformance fixtures and restart test.

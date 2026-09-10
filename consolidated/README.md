@@ -21,6 +21,9 @@ Import PDF, text/Markdown, MP3, MP4, ZIM and GGUF bytes; PDFs render through bun
 
 ThinkSpace.tsx is the original uploaded handoff, preserved separately and bundled into /thinkspace.html. It is a demo, not the final secure graph module. Its endpoint requests are restricted by the preview's CSP. Full 6DoF, rare egg, graph persistence and source-reader bridging remain gates.
 
+## Primary use case: peripocalyptic practical prepper
+Carry useful knowledge before, during and after infrastructure disruption on the device and storage already available. DynDon's defining action is **Download Wikipedia ZIM**, adapting balanced topic breadth/depth to the allocation inside shared mba.robin storage, with optional domain focus. PRD requirements DD-01..08 define budget accounting, coherent offline resources, resize protection and offline rehearsal. These remain unimplemented release gates; the landing labels this planned capability explicitly.
+
 ## Product contract
 - docs/PRD.md — mature product specification, including Catholic bookstore and traditional Reader.
 - docs/RELEASE_CHECKLIST.md — market readiness gates and evidence template.
