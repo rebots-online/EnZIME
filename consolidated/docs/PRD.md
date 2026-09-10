@@ -1,0 +1,192 @@
+# EnZIME: Product Requirements Document
+## Mature product specification and release contract
+Version 2.0 • 10 September 2026 • Product owner: Robin L. M. Cheung
+Status: proposed product baseline; implementation status is tracked separately in RELEASE_CHECKLIST.md.
+
+## 1. Executive product definition
+EnZIME is an offline-first personal knowledge environment for reading, understanding, connecting, and creating durable works. It combines a reliable archive and document reader with Knowledge Pysanky, a spatial interface for exploring evidence-linked ideas. A user can begin with a book, follow a reference into a graph, ask a grounded question, write a reflection, and preserve the finished result without losing the original source or depending on an online service.
+
+The mature product is also a reusable platform capability. Sanctissimissa/StAndroidsMissal can present its Catholic bookstore through the same reading engine and shared asset store. Other mba.robin applications can reuse approved models and finished works through a permissioned storage contract. Each application retains its own navigation, brand accent, and private working state.
+
+The commercial layer is central: BIDLR owns portfolio identity, orders, entitlements, and credit accounting; RevenueCat is the initial distribution and purchase integration. Reading personal files, retrieving user-owned work, and exporting it must remain available when a paid entitlement expires. A public-domain work's source access is distinct from a charge for editing tools, hosting, curation, or a separately licensed edition.
+
+## 2. Outcomes and product principles
+1. Make sustained reading comfortable, dependable, and available offline.
+2. Turn exploration into traceable understanding: every sourced claim can return to its exact passage and edition.
+3. Let spatial discovery complement a traditional reader; all essential operations have a non-spatial equivalent.
+4. Preserve ownership and portability through immutable originals, versioned final outputs, and documented export formats.
+5. Share large assets once where platforms permit, without treating a common folder name as an authorization mechanism.
+6. Make paid value understandable and purchase recovery dependable across supported devices.
+7. Reuse AnZimmermanLib and proven existing modules behind tested adapters; avoid another parser rewrite by default.
+8. Tell the truth about availability, evidence, AI output, download status, and commercial state.
+
+## 3. Users and core jobs
+Offline learners need to open a large archive, find a passage, and return to their notes without connectivity. Researchers need citations, relationships, model-assisted comparison, and editable outputs. Contemplative readers need long-form typography, original page images, bilingual material, and a distraction-free experience. Creators need controlled capture, revision, export, and publication. Archivists need integrity, metadata, duplicate detection, backup, and large-file performance. Portfolio users need shared assets and recognizable account controls across EnZIME and Sanctissimissa.
+
+The first release should optimize a single-device reading-to-note journey before multi-device collaboration. Institutional administration, public marketplace operations, and metered hosted AI follow only after their independent operating controls pass acceptance.
+
+## 4. Product boundaries and naming
+EnZIME is the product shell. Reader is the conventional document and media experience. Knowledge Pysanky is the spatial knowledge workspace and its optional playful Easter egg. AnZimmermanLib is the canonical ZIM capability behind a stable reader/writer contract. mba.robin is the shared storage and capability namespace. BIDLR is the commercial control plane; bidller is a possible presentation name, not a second ledger.
+
+The product is not a general-purpose browser, an unrestricted autonomous publisher, or a substitute for source verification. AI interpretation must remain visually distinct from original text, editorial commentary, and liturgical source material. The initial skeleton is a reference implementation and design baseline; its presence does not certify all mature requirements as shipped.
+
+## 5. Platform and rollout matrix
+| Surface | First commercial target | Mature expectation |
+|---|---|---|
+| Windows desktop | Native Tauri reader, storage, PDF/ZIM, local inference where supported | Full creation and graph tools; signed installer and update recovery |
+| Linux desktop | Same core journeys; documented reference distribution | Full desktop parity; portable/shared volumes with permission controls |
+| Android | Reading and personal library after desktop core is proven | SAF-aware downloads, compatible local models, touch graph, store billing |
+| Web | Landing, supported browser reader, demo, hosted checkout | OPFS/file-handle storage, worker-based reading, supported WASM/WebGPU models |
+| macOS/iOS | Compatibility track, not implied launch commitment | Separately tested packaging, sandbox and store purchase policies |
+| Sanctissimissa | Integration contract and first verified bookstore fixture | Embedded Reader and optional graph links with application-specific styling |
+
+A browser origin cannot silently read a desktop folder or another origin's OPFS. Android applications cannot simply share private app storage under the same namespace. Desktop uses a broker or native host; Android uses user-granted documents/provider permissions; web uses explicit import/export or an authorized bridge. Shared assets do not imply shared private notes.
+
+## 6. Information architecture and experience
+Primary destinations: Library, Reader, Pysanky, Create, Downloads, and Account & Settings. Library is the default for returning users and remembers the last work. Reader and Pysanky preserve a common selected source and navigation history. A dockable context panel contains notes, citations, and AI assistance. On narrow screens these become separate views with a clear return action.
+
+The visual system uses warm paper (#F5F2E9), dark ink (#172C2B), forest action (#175E4B), and lilac spatial accent (#CBBDED). Long-form text uses a readable serif; controls use a neutral sans serif. Controls are descriptive, consistently placed, and usable without hover. Spatial canvases may use a dark surface without changing the reader's typography or core navigation. Sanctissimissa can substitute a liturgical accent while retaining interaction conventions.
+
+Global interaction requirements: visible keyboard focus; logical tab order; text scaling to 200%; screen-reader labels; reduced motion; user-controlled sound; touch targets of at least 44 CSS pixels where feasible. Reader focus mode hides optional chrome. Graph and game controls cannot capture keystrokes while an editor, input, or assistive control has focus. Escape releases immersive interaction.
+
+## 7. Library, acquisition, and AnZimmermanLib
+LIB-01: Import ZIM, PDF, supported EPUB, Markdown/text, and supported media through explicit file access. Show size, format, integrity state, and available actions before indexing. Acceptance: malformed and unsupported input yields an actionable error without losing existing content.
+
+LIB-02: Large binary assets use bounded reads, streaming transfer, cancel/pause/resume, and temporary staging. Acceptance: opening a 20 GB ZIM does not allocate a 20 GB buffer; interrupted transfers are resumable or removable and never appear as verified complete assets.
+
+LIB-03: Catalog entries include stable work and edition identifiers, title, author, translator/editor, language, publication details, source URL, rights evidence, hashes, size, and installed state. Duplicate bytes share one underlying object; multiple editions and metadata references remain distinguishable.
+
+ZIM-01: Adopt the existing AnZimmerman family through a pinned compatibility adapter. Implement open, metadata, main page, title lookup, search, resource fetch, redirects, and close. Preserve namespace-qualified paths. Acceptance: a fixture corpus tests compressed clusters, redirects, missing resources, malformed headers, non-ASCII titles, and actual article images/styles.
+
+ZIM-02: Archive content runs in an isolated rendering context with no privileged Tauri command access, arbitrary filesystem access, or implicit network requests. External navigation is explicit. Acceptance includes hostile HTML and resource traversal fixtures.
+
+ZIM-03: Download catalogues report origin, licence, required disk space, integrity, and progress. A remote partial archive must not be labelled offline-complete. Cache eviction respects pinned works. Derivative indexes are rebuildable independently of originals.
+
+## 8. Traditional Reader, PDF, and media
+READ-01: Reader offers paged and continuous PDF layouts, fit-width/fit-page, zoom, page-number entry, outline, thumbnails, document search, selection/copy, and keyboard navigation. Preserve original pagination and page labels for citation. Acceptance: a 500-page text PDF and scanned PDF remain navigable with bounded page rendering and recover their saved position after restart.
+
+READ-02: Use a maintained PDF.js adapter for web-based rendering, with a local worker and packaged character maps/fonts. Run untrusted document parsing away from privileged application APIs. The reference skeleton implements canvas page rendering and zoom; a selectable accessible text layer, annotations overlay, search, outline, and thumbnail virtualization are required before the full reader is claimed complete.
+
+READ-03: Reflowable text and EPUB provide font size, spacing, margins, themes, table of contents, search, bookmarks, and continuous/paged reading. A PDF scan does not become reliably reflowable merely because it is displayed. OCR-derived text is a separate, versioned rendition linked to its page image; uncertain OCR and editorial corrections are marked.
+
+READ-04: Audio/video provide accessible native or equivalent transport controls, seek, speed, captions/transcripts when supplied, and resume position. Media references in a text open in an adjacent pane where supported. Autoplay is off. Codec compatibility is reported rather than silently failing.
+
+READ-05: Locators are format-aware: PDF page index and normalized rectangle plus text quote; EPUB CFI plus quote; ZIM archive hash and entry path plus text quote; text revision plus offsets/quote; media timestamp range. Stored locators include edition/object hash so later revisions cannot silently move a citation to different content.
+
+READ-06: Bookmarks, highlights, notes, and history persist independently of the original asset. Quote anchoring can recover after benign layout changes; unresolvable annotations are visibly orphaned and repairable. Export preserves source locators and note authorship.
+
+## 9. Catholic bookstore and Sanctissimissa integration
+BOOK-01: Sanctissimissa retains bookstore curation and liturgical context. The shared Reader receives a versioned OpenWork request containing workId, editionId, objectId or authorized download reference, requested locator, application scope, and display metadata. The host must validate the request and permissions. Arbitrary filesystem paths from deep links are rejected.
+
+BOOK-02: Initial catalogue categories may include Scripture, Church Fathers, theology, spirituality, lives of saints, liturgy, and reference. Filtering supports language, author, period, format, and installed state. Catalogue contents must come from verified source records, not invented sample product listings.
+
+BOOK-03: Rights attach to the particular edition, translation, scan, introduction, and media rendition. A work described as public domain still needs an edition-level provenance record and applicable distribution review. Unverified entries can be privately imported but are not published as cleared catalogue downloads. Store explicit rights basis, source, territory, reviewer, and review date.
+
+BOOK-04: Users open an original PDF scan, read an available reflowed rendition, follow a Bible/patristic reference, and return to the same place. Latin/English parallel reading uses verified alignment and clearly distinguishes omissions or uncertain alignment. A doctrinal source, an ecclesiastical approval statement, and AI commentary are different metadata/content types.
+
+BOOK-05: Public-domain source access and paid service entitlements are separate. The user can retain an acquired source after cancelling a hosted service. Optional purchases may cover licensed editions, prepared collections, enhanced tools, or services, subject to the actual catalogue offer. Payment failure must not erase reading positions or annotations.
+
+BOOK-06: Cross-application acceptance: download a verified fixture from Sanctissimissa, open it in Reader, annotate it, open the exact edition in EnZIME, and verify that only explicitly shared annotations appear. Offline return navigation must work without a live bookstore session. No existing Sanctissimissa module is declared integrated until this test passes.
+
+## 10. Knowledge Pysanky
+KG-01: Provide genuine six-degree-of-freedom camera motion: translation on three axes and yaw, pitch, and roll. Offer orbit, focus, home, zoom, and reset controls, with keyboard/mouse and touch mappings. Acceptance records all six axes independently and verifies that camera state persists. The uploaded handoff has position/yaw/pitch but does not establish roll support.
+
+KG-02: Nodes represent sources, passages, concepts, notes, and finished works. Edges explicitly distinguish source hyperlinks, user assertions, citation relationships, and inferred semantic similarity. Each inferred edge records model/version, method, score, creation time, and supporting source when available. Similarity is not presented as factual or causal proof.
+
+KG-03: Selection opens a readable passage in Reader; selection in Reader can reveal the corresponding node. Search, filters, clusters, saved views, undo, and progressive expansion prevent overload. A list or outline provides equivalent access for users who cannot or prefer not to navigate 3D.
+
+KG-04: Graph creation and editing persist through the shared content model. Graph imports validate schema, IDs, edge endpoints, numeric bounds, and size; imported HTML is not injected into the application origin. Large graphs use worker processing, spatial indexing, and level-of-detail rendering.
+
+KG-05: Preserve the Pysanky Easter egg: decorated eggs, firing/slingshot mechanics, and an occasional distinct Fabergé-style egg event. Make the game opt-in, non-destructive, and independent of payment. Its score does not spend or earn commercial credit. Sound has mute and volume controls; reduced-motion mode provides a calm alternative. Rarity is deterministic in test fixtures. The rare egg branch and full 6DoF are release requirements, not claims about the handoff.
+
+## 11. AI and retrieval
+AI-01: Local inference is the default intended privacy-preserving path where hardware permits. Select runtime by tested device capabilities and model format. Model catalogue records license, digest, quantization, context window, memory requirement, compatible runtime, and provenance. Storing a GGUF does not mean it can execute.
+
+AI-02: Load, unload, cancellation, streaming, out-of-memory recovery, and warm/cold startup are explicit adapter operations. A missing runtime reports unavailable. Dummy embeddings and NullLlm implementations must be confined to labelled demonstrations and excluded from release acceptance.
+
+AI-03: Retrieval returns source passages with edition-aware locators. Answers distinguish quotations, paraphrases, and synthesis; sources open at the cited passage. If the library cannot support an answer, say so. Imported text is data and cannot authorize tools, payments, or publication.
+
+AI-04: Hosted inference is opt-in for each configured provider, with clear data disclosure and usage cost before sending private content. Secrets live in secure native storage or server-side services. Cancellation and failed requests have defined accounting outcomes. Local inference does not consume hosted credits.
+
+AI-05: Save user-approved generated material as a draft with model and source provenance; finalization is explicit. Show supported explanatory summaries and execution status without promising access to a model's hidden internal reasoning.
+
+## 12. Creation and durable outputs
+CREATE-01: Users create and revise notes, essays, study collections, and annotated extracts. Autosaved drafts remain application/profile-private by default. Finalize creates an immutable artifact with parent revision, creator, creation time, format, sources, and rights metadata.
+
+CREATE-02: Edit a final work by creating a new draft derived from it; saving a new final revision never overwrites historical bytes. Export plain text/Markdown, structured metadata, and supported PDF/EPUB/ZIM outputs after their writer adapters pass validation. Format-specific loss is disclosed.
+
+CREATE-03: Publishing is a separate action from finalizing. Preview destination, visibility, rights, metadata, and included files. Publication produces a durable receipt and supports withdrawal where the destination permits. Final local work is not automatically public or uploaded.
+
+## 13. Shared storage and ownership
+STORE-01: Desktop storage resolves from MBA_ROBIN_HOME or an OS-appropriate data root under mba.robin. The production broker is a single authorized writer per root. Content-addressed objects use SHA-256; application-facing IDs and metadata are separate references. The skeleton uses SQLite and streamed files, but cross-app authorization is an integration gate.
+
+STORE-02: Logical areas: immutable originals; model artifacts; final revisions; catalog/manifests; application-private drafts and notes; derivative indexes/caches; temporary downloads; backups. Identical bytes may be deduplicated without merging edition identity, ownership, or privacy policy.
+
+STORE-03: Transactional import stages bytes, verifies length/hash, commits object metadata, then exposes completion. Crash recovery reconciles abandoned staging and unreferenced objects. Reference-aware deletion uses a quarantine period and confirmation; garbage collection cannot remove an asset referenced by another application or revision.
+
+STORE-04: Broker grants are scoped by app, profile, operation, and object collection. A local folder or loopback connection alone is insufficient authorization for a production multi-app broker. An encrypted private journal is not made cross-app-readable by choosing a shared asset directory.
+
+STORE-05: Backups include metadata, annotations, manifests, and required object references. Restore verifies integrity, handles schema upgrades, and reports missing external files. Concurrent writers, removable volumes, low disk, and migration rollback require tests. Network shared filesystems are not the default SQLite deployment.
+
+## 14. Identity, billing, and entitlement lifecycle
+BILL-01: Adopt one stable portfolio principal from central authentication. Map provider customer IDs to that principal server-side. Clients cannot assert another user's ID to obtain entitlements. Anonymous checkout must use the provider's supported redemption path and verified account linking.
+
+BILL-02: Initial web acquisition uses a dashboard-generated RevenueCat hosted purchase link. Anonymous public landing links require redemption configuration. Identified links are constructed only from an authenticated principal mapping. Separate sandbox and production configuration. A checkout return URL is not evidence of payment.
+
+BILL-03: BIDLR receives verified provider evidence, normalizes it, stores an idempotent event inbox, and reconciles provider state. Handle duplicate delivery, content mismatch, out-of-order events, renewal, cancellation, expiry, refund, transfer, chargeback, and restore. Shared-secret inbox capture alone is not a completed RevenueCat adapter.
+
+BILL-04: The commercial ledger uses integer minor currency units and append-only credit entries. Quote, order, payment evidence, entitlement grant, and usage authorization remain distinct entities. Hosted usage needs reservation, settlement/release, idempotency, and insufficient-balance behaviour before paid consumption goes live.
+
+BILL-05: Clients receive a signed entitlement snapshot bound to principal, audience, version, capabilities, issued-at, expiry, and key ID. Validate signature and claims before granting features. Plan key rotation, revoked grant reconciliation, clock rollback handling, and offline grace. Perpetual purchased capabilities and recurring service access have different expiry policies.
+
+BILL-06: Provisional packaging: free Reader; perpetual desktop Studio for advanced creation/spatial capabilities; optional recurring or usage-funded hosted services. Prices, exact feature boundaries, eligible platforms, update entitlement, refund terms, and support promises require owner approval before public sale. No fabricated price or lifetime-service promise is published.
+
+BILL-07: Account UI provides purchase history, restore, manage subscription, support, device/session controls, and understandable entitlement status. A failed restore must not report success. Payment failures preserve access to owned files and export. RevenueCat/Stripe secrets and BIDLR operator tokens are not shipped to browsers.
+
+## 15. Privacy, security, reliability, and accessibility
+SEC-01: Untrusted archives, PDFs, EPUBs, and imported graph content remain isolated from app privileges. Constrain decompression, parsing time, memory, URLs, and path handling. Test malformed archives, oversized payloads, script injection, cross-origin attacks, and deep-link spoofing.
+
+SEC-02: Secrets and private profiles are scoped, redacted from logs, and recoverable through documented account procedures. Telemetry is optional; collected events avoid document text, queries, notes, and precise paths by default. Local diagnostics can be exported after review.
+
+REL-01: Core reading works without network after installation and asset acquisition. Updates are signed and recoverable. Database migrations back up before change and fail safely. Interruption of indexing, rendering, inference, or download leaves stored originals intact.
+
+ACC-01: Target WCAG 2.2 AA for web UI, with keyboard and screen-reader validation on named browsers. PDF canvas requires a text/accessibility layer when source permits; scanned works need OCR or an explicit accessible-text limitation. Essential graph actions are available outside 3D.
+
+## 16. Performance budgets and product measures
+These are acceptance targets, not measured results. Publish the exact reference hardware and fixture hashes with each run. Proposed desktop baseline: four-core CPU, 8 GB RAM, SSD; mobile baseline: supported Android device with 6 GB RAM. Validate separate low-memory behaviour.
+
+| Measure | Initial acceptance target |
+|---|---|
+| Ready-to-read app shell | p95 under 3 seconds cold launch on baseline desktop |
+| Cached article or PDF page | p95 under 1 second after archive/document open |
+| Title suggestions | p95 under 500 ms on defined indexed fixture |
+| Full-text query | p95 under 2 seconds on defined corpus |
+| Graph interaction | 30 fps minimum at agreed 500-node visible fixture; graceful reduction |
+| Import memory | Bounded independently of multi-GB asset size; measure peak RSS |
+| Offline restart | All installed verified assets reopen; saved place and notes retained |
+| Purchase correctness | All lifecycle fixtures pass; no grant from forged/duplicate return |
+
+Product measures: successful first import/read, return-to-reading rate, source citation opens, finalized artifact creation, restore success, support incident rate, and voluntary paid conversion. Instrumentation is opt-in and must not penalize offline users by treating missing telemetry as non-use.
+
+## 17. Delivery stages and definition of done
+Stage A: design baseline and runnable reference skeleton. Demonstrate local PDF/text/media reading, shared-root asset import, saved state, final text, original Pysanky, and honest checkout configuration. Provide this PRD, adapter contracts, and a test report.
+
+Stage B: dependable Reader beta. Connect canonical ZIM adapter, complete accessible PDF and EPUB reading, validate rights-aware bookstore fixtures, persist annotations, recover downloads, and prove backup/restore. Native packaging must pass each target platform's smoke suite.
+
+Stage C: commercial release. Connect central authentication and BIDLR/RevenueCat, complete lifecycle gauntlet, approve pricing and policies, perform a controlled real purchase/restore/refund, verify support and reconciliation operations, and publish signed builds. All critical security/data-loss bugs closed.
+
+Stage D: mature knowledge and creator release. Complete true 6DoF, source-linked graph editing, rare egg event, compatible local inference, citation-grounded retrieval, rich finalization/export, and cross-app permissioned storage. Expand hosted services only after accounting and operating controls pass.
+
+A requirement is done only with code, a named acceptance test or recorded manual evidence, target platform, fixture/version, and reviewer. A README claim, mock screen, disabled adapter, or passing test that swallows errors is insufficient.
+
+## 18. Risks, decisions, and dependencies
+Highest risks: fragmentation across repositories; functional modules disconnected by refactors; confusing placeholders with live billing; cross-app storage assumptions; incompatible model/runtime formats; inaccessible PDF canvas; ambiguous edition rights; and unbounded large-file operations. Mitigation is a single integration ledger with pinned donors, adapters, and evidence per release gate.
+
+Decisions fixed by this baseline: preserve AnZimmermanLib; conventional Reader is first-class; Pysanky is complementary; mba.robin assets use explicit platform permissions; BIDLR is the central commercial authority; hosted checkout is a provider adapter; private content remains local until explicitly shared.
+
+Owner decisions before sale: product name and domain, supported first-release OS versions, Studio offer and price, perpetual update terms, hosted credit units and margins, offline entitlement grace, public catalogue territories, approved first bookstore editions, support channel and refund operations. Engineering may implement reversible defaults, but these commercial promises are not inferred from code.
+
+## 19. Traceability and source baseline
+The supplied AnZimmerman PRD and Claude ThinkSpace TSX are source requirements and donor material. This document supersedes their architecture prose where it conflicts with bounded large-file IO, maintained adapters, platform storage permissions, or explicit commercial state. It does not revoke authorship or erase source history.
+
+Repository audit and source pins are recorded in DONOR_AUDIT.md. Implementation and acceptance ownership live in RELEASE_CHECKLIST.md. Visual baseline: https://www.figma.com/design/JgLu0wuuXUwNplf2tjUXwf . Official implementation references: https://mozilla.github.io/pdf.js/getting_started/ and https://www.revenuecat.com/docs/web/web-billing/web-purchase-links .

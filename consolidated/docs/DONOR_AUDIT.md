@@ -1,0 +1,22 @@
+# Consolidation and donor audit
+Inspection date: 10 September 2026. Static inspection except the new skeleton's explicitly reported tests.
+
+| Source | Evidence and value | Integration judgment |
+|---|---|---|
+| rebots-online/EnZIME, 4db1966571d67010c6c6f0872f3615d28f2729d2 | Actual Rust AnZimmerman parser path, annotations/bookmarks/sidecars and platform work. AI constructor uses NullLlm; paywall paths contain errors/placeholders. Root app entry files incomplete. | Keep as donor host; independent consolidated package avoids claiming old build is healthy. |
+| rebots-online/EnZIME-v4, 950e913dfe4a1db9f2b864a0dd67a729a4f2eaf3 | Cleaner domain/ports/storage architecture, backup/diagnostics work; limited routed UI and empty or unconnected adapters. | Adopt architectural boundaries and validated modules, not release claims. |
+| Robin-s-AI-World/EnZIME and its May archive | Documentation and earlier UI/session/entitlement patterns. | Recover selected UI behaviour and restore patterns through tests. |
+| rebots-online/AnZimmerman | Existing multilingual custom ZIM implementations. The separately named AnZimmermanLib repository was not found during inspection. | The capability was not wholly lost: it survives under other repositories/vendor paths. Establish canonical source and adapter; avoid repeated reinvention. |
+| Uploaded ThinkSpace TSX | Substantial interactive spatial handoff, graph import, egg/slingshot effects, endpoint UI. Camera does not establish full roll; no distinct rare Fabergé branch found. Demo embeddings and unpersisted state remain. | Preserve original byte-for-byte as ThinkSpace.tsx; label as demo and harden behind adapter before integration. |
+| Robin-s-AI-World/BIDLR default branch, 5047fd0bbac40a87b8ca0d05e477c90964ec1b1a | Earlier dashboard/prototype files. | Do not mistake default branch for the newest billing work. |
+| BIDLR PR #1, agent/bidlr-v0.1-control-plane, 014275bb16176c5023c33fab1c8c2f2683e28f58 | Runnable reference server; integer quotes, orders, entitlements, append-only credits, idempotency, one-writer JSON store. Server explicitly marks RevenueCat/Stripe/others contract-only; settlement is manual-demo. Webhook endpoint captures receipt evidence using a shared secret; it does not settle real provider payments. | Valuable control-plane foundation. Reuse commercial semantics, implement real provider adapter, principal-facing authorization and production storage/operations. No live-money claim; tests in donor not rerun here. |
+| rebots-online/bidller, 4af2516faf073d0402773979d155dbcb58b10601 | Public clone succeeds; HEAD says Delete .gitignore and has an empty recursive file tree. | No current implementation to consolidate from this HEAD. Does not prove no historical or private copy exists. |
+| rebots-online/sanctissimissa, inspected master tree | Existing ReaderView/SectionReader and bookstore Stitch design assets; Android package mba.robin.standroidsmissal; substantial app-specific material. | Reuse bookstore visual requirements and define OpenWork adapter. A working PDF bookstore integration was not established by this bounded inspection. |
+
+## Billing decision
+Use RevenueCat hosted Web Purchase Links for the initial web purchase surface, with BIDLR as central account and entitlement authority. Provider integration and lifecycle tests must complete before enabling public sales. Anonymous links require Redemption Links; identified links require authenticated customer mapping. Never grant from a redirect or a UI toggle. Payment collection and content access are separate concerns.
+
+Official references: https://www.revenuecat.com/docs/web/web-billing/web-purchase-links and https://mozilla.github.io/pdf.js/getting_started/ . PDF.js is selected for a maintained, locally bundled PDF rendering adapter. No Stitch MCP capability was exposed in this session; Figma was used for the editable design baseline.
+
+## Limits
+This is a source audit, not a penetration test, production deployment audit, or independent verification of existing billing transactions. Rust/native builds and donor tests were not run. A numerical overall completion estimate would hide major integration gates; use RELEASE_CHECKLIST.md.
