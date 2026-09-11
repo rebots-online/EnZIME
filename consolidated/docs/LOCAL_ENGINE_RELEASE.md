@@ -154,7 +154,9 @@ retrieval/overlays, DynDon recovery/reservations, HTTP integration, streaming an
 managed lifecycle, camera mathematics and isolated DOM flows. Mocked protocol
 and DOM tests are separate from the real model runs above. Record the exact
 final revision's results before packaging; past runs do not validate later edits.
-The final source integration run passed **95 tests**. The packaged artifact still
+The final source integration run passed **98 tests**. Child-process CLI tests
+verify SIGINT/SIGTERM stop the managed engine and release storage locks while
+preserving saved data; failed port binding also cleans up. The packaged artifact still
 requires its own launch and integrity checks; source results do not establish
 native-platform or visual/browser acceptance.
 

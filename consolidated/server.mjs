@@ -214,9 +214,16 @@ export async function createApp({root,checkout=null,chatbotOptions={},runtimeOpt
    const bytes=await readFile(target);res.writeHead(200,{'Content-Type':types[path.extname(target)]||'application/octet-stream','Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; worker-src 'self' blob:; connect-src 'self'; frame-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'"});res.end(bytes);
   }catch(e){if(res.headersSent){if(!res.destroyed)res.end();}else json(e.code==='ENOENT'?404:400,{error:e.code==='ENOENT'?'Resource unavailable':e.message});}
  });
- let shutdownPromise=Promise.resolve();
- server.on('close',()=>{closing=true;shutdownPromise=(async()=>{const failures=[];const settle=async work=>{try{await work;}catch(error){failures.push(error);}};await settle(transfers.close?.());await Promise.allSettled([...runningTransfers.values(),...adopting.values()]);await settle(runtimeService.close());await archiveQueue;await documentQueue;for(const z of archives.values())await settle(z.close());await settle(documents.close());knowledge.close();store.close();if(failures.length)throw new AggregateError(failures,'Some resources could not close cleanly.');})();shutdownPromise.catch(error=>console.error('EnZIME shutdown:',error.message));});
- async function close(){if(server.listening)await new Promise(resolve=>server.close(resolve));await shutdownPromise;}
+ let shutdownPromise;
+ function shutdown(){if(!shutdownPromise){closing=true;shutdownPromise=(async()=>{const failures=[];const settle=async work=>{try{await work;}catch(error){failures.push(error);}};await settle(transfers.close?.());await Promise.allSettled([...runningTransfers.values(),...adopting.values()]);await settle(runtimeService.close());await archiveQueue;await documentQueue;for(const z of archives.values())await settle(z.close());await settle(documents.close());knowledge.close();store.close();if(failures.length)throw new AggregateError(failures,'Some resources could not close cleanly.');})();}return shutdownPromise;}
+ server.on('close',()=>shutdown().catch(error=>console.error('EnZIME shutdown:',error.message)));
+ async function close(){if(server.listening)await new Promise(resolve=>server.close(resolve));await shutdown();}
  return{server,store,knowledge,documents,readSource,retrieve,transfers,runtimeService,close};
 }
-if(process.argv[1]===fileURLToPath(import.meta.url)){const{server}=await createApp({checkout:purchaseLink()});server.listen(Number(process.env.PORT||4173),'127.0.0.1',()=>console.log(`EnZIME: http://127.0.0.1:${server.address().port}`));}
+if(process.argv[1]===fileURLToPath(import.meta.url)){
+ const app=await createApp({checkout:purchaseLink()});let stopping=false;
+ async function stop(error){if(stopping)return;stopping=true;if(error){console.error('EnZIME:',error.message);process.exitCode=1;}app.server.closeAllConnections();try{await app.close();}catch(failure){console.error('EnZIME shutdown:',failure.message);process.exitCode=1;}}
+ process.once('SIGINT',()=>void stop());process.once('SIGTERM',()=>void stop());
+ app.server.once('error',error=>void stop(error));
+ app.server.listen(Number(process.env.PORT||4173),'127.0.0.1',()=>console.log(`EnZIME: http://127.0.0.1:${app.server.address().port}`));
+}
