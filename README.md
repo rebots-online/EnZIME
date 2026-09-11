@@ -1,5 +1,15 @@
 # EnZIME
 
+**Current runnable local engine:** [consolidated/README.md](consolidated/README.md).
+The `consolidated/` application now connects real ZIM/PDF/EPUB reading, bounded
+knowledge-mesh retrieval, persistent notes/revisions, DynDon and local LFM2.5
+inference. Run `cd consolidated && npm ci && npm run build && npm start`, or use
+the Linux portable bundle. See [verified release evidence and remaining platform gates](consolidated/docs/LOCAL_ENGINE_RELEASE.md).
+
+The older Tauri workspace below is preserved as a platform donor. Its historical
+scaffold/compile-status claims do not describe the independently tested local engine.
+
+
 On-device, offline-first ZIM reader and conversational AI shell.
 
 **Name:** `EnZIME` (capital E-Z-I-M-E, from the [ZIM file format](https://wiki.openzim.org/wiki/OpenZIM)). Not "enzyme."
