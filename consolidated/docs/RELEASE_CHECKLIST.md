@@ -1,5 +1,5 @@
 # Complete-to-market checklist
-10 September 2026. Checked means demonstrated in this skeleton, not production-certified.
+11 September 2026. Checked means demonstrated in this skeleton, not production-certified.
 
 ## A. Reference skeleton
 - [x] Independent build and start command; legacy application unchanged.
@@ -13,13 +13,16 @@
 - [x] Mature PRD with named requirements, platform boundaries and release stages.
 
 ## B. Reader beta — engineering and QA
-### Foundational access gate: DynDon / practical prepper
+### Foundational access gate: DynDon for all ZIM downloads and generations
 - [ ] DD-01: coordinated mba.robin budget, safety reserve and peak/final storage accounting. Owner: storage engineering. Evidence: concurrent reservation and low-space fixtures.
 - [ ] DD-02/03: balanced topic hierarchy by default; explicit domain and depth/breadth controls. Owner: retrieval/planner engineering. Evidence: skewed-domain fixture, per-topic coverage report and deterministic plans at multiple budgets.
-- [ ] DD-04: edition-bound manifest, remote planning without full local source, dependency-complete acquisition and validated sparse-reader or subset-ZIM strategy. Owner: archive engineering. Evidence: actual downloaded Wikipedia fixture and offline resources test.
+- [ ] DD-04: edition-bound manifest, remote planning without full local source, dependency-complete acquisition and validated sparse-reader or subset-ZIM strategy. Owner: archive engineering. Evidence: Wikipedia and non-Wikipedia downloaded fixtures, complete-work preservation and offline resources tests.
 - [ ] DD-05/08: pause/restart/resume, integrity and offline rehearsal; accurate selected-plan versus full-archive readiness. Owner: QA. Evidence: network-disabled restart with representative articles, search and notes; unavailable account/billing/model services do not block installed reading.
 - [ ] DD-06: grow/shrink coverage with pinned material, notes and finished work protected. Owner: storage engineering. Evidence: interrupted resize and rollback test.
 - [ ] DD-07: bounded memory and battery-aware operation; verified SD/USB/LAN collection transfer. Owner: platform engineering. Evidence: two-device offline import and private-note consent test.
+
+- [ ] DD-09: all ZIM generation/regeneration paths consume the shared plan; reserve peak scratch space, validate actual compressed size and atomically commit valid new artifacts. Owner: writer/storage engineering. Evidence: new archive, edited collection, underestimated output, cancellation and interrupted-write fixtures.
+- [ ] DD-10: common routing across EnZIME/Sanctissimissa and source capability discovery. Owner: integration engineering. Evidence: Wikipedia download, non-Wikipedia download, new generation and regeneration use the same service; missing taxonomy/manifest has an explicit supported route.
 
 ### Reader and platform integration
 - [ ] ZIM-01/02: wire canonical AnZimmermanLib through adapter; run valid and hostile fixture corpus. Owner: reader engineering. Evidence: native and browser fixture report.

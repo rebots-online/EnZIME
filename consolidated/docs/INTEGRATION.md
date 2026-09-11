@@ -47,3 +47,14 @@ Release paths must not copy BIDLR operator tokens into client code. Product purc
 
 ## Sanctissimissa
 The storefront selects a verified edition and passes OpenWork through a host bridge. The Reader asks the shared broker for authorized bytes, resolves an edition-aware location, and reports updated position under the appropriate profile/application scope. Notes are private unless explicitly shared. Keep liturgical navigation in Sanctissimissa. Only explicitly selected sources are sent to an AI provider. Catalogue importing and rights review are separate from rendering.
+
+## DynDon: common plan for every ZIM download and generation
+All entry points call a versioned DynDon service before download, creation, regeneration or export. Wikipedia supplies one source adapter; it does not own a separate budget policy.
+
+The plan request identifies application/profile, source collection and immutable source revision(s), operation (download/generate/regenerate), storage root, final-byte budget, peak working-space limit, hierarchy/version, coverage mode, domain filters, depth/breadth controls and protected reading units. The broker grants a scoped reservation rather than trusting a UI-only free-space estimate.
+
+Adapters report available taxonomy, entry and resource dependencies, transfer capabilities, and writer/reader compatibility. A plan returns selected complete reading units, coverage and omission summaries, dependency closure, final/peak byte estimates with uncertainty, reservation ID, and a source-bound plan ID. Sequential works keep their declared order; storage fitting does not authorize arbitrary text truncation or AI substitution.
+
+Execution validates the plan's source revision and reservation. Downloaders fetch supported source ranges/objects; generators pass selected source units to the validated AnZimmerman writer adapter. Measure actual encoded size, enforce the reservation, verify the complete result, then atomically publish the new local object/manifest. On overrun, interruption or failure, preserve previous readable artifacts and surface replan/retry; incomplete output is not catalogued as ready. Generation can use an explicit user-approved deterministic fitting policy, but cannot silently discard protected content.
+
+Required integration fixtures: Wikipedia download, another publisher's ZIM download, newly generated user collection, edited-collection regeneration, absent hierarchy/manifest, compressed-size underestimate and a complete sequential work. These contracts implement PRD DD-01..10 when connected; the reference HTTP API above currently has no DynDon planner or writer endpoint.

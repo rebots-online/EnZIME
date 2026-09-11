@@ -172,7 +172,7 @@
 Requirements Document</h1>
 <h2 id="mature-product-specification-and-release-contract">Mature
 product specification and release contract</h2>
-<p>Version 2.1 • 10 September 2026 • Product owner: Robin L. M. Cheung
+<p>Version 2.2 • 11 September 2026 • Product owner: Robin L. M. Cheung
 Status: proposed product baseline; implementation status is tracked
 separately in RELEASE_CHECKLIST.md.</p>
 <h2 id="executive-product-definition">1. Executive product
@@ -226,9 +226,13 @@ happens next.” This includes everyday outages, travel and disrupted
 infrastructure before, during and after a crisis. Broad access to
 knowledge is the default; storage capacity changes the depth and breadth
 available, rather than excluding people with modest devices.</p>
-<p>The defining acquisition action is <strong>Download Wikipedia
-ZIM</strong>. DynDon adapts the installation to the allocation available
-in shared mba.robin storage, preserving balanced topic coverage by
+<p>DynDon applies to <strong>all ZIM content downloads and
+generations</strong> across the ecosystem. <strong>Download Wikipedia
+ZIM</strong> is the flagship example. The same allocation and coverage
+policy applies to other encyclopedias, subject libraries, Catholic
+collections, captured websites, user-edited collections and newly
+generated archives. DynDon adapts acquisition or creation to the budget
+available in shared mba.robin storage, preserving balanced coverage by
 default and allowing user-directed domain emphasis. A conventional
 Reader must remain useful without AI, 3D interaction, an account server
 or a fresh entitlement check for installed reading.</p>
@@ -371,62 +375,75 @@ space, integrity, and progress. A remote partial archive must not be
 labelled offline-complete. Cache eviction respects pinned works.
 Derivative indexes are rebuildable independently of originals.</p>
 <h3
-id="dyndon-download-wikipedia-zim-at-the-size-your-device-can-hold">7.1
-DynDon: Download Wikipedia ZIM at the size your device can hold</h3>
-<p>DynDon is a foundational access requirement, not merely a download
-queue or a selector for pre-sized archives. The product promise is:
-<strong>Download Wikipedia. Fit your device. Keep it when the connection
-goes.</strong> The downloader must not require a complete source ZIM on
-the user’s device before preparing a smaller installation.</p>
+id="dyndon-fit-every-zim-download-and-generation-to-available-storage">7.1
+DynDon: fit every ZIM download and generation to available storage</h3>
+<p>DynDon is a shared content-sizing capability for every ZIM download
+and generation path, including adaptation of imported archives, new
+archive creation, regeneration and export. Wikipedia is a flagship use
+case, not a special-case implementation. The general product promise is:
+<strong>Download or create your ZIM library. Fit your device. Keep it
+when the connection goes.</strong> All applications use the same policy
+and mba.robin reservations; source adapters provide collection-specific
+metadata and dependency maps. The downloader must not require a complete
+source ZIM on the user’s device before preparing a smaller
+installation.</p>
 <p>DD-01 — Shared storage allocation. Let the user set a byte budget
 inside mba.robin, bounded by measured free space, protected assets,
-in-progress reservations, and an explicit safety reserve. Show Wikipedia
-allocation alongside models, finished content and other applications’
-reservations. Budget accounting includes mandatory metadata, indexes,
-dependent resources and temporary transfer overhead; show final occupied
-space and peak required space separately. Acceptance: plans at multiple
-budgets respect both limits without silently deleting another
-application’s assets.</p>
-<p>DD-02 — Balanced coverage by default. Use a versioned topic hierarchy
-and a documented balanced allocation policy. Begin with a representative
-breadth layer across eligible topics, then deepen coverage progressively
-and equitably within those topics. Uniform distribution means comparable
-coverage opportunity across the topic hierarchy; it does not require
-identical byte counts or article counts for differently sized topics.
-Avoid treating global popularity or aggregate priority as a substitute
-for balance. Acceptance: a deliberately skewed fixture with one
-high-priority domain must retain baseline representation for every
-eligible domain when the baseline fits; report per-domain
-selected/eligible counts, breadth and depth. Declare the taxonomy,
-weights, omissions and minimum coherent baseline size. If the baseline
-cannot fit, explain the achievable coverage and offer a smaller coherent
-configuration or another storage destination.</p>
-<p>DD-03 — Domain and depth/breadth controls. Offer Balanced Wikipedia
-and a domain-focused mode. Users can select domains and adjust
+in-progress reservations, and an explicit safety reserve. Show the
+selected collection’s allocation alongside models, finished content and
+other applications’ reservations. Budget accounting includes mandatory
+metadata, indexes, dependent resources and temporary transfer overhead;
+show final occupied space and peak required space separately.
+Acceptance: plans at multiple budgets respect both limits without
+silently deleting another application’s assets.</p>
+<p>DD-02 — Balanced coverage by default. Use a versioned,
+collection-appropriate topic or content hierarchy and a documented
+balanced allocation policy. Sources may supply subjects, categories,
+work groupings or an explicit user-approved grouping; lack of
+Wikipedia-style taxonomy must not silently select a popularity-only
+policy. Begin with a representative breadth layer across eligible
+topics, then deepen coverage progressively and equitably within those
+topics. Uniform distribution means comparable coverage opportunity
+across the topic hierarchy; it does not require identical byte counts or
+article counts for differently sized topics. Avoid treating global
+popularity or aggregate priority as a substitute for balance.
+Acceptance: a deliberately skewed fixture with one high-priority domain
+must retain baseline representation for every eligible domain when the
+baseline fits; report per-domain selected/eligible counts, breadth and
+depth. Declare the taxonomy, weights, omissions and minimum coherent
+baseline size. If the baseline cannot fit, explain the achievable
+coverage and offer a smaller coherent configuration or another storage
+destination.</p>
+<p>DD-03 — Domain and depth/breadth controls. Offer Balanced coverage
+and a domain-focused mode for each collection; a Wikipedia-specific
+label is presentation only. Users can select domains and adjust
 breadth/depth under the same byte budget; preview the coverage change
 before starting. Deeper specialization is an explicit choice rather than
 an implicit penalty for owning a smaller device. Acceptance: selected
 domains, hierarchy policy and budget produce deterministic, explainable
 plans; controls change actual planner inputs, not only labels.</p>
 <p>DD-04 — Coherent offline material. Fit dependency-complete reading
-units, including navigation metadata, redirects and required article
-resources. Account for compression-cluster granularity: a cluster may
-contain unrelated articles, and a ranked cluster subset alone does not
-establish coherent topic coverage. Use an edition-bound, verifiable
-manifest to map topics, entries, clusters and resource dependencies.
-Choose and document either a validated sparse-archive reader or a newly
-written valid subset ZIM. Acceptance: read selected entries and
-essential resources in airplane mode without needing the full original
-archive; missing material has an explicit unavailable-offline state.</p>
+units, including navigation metadata, redirects and required content
+resources. An individual book, chapter or media work has declared
+inclusion boundaries; fitting a collection must not silently cut
+passages or replace original content with AI summaries. Account for
+compression-cluster granularity: a cluster may contain unrelated
+articles, and a ranked cluster subset alone does not establish coherent
+topic coverage. Use an edition-bound, verifiable manifest to map topics,
+entries, clusters and resource dependencies. Choose and document either
+a validated sparse-archive reader or a newly written valid subset ZIM.
+Acceptance: read selected entries and essential resources in airplane
+mode without needing the full original archive; missing material has an
+explicit unavailable-offline state.</p>
 <p>DD-05 — Prepare, verify and rehearse. The journey is allocate →
-preview coverage → acquire → verify → test offline. Support pause/resume
-after process restart, integrity checks, power interruption, disk
-pressure, and visible last-verification time. Report readable offline,
-incomplete, and damaged states separately. Acceptance: disable network
-and restart the app after acquisition; representative articles from
-every included domain, search, bookmarks and notes work. No model
-download, login server or subscription refresh is required for installed
-reading and personal content access.</p>
+preview coverage → download or generate → verify → test offline. Support
+pause/resume after process restart, integrity checks, power
+interruption, disk pressure, and visible last-verification time. Report
+readable offline, incomplete, and damaged states separately. Acceptance:
+disable network and restart the app after acquisition; representative
+works or entries from every included domain, search, bookmarks and notes
+work. No model download, login server or subscription refresh is
+required for installed reading and personal content access.</p>
 <p>DD-06 — Adjust without losing work. Increasing an allocation expands
 coverage progressively; reducing it previews removals and respects
 pinned sources, notes and final works. Indexes remain rebuildable. If
@@ -446,9 +463,42 @@ explicitly selected.</p>
 used, remaining allocation, acquisition state and offline-verification
 result. “Complete” must identify whether it means the selected plan or
 the entire source archive. DynDon is an unchecked beta/market gate until
-remote planning, balanced selection, acquisition and offline reading
-pass together. This skeleton stores ZIM bytes but does not implement
-that pipeline.</p>
+source planning, balanced selection, download/generation and offline
+reading pass together across the supported source matrix. This skeleton
+stores ZIM bytes but does not implement that pipeline.</p>
+<p>DD-09 — Budgeted generation and regeneration. Every ZIM writer path,
+including captured web collections, curated bundles, user-created/edited
+content and exports from another mba.robin application, consumes a
+shared DynDon plan before encoding. Generation here means packaging
+content into a ZIM; it does not imply AI authorship. Predict final and
+peak scratch usage, reserve space before work, and check actual
+compressed output against the budget. If measured size exceeds the
+estimate, pause for an explicit revised plan or apply a previously
+approved deterministic fitting policy; do not publish an oversized or
+truncated archive. Commit a new verified artifact atomically, preserve
+originals and revision lineage, and release reservations on completion
+or cancellation. Acceptance: create and regenerate non-Wikipedia
+fixtures under tight budgets, including an underestimated encoding size,
+interrupted write and retry; each published result is a valid readable
+ZIM with recorded selection, omissions, source identity and rights
+metadata.</p>
+<p>DD-10 — Universal routing and source capabilities. All ZIM
+acquisition and generation entry points in EnZIME, Sanctissimissa and
+future ecosystem applications call the same versioned
+planning/reservation service. Full-content mode is supported when the
+entire collection fits. A source without a usable topic map, dependency
+manifest or range/subset capability exposes that limitation and an
+available route: derive metadata where feasible, use an authorized
+preparation host, generate from available source entries, or import a
+complete archive that fits. It must not silently pretend partial
+transfer is supported, require full local download as the universal
+first step, or exclude the collection from the shared policy. For
+curated or sequential works, balancing uses complete declared reading
+units and preserves order. Acceptance: trace one Wikipedia download, one
+other ZIM download, one new ZIM generation and one edited-collection
+regeneration through the common budget/coverage contract, with
+missing-metadata, book-based and media-rich fixtures and a complete-work
+preservation check.</p>
 <h2 id="traditional-reader-pdf-and-media">8. Traditional Reader, PDF,
 and media</h2>
 <p>READ-01: Reader offers paged and continuous PDF layouts,
@@ -587,8 +637,11 @@ and rights metadata.</p>
 <p>CREATE-02: Edit a final work by creating a new draft derived from it;
 saving a new final revision never overwrites historical bytes. Export
 plain text/Markdown, structured metadata, and supported PDF/EPUB/ZIM
-outputs after their writer adapters pass validation. Format-specific
-loss is disclosed.</p>
+outputs after their writer adapters pass validation. Every ZIM
+generation or regeneration uses DynDon DD-01..10 for shared allocation,
+coverage preview, actual-size validation and atomic publication of a new
+local artifact; finalizing locally remains distinct from external
+publishing. Format-specific loss is disclosed.</p>
 <p>CREATE-03: Publishing is a separate action from finalizing. Preview
 destination, visibility, rights, metadata, and included files.
 Publication produces a durable receipt and supports withdrawal where the
@@ -752,13 +805,13 @@ definition of done</h2>
 local PDF/text/media reading, shared-root asset import, saved state,
 final text, original Pysanky, and honest checkout configuration. Provide
 this PRD, adapter contracts, and a test report.</p>
-<p>Stage B: dependable Reader beta. Deliver DynDon DD-01..08 as the
-primary Wikipedia acquisition journey, including balanced coverage,
-shared-budget accounting and an offline rehearsal. Connect canonical ZIM
-adapter, complete accessible PDF and EPUB reading, validate rights-aware
-bookstore fixtures, persist annotations, recover downloads, and prove
-backup/restore. Native packaging must pass each target platform’s smoke
-suite.</p>
+<p>Stage B: dependable Reader beta. Deliver DynDon DD-01..10 across all
+ZIM download and generation entry points, with Wikipedia as the flagship
+journey, including balanced coverage, shared-budget accounting and an
+offline rehearsal. Connect canonical ZIM adapter, complete accessible
+PDF and EPUB reading, validate rights-aware bookstore fixtures, persist
+annotations, recover downloads, and prove backup/restore. Native
+packaging must pass each target platform’s smoke suite.</p>
 <p>Stage C: commercial release. Connect central authentication and
 BIDLR/RevenueCat, complete lifecycle gauntlet, approve pricing and
 policies, perform a controlled real purchase/restore/refund, verify
