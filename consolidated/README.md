@@ -24,6 +24,9 @@ ThinkSpace.tsx is the original uploaded handoff, preserved separately and bundle
 ## Primary use case: peripocalyptic practical prepper
 Carry useful knowledge before, during and after infrastructure disruption on the device and storage already available. DynDon fits **all ZIM downloads and generations** to the allocation inside shared mba.robin storage, using balanced coverage or explicit domain and depth/breadth controls. **Download Wikipedia ZIM** is the flagship example; subject libraries, Catholic collections and user-generated/edited archives use the same policy. PRD requirements DD-01..10 define budget accounting, coherent reading units, offline rehearsal, protected resizing, budgeted generation and common integration routing. These remain unimplemented release gates; the landing labels this planned capability explicitly.
 
+## Local intelligence is a launch requirement
+Every prepper launch configuration must deliver fast, role-tuned local practical synthesis of Wikipedia and other installed sources. A compact LFM2.5 profile, Bonsai27B low-bit choices, uncensored/abliterated derivatives and TurboQuant integration are specified in AI-01..10. Local retrieval, citations, context/tool capacity and the complete offline readiness pack must pass measured speed and quality gates before sales. Hardware selects a qualified local profile; cloud and homestead services are optional enhancements. The current skeleton has no connected inference engine and therefore does not yet meet this launch contract.
+
 ## Product contract
 - docs/PRD.md — mature product specification, including Catholic bookstore and traditional Reader.
 - docs/RELEASE_CHECKLIST.md — market readiness gates and evidence template.

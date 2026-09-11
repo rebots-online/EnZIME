@@ -12,7 +12,7 @@
 - [x] Four focused automated tests for persistence, integrity boundaries, checkout configuration, signed claims and API origin/range handling.
 - [x] Mature PRD with named requirements, platform boundaries and release stages.
 
-## B. Reader beta — engineering and QA
+## B. Prepper Reader and local-intelligence beta — engineering and QA
 ### Foundational access gate: DynDon for all ZIM downloads and generations
 - [ ] DD-01: coordinated mba.robin budget, safety reserve and peak/final storage accounting. Owner: storage engineering. Evidence: concurrent reservation and low-space fixtures.
 - [ ] DD-02/03: balanced topic hierarchy by default; explicit domain and depth/breadth controls. Owner: retrieval/planner engineering. Evidence: skewed-domain fixture, per-topic coverage report and deterministic plans at multiple budgets.
@@ -24,7 +24,18 @@
 - [ ] DD-09: all ZIM generation/regeneration paths consume the shared plan; reserve peak scratch space, validate actual compressed size and atomically commit valid new artifacts. Owner: writer/storage engineering. Evidence: new archive, edited collection, underestimated output, cancellation and interrupted-write fixtures.
 - [ ] DD-10: common routing across EnZIME/Sanctissimissa and source capability discovery. Owner: integration engineering. Evidence: Wikipedia download, non-Wikipedia download, new generation and regeneration use the same service; missing taxonomy/manifest has an explicit supported route.
 
+### Mandatory local practical intelligence — launch blocker
+- [ ] AI-01/02: ship an installed local runtime and baseline model on every launch profile; CPU, accelerator, startup, cancel, recovery and offline tests. Owner: inference/platform engineering.
+- [ ] AI-03/05: local retrieval and cross-source practical synthesis with exact citations, supported constraints, permissioned local tools and persistent drafts. Owner: retrieval/application engineering. Evidence: source-conflict, tool/DOM and ask-to-save fixtures.
+- [ ] AI-06: qualified compact LFM2.5 and Bonsai27B binary/ternary profiles, in-app choice, reproducible uncensored/abliterated derivatives and exact model/runtime catalogue. Owner: model engineering. Evidence: hash/licence/template/kernel matrix and measured quality/speed/RAM.
+- [ ] AI-07: role-specific fine-tuning with provenance-tracked data and held-out practical task improvement; evaluate ablation and tool reliability. Owner: model/evaluation engineering. A prompt-only persona does not pass.
+- [ ] AI-08: integrate and measure TurboQuant KV/weight modes separately; prove selected Bonsai/kernel/cache combinations. Owner: runtime engineering. Evidence: memory, speed and quality comparisons on each shipped profile; qualified local recovery path.
+- [ ] AI-09 and section 16: meet context, latency, sustained generation and practical-quality floors on modest CPU/Android profiles. Owner: performance QA. Evidence: pinned 16K context/tool/RAG fixture, 15-minute thermal run and frozen scoring rubric.
+- [ ] AI-10/DD-01: complete offline readiness pack and shared model/ZIM reservations; preserve the only qualified model during DynDon resizing. Owner: storage/platform engineering. Evidence: fresh offline install, USB transfer, cold restart and source-synthesis rehearsal.
+- [ ] AI-04/BILL-06: local capability included in every prepper offer; no cloud fallback, hosted credits or fresh entitlement dependency. Owner: commercial QA. Evidence: provider/account outage and hosted-plan expiry.
+
 ### Reader and platform integration
+- [ ] CREATE-01/AI-05/10: baseline private draft, source/model provenance and immutable local save support the complete ask-to-save launch journey. Owner: application/data engineering. Evidence: offline draft recovery, explicit finalization and prior-object preservation.
 - [ ] ZIM-01/02: wire canonical AnZimmermanLib through adapter; run valid and hostile fixture corpus. Owner: reader engineering. Evidence: native and browser fixture report.
 - [ ] READ-01/02: PDF text layer, search, outline, thumbnails, continuous rendering and annotation rectangles. Owner: reader engineering. Evidence: 500-page and scanned-book tests, screen-reader run.
 - [ ] READ-03: EPUB and sanitized HTML reading, TOC and stable locations. Owner: reader engineering. Evidence: EPUB conformance fixtures and restart test.
@@ -36,6 +47,7 @@
 - [ ] REL/ACC: native Windows/Linux/Android packages, offline tests, accessibility and performance budgets. Owner: platform QA. Evidence: named hardware/build/fixture report.
 
 ## C. Commercial launch — blocking before sales
+- [ ] All Stage B local-AI and DynDon gates passed; practical intelligence is demonstrated as a launch selling point on every advertised profile. Owner: release manager.
 - [ ] BILL-01: central account authentication and provider-principal mapping. Owner: identity engineering.
 - [ ] BILL-02: owner connects payment provider, creates sandbox/production products, offering and hosted purchase links; enable redemption for anonymous checkout. Owner: product owner.
 - [ ] BILL-03: implement actual RevenueCat verification/normalization/reconciliation in BIDLR. Current BIDLR inbox capture is insufficient. Owner: billing engineering.
@@ -50,9 +62,8 @@
 - [ ] KG-01: true six-axis camera including roll; persistent views and accessible list alternative.
 - [ ] KG-02..04: source-linked graph edit/persistence, inference provenance and validated imports.
 - [ ] KG-05: distinct rare Fabergé-style egg event; opt-in game, mute, reduced motion, isolated scoring.
-- [ ] AI-01/02: connect actual local runtime and supported model matrix; measured load/generation/cancel/OOM tests.
-- [ ] AI-03/04: grounded retrieval and explicit hosted-provider privacy/cost consent.
-- [ ] CREATE-01..03: private drafts, revision lineage, rich exports, explicit publishing and receipt.
+- [ ] Expand local models, domain tuning and synthesis beyond the mandatory launch baseline; retain all launch quality gates.
+- [ ] CREATE-01..03 expansion: advanced revision management, rich PDF/EPUB/ZIM exports and explicit external publishing with receipts, beyond the mandatory launch draft/save/provenance path.
 
 ## Release evidence template
 Requirement ID / owner / commit / platform / fixture hash / procedure / expected outcome / actual result / evidence link / reviewer / remaining defects. Record failures as failures. Completion percentages are not a substitute for these gates.
