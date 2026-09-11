@@ -19,9 +19,28 @@ interface ReaderAdapter {
  search(query:string):Promise<{locator:Locator;snippet:string}[]>;
  close():Promise<void>;
 }
+type ModelEvent =
+ | {kind:'text'; text:string}
+ | {kind:'toolRequest'; callId:string; tool:string; arguments:Record<string,unknown>}
+ | {kind:'complete'; inputTokens:number; outputTokens:number}
+ | {kind:'error'; code:string; recoverable:boolean};
+interface ModelProfile {
+ id:string; modelObjectId:ObjectId; runtimeRevision:string;
+ templateRevision:string; weightFormat:string; kvMode:string;
+ contextTokens:number; measuredPeakRamBytes:number;
+}
+interface ModelRequest {
+ profileId:string; sessionId:string; grantId:string;
+ messages:Array<{role:'system'|'user'|'assistant'|'tool'; content:string; callId?:string}>;
+ tools:Array<{name:string; inputSchema:Record<string,unknown>}>;
+ sourceLocators:Locator[]; maxOutputTokens:number;
+}
 interface ModelAdapter {
- load(objectId:ObjectId):Promise<void>;
- generate(request:unknown,signal:AbortSignal):AsyncIterable<string>;
+ inspect(profile:ModelProfile):Promise<{compatible:boolean; reason?:string}>;
+ readiness():Promise<{state:'unloaded'|'loading'|'ready'|'repair'; profileId?:string}>;
+ load(profile:ModelProfile,signal:AbortSignal):Promise<void>;
+ generate(request:ModelRequest,signal:AbortSignal):AsyncIterable<ModelEvent>;
+ recover(profile:ModelProfile,signal:AbortSignal):Promise<void>;
  unload():Promise<void>;
 }
 ```
@@ -58,3 +77,17 @@ Adapters report available taxonomy, entry and resource dependencies, transfer ca
 Execution validates the plan's source revision and reservation. Downloaders fetch supported source ranges/objects; generators pass selected source units to the validated AnZimmerman writer adapter. Measure actual encoded size, enforce the reservation, verify the complete result, then atomically publish the new local object/manifest. On overrun, interruption or failure, preserve previous readable artifacts and surface replan/retry; incomplete output is not catalogued as ready. Generation can use an explicit user-approved deterministic fitting policy, but cannot silently discard protected content.
 
 Required integration fixtures: Wikipedia download, another publisher's ZIM download, newly generated user collection, edited-collection regeneration, absent hierarchy/manifest, compressed-size underestimate and a complete sequential work. These contracts implement PRD DD-01..10 when connected; the reference HTTP API above currently has no DynDon planner or writer endpoint.
+
+
+## Mandatory local practical-intelligence contract
+All prepper launch builds implement AI-01..10. Model profiles bind base/derivative artifact hashes, tuning and ablation revision, weight format, KV-cache mode, tokenizer, prompt/tool template, runtime/kernel commit, usable context and measured device budgets. The profile resolver returns a qualified local profile; it cannot return hosted inference as an implicit fallback. Build-time defaults are compiled into the profile catalogue; end users choose through the application.
+
+ModelAdapter must expose capabilities, readiness, measured context/RAM requirements, cancellable load/generation, typed tool requests and unload/recovery. Retrieval resolves local entries and source locators before assembling the budgeted prompt. Persist user constraints and provenance through compaction; treat archive instructions as untrusted content. Tool execution uses existing app/profile grants, and external publication remains separately authorized.
+
+Prepare compact LFM2.5 and Bonsai27B binary/ternary profiles with role-specific tuning and evaluated uncensored/abliterated variants. Qualify PrismML low-bit kernels and Atomic TurboQuant separately and in the combinations actually shipped. TurboQuant cache modes and weight formats are explicit independent fields, not inferred from a .gguf suffix. The integration report must include actual end-to-end speed, memory, thermal, context and practical-task scores; a model card or isolated kernel speedup does not pass.
+
+The installation manifest includes runtime, model, tokenizer, templates, local retrieval dependencies and integrity digests. Reserve disk alongside DynDon assets and RAM separately for runtime/weights/KV/retrieval/OS headroom. A model readiness failure triggers a local repair path while preserving files; it fails launch acceptance. Recovery can use another preinstalled qualified local profile, with visible model provenance. The current HTTP skeleton remains storage-only for models and has no implemented local inference endpoint.
+
+
+## Recoverable local ingestion
+Source import persistence and embedding jobs are separate transactions. Commit source identity and durable progress independently of semantic indexing; bind vectors to source revision and embedding model/version. If the on-device engine fails, clear the UI busy state, preserve imported content and completed work, support cancellation and bounded retries, and resume after local engine recovery or app restart without reimport. Reading, lexical search and existing graph links remain usable in the visible repair state, which cannot certify AI readiness. Acceptance kills the embedding engine mid-ingest and verifies successful local recovery with WAN/LAN blocked.

@@ -7,8 +7,8 @@ This independently runnable **local beta** sits alongside the existing Tauri
 projects. It does not close every mature-product or commercial-release gate.
 
 1. **Read:** real ZIM archives, PDF pages, EPUB chapters, HTML, text and media.
-2. **Understand:** a source-bound Knowledge Mesh, lexical retrieval, optional
-   real embedding service, and a spatial navigator with six camera axes.
+2. **Understand:** a source-bound Knowledge Mesh, lexical retrieval, a configurable
+   real embedding service in this beta, and a spatial navigator with six camera axes.
 3. **Apply:** the shared Chatbot Module, managed GGUF loading or an existing
    local inference endpoint, streamed answers and mapped source citations.
 4. **Keep:** independent notes, private drafts, immutable final revisions and
@@ -55,6 +55,10 @@ It does not include model weights. The included runtime targets Linux x86-64
 with glibc; native Windows installers and Android packages remain separate gates.
 See [running and packaging instructions](docs/RUNNING.md) for system dependencies,
 the Windows Node launcher, data locations, and packaging commands.
+
+## Local intelligence is a launch requirement
+
+Every prepper launch configuration must deliver fast, role-tuned local practical synthesis of Wikipedia and other installed sources. A compact LFM2.5 profile, Bonsai27B low-bit choices, uncensored/abliterated derivatives and TurboQuant integration are specified in AI-01..10. Local retrieval, citations, context/tool capacity and the complete offline readiness pack must pass measured speed and quality gates before sales. Hardware selects a qualified local profile; cloud and homestead services are optional enhancements. The local beta's recorded inference evidence is bounded; it does not yet qualify this complete launch contract.
 
 ## Local models
 

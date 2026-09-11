@@ -45,7 +45,18 @@ and exact inference evidence.
 - [x] Purchase availability routing and entitlement-signature primitive remain
   separate from actual payment/entitlement operation.
 
-## B. Reader beta — full PRD and release gates
+## B. Prepper Reader and local-intelligence beta — full PRD and release gates
+
+### Mandatory local practical intelligence — launch blocker
+
+- [ ] AI-01/02: ship an installed local runtime and baseline model on every launch profile; CPU, accelerator, startup, cancel, recovery and offline tests. Owner: inference/platform engineering. Evidence: terminate the local embedding engine mid-import, verify responsive controls and preserved source/progress, then resume locally without reimport.
+- [ ] AI-03/05: local retrieval and cross-source practical synthesis with exact citations, supported constraints, permissioned local tools and persistent drafts. Owner: retrieval/application engineering. Evidence: source-conflict, tool/DOM and ask-to-save fixtures, plus new-document indexing with real embeddings while WAN/LAN are blocked.
+- [ ] AI-06: qualified compact LFM2.5 and Bonsai27B binary/ternary profiles, in-app choice, reproducible uncensored/abliterated derivatives and exact model/runtime catalogue. Owner: model engineering. Evidence: hash/licence/template/kernel matrix and measured quality/speed/RAM.
+- [ ] AI-07: role-specific fine-tuning with provenance-tracked data and held-out practical task improvement; evaluate ablation and tool reliability. Owner: model/evaluation engineering. A prompt-only persona does not pass.
+- [ ] AI-08: integrate and measure TurboQuant KV/weight modes separately; prove selected Bonsai/kernel/cache combinations. Owner: runtime engineering. Evidence: memory, speed and quality comparisons on each shipped profile; qualified local recovery path.
+- [ ] AI-09 and section 16: meet context, latency, sustained generation and practical-quality floors on modest CPU/Android profiles. Owner: performance QA. Evidence: pinned 16K context/tool/RAG fixture, 15-minute thermal run and frozen scoring rubric.
+- [ ] AI-10/DD-01: complete offline readiness pack and shared model/ZIM reservations; preserve the only qualified model during DynDon resizing. Owner: storage/platform engineering. Evidence: fresh offline install, USB transfer, cold restart and source-synthesis rehearsal.
+- [ ] AI-04/BILL-06: local capability included in every prepper offer; no cloud fallback, hosted credits or fresh entitlement dependency. Owner: commercial QA. Evidence: provider/account outage and hosted-plan expiry.
 
 ### DynDon across every ZIM path
 
@@ -100,6 +111,8 @@ and exact inference evidence.
 
 ## C. Commercial launch — blocking before sales
 
+- [ ] All Stage B AI-01..10, performance/quality and DynDon gates passed; practical local intelligence is demonstrated on every advertised launch profile. Existing bounded beta evidence does not close these gates.
+
 - [ ] **BILL-01:** central BIDLR authentication and provider-principal mapping.
 - [ ] **BILL-02:** actual provider products, offerings, hosted purchase links and
   configured redemption in sandbox and production.
@@ -115,7 +128,9 @@ and exact inference evidence.
 - [ ] Public terms/privacy/support, signed distribution/update rollback and
   source/model redistribution rights clearance.
 
-## D. Mature knowledge and intelligence product
+## D. Mature knowledge and creator expansion
+
+Mandatory local inference, real embeddings, tuning, Bonsai and TurboQuant qualification are launch gates in B/C. Section A retains the exact bounded beta implementation and test evidence.
 
 - [ ] **KG-01:** six-axis spatial interaction, saved views, accessible alternatives
   and performance validated on intended devices; camera math/code are present.
@@ -123,17 +138,8 @@ and exact inference evidence.
   large-corpus qualification, including optional authored semantic layers.
 - [ ] **KG-05:** optional rare Fabergé-style Easter egg, opt-in game, mute/reduced
   motion and isolated scoring. It must not gate core use.
-- [ ] **AI-01/02:** runtime/model/platform matrix, sustained load, cancellation/OOM
-  recovery, thermals and large-context behavior. Actual LFM2.5 CPU evidence exists;
-  Bonsai/ternary, Gemma-family and other quantizations need their own evidence.
-- [ ] **TurboQuant:** integrate a backend implementing the intended KV compression
-  and demonstrate correctness, memory and performance. Weight quantization and a
-  UI/backend label do not satisfy this gate.
 - [ ] **Web inference:** WebGPU/WASM adapter, capability/error handling, OPFS
   models and browser-specific performance/compatibility.
-- [ ] **AI-03/04:** representative grounded tasks, real embedding retrieval
-  quality, citation entailment, conflicting evidence and explicit homestead/
-  hosted-provider privacy/cost consent. Citation mapping is not entailment proof.
 - [ ] **CREATE-01..03:** mature editor/clipper, rich exports, authoring/merge,
   explicit publication and receipts. Private local revisioning exists.
 

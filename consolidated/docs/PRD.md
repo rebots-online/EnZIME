@@ -1,6 +1,6 @@
 # EnZIME: Product Requirements Document
 ## Mature product specification and release contract
-Version 2.2 • 11 September 2026 • Product owner: Robin L. M. Cheung
+Version 2.3 • 11 September 2026 • Product owner: Robin L. M. Cheung
 Status: proposed product baseline; implementation status is tracked separately in RELEASE_CHECKLIST.md.
 
 ## 1. Executive product definition
@@ -9,6 +9,8 @@ EnZIME is an offline-first personal knowledge environment for reading, understan
 The mature product is also a reusable platform capability. Sanctissimissa/StAndroidsMissal can present its Catholic bookstore through the same reading engine and shared asset store. Other mba.robin applications can reuse approved models and finished works through a permissioned storage contract. Each application retains its own navigation, brand accent, and private working state.
 
 The commercial layer is central: BIDLR owns portfolio identity, orders, entitlements, and credit accounting; RevenueCat is the initial distribution and purchase integration. Reading personal files, retrieving user-owned work, and exporting it must remain available when a paid entitlement expires. A public-domain work's source access is distinct from a charge for editing tools, hosting, curation, or a separately licensed edition.
+
+The launch differentiator is fast, capable, fully local practical intelligence: EnZIME assimilates and combines Wikipedia and other installed sources into useful explanations, comparisons and plans for the user's actual circumstances. This capability ships with every prepper launch configuration, including modest-device profiles, and is fine-tuned for that role. Hardware determines the qualified local model/runtime profile; it does not make local intelligence optional.
 
 ## 2. Outcomes and product principles
 1. Make sustained reading comfortable, dependable, and available offline.
@@ -19,6 +21,7 @@ The commercial layer is central: BIDLR owns portfolio identity, orders, entitlem
 6. Make paid value understandable and purchase recovery dependable across supported devices.
 7. Reuse AnZimmermanLib and proven existing modules behind tested adapters; avoid another parser rewrite by default.
 8. Tell the truth about availability, evidence, AI output, download status, and commercial state.
+9. Deliver excellent on-device practical synthesis as a mandatory launch capability, with measured speed, quality and offline independence across the advertised device range.
 
 ## 3. Users and core jobs
 Primary use case: the **peripocalyptic practical prepper** prepares for intermittent connectivity, power, and service availability using the device, storage, and money already available. The job is: “Help me carry useful knowledge through whatever happens next.” This includes everyday outages, travel and disrupted infrastructure before, during and after a crisis. Broad access to knowledge is the default; storage capacity changes the depth and breadth available, rather than excluding people with modest devices.
@@ -27,7 +30,7 @@ DynDon applies to **all ZIM content downloads and generations** across the ecosy
 
 Offline learners need to open a large archive, find a passage, and return to their notes without connectivity. Researchers need citations, relationships, model-assisted comparison, and editable outputs. Contemplative readers need long-form typography, original page images, bilingual material, and a distraction-free experience. Creators need controlled capture, revision, export, and publication. Archivists need integrity, metadata, duplicate detection, backup, and large-file performance. Portfolio users need shared assets and recognizable account controls across EnZIME and Sanctissimissa.
 
-The first release should optimize a single-device reading-to-note journey before multi-device collaboration. Institutional administration, public marketplace operations, and metered hosted AI follow only after their independent operating controls pass acceptance.
+The first release optimizes a single-device read, ask, synthesize and save journey before multi-device collaboration. The user can choose quiet reading with AI turned off; every prepper launch installation still includes a working local assistant ready to use. Institutional administration, public marketplace operations, and metered hosted AI follow only after their independent operating controls pass acceptance.
 
 ## 4. Product boundaries and naming
 EnZIME is the product shell. Reader is the conventional document and media experience. Knowledge Pysanky is the spatial knowledge workspace and its optional playful Easter egg. AnZimmermanLib is the canonical ZIM capability behind a stable reader/writer contract. mba.robin is the shared storage and capability namespace. BIDLR is the commercial control plane; bidller is a possible presentation name, not a second ledger.
@@ -37,12 +40,14 @@ The product is not a general-purpose browser, an unrestricted autonomous publish
 ## 5. Platform and rollout matrix
 | Surface | First commercial target | Mature expectation |
 |---|---|---|
-| Windows desktop | Native Tauri reader, storage, PDF/ZIM, local inference where supported | Full creation and graph tools; signed installer and update recovery |
-| Linux desktop | Same core journeys; documented reference distribution | Full desktop parity; portable/shared volumes with permission controls |
-| Android | Reading and personal library after desktop core is proven | SAF-aware downloads, compatible local models, touch graph, store billing |
+| Windows desktop | Native Tauri reader, storage, PDF/ZIM and qualified local practical AI | Full creation and graph tools; signed installer and update recovery |
+| Linux desktop | Same local-AI and Reader launch gates; documented reference distribution | Full desktop parity; portable/shared volumes with permission controls |
+| Android | Reader and qualified local practical AI after desktop core is proven | SAF-aware downloads, expanded local model choices, touch graph, store billing |
 | Web | Landing, supported browser reader, demo, hosted checkout | OPFS/file-handle storage, worker-based reading, supported WASM/WebGPU models |
 | macOS/iOS | Compatibility track, not implied launch commitment | Separately tested packaging, sandbox and store purchase policies |
 | Sanctissimissa | Integration contract and first verified bookstore fixture | Embedded Reader and optional graph links with application-specific styling |
+
+A marketing page or limited reader demo is labelled separately from the prepper launch product. Every surface advertised as that product must pass the same local-AI quality gates; browser or platform limitations cannot be concealed behind a cloud substitution. Device profiles include the CPU path and modest Android hardware, not only flagship GPUs.
 
 A browser origin cannot silently read a desktop folder or another origin's OPFS. Android applications cannot simply share private app storage under the same namespace. Desktop uses a broker or native host; Android uses user-granted documents/provider permissions; web uses explicit import/export or an authorized bridge. Shared assets do not imply shared private notes.
 
@@ -81,7 +86,7 @@ DD-05 — Prepare, verify and rehearse. The journey is allocate → preview cove
 
 DD-06 — Adjust without losing work. Increasing an allocation expands coverage progressively; reducing it previews removals and respects pinned sources, notes and final works. Indexes remain rebuildable. If protected content exceeds the requested budget, show the conflict and choices instead of silently removing it. Acceptance: grow and shrink the budget across interrupted updates, preserve annotations and edition-aware locators, and retain the prior readable installation until replacement verification succeeds.
 
-DD-07 — Modest devices and local transfer. Provide low-memory reading, bounded background work, battery-aware pause controls, and optional AI/graph features. Support verified USB/SD/local-network transfer of a prepared collection and its manifest with permission-aware import. Acceptance: a second offline device imports and reads the collection, verifies its identity, and imports private notes only when explicitly selected.
+DD-07 — Modest devices and local transfer. Provide low-memory reading, bounded background work, battery-aware pause controls, and user-controlled AI/graph sessions. A qualified local assistant is mandatory on every launch profile; users can suspend it to conserve power without losing the capability. Support verified USB/SD/local-network transfer of a prepared collection and its manifest with permission-aware import. Acceptance: a second offline device imports and reads the collection, verifies its identity, and imports private notes only when explicitly selected.
 
 DD-08 — Readiness and release truth. Show installed coverage, bytes used, remaining allocation, acquisition state and offline-verification result. “Complete” must identify whether it means the selected plan or the entire source archive. DynDon is an unchecked beta/market gate until source planning, balanced selection, download/generation and offline reading pass together across the supported source matrix. This skeleton stores ZIM bytes but does not implement that pipeline.
 
@@ -126,16 +131,26 @@ KG-04: Graph creation and editing persist through the shared content model. Grap
 
 KG-05: Preserve the Pysanky Easter egg: decorated eggs, firing/slingshot mechanics, and an occasional distinct Fabergé-style egg event. Make the game opt-in, non-destructive, and independent of payment. Its score does not spend or earn commercial credit. Sound has mute and volume controls; reduced-motion mode provides a calm alternative. Rarity is deterministic in test fixtures. The rare egg branch and full 6DoF are release requirements, not claims about the handoff.
 
-## 11. AI and retrieval
-AI-01: Local inference is the default intended privacy-preserving path where hardware permits. Select runtime by tested device capabilities and model format. Model catalogue records license, digest, quantization, context window, memory requirement, compatible runtime, and provenance. Storing a GGUF does not mean it can execute.
+## 11. Local practical intelligence and retrieval
+AI-01: Excellent local inference is a mandatory launch capability and primary selling point. Every advertised prepper configuration delivers fast, smart, entirely on-device assimilation and synthesis of Wikipedia and other installed general information for practical application. The complete path includes local indexing, retrieval, real semantic embeddings, inference and source navigation. It runs without an internet connection, hosted model, homestead server, recurring subscription or fresh entitlement check after acquisition. Hardware selection changes the qualified local model/runtime profile, not the availability of this experience. Acceptance: each launch profile passes AI-02..10 and the performance/quality gates in section 16; no model-less or cloud-dependent prepper configuration is released.
 
-AI-02: Load, unload, cancellation, streaming, out-of-memory recovery, and warm/cold startup are explicit adapter operations. A missing runtime reports unavailable. Dummy embeddings and NullLlm implementations must be confined to labelled demonstrations and excluded from release acceptance.
+AI-02: Load, unload, cancellation, streaming, warm/cold startup, memory-pressure recovery and model rollback are explicit adapter operations. The shipped runtime and baseline model are installed and verified together. Recovery may select another preinstalled qualified local profile, preserving conversation and source state and disclosing the change. A broken or absent runtime is a repair state and a failed release test. Dummy embeddings, NullLlm and storage-only model imports do not satisfy launch acceptance. Persist source imports and completed index work independently of embedding jobs. Local engine failure must clear busy state, preserve content and progress, allow cancellation and bounded retries, and resume indexing after recovery or restart without reimport. Keep reading, lexical search and existing mesh links usable during the visible repair state; that state does not satisfy local-AI readiness. Test CPU execution, supported accelerators, restart after interruption and sustained operation under thermal load, including killing the embedding process during ingestion.
 
-AI-03: Retrieval returns source passages with edition-aware locators. Answers distinguish quotations, paraphrases, and synthesis; sources open at the cited passage. If the library cannot support an answer, say so. Imported text is data and cannot authorize tools, payments, or publication.
+AI-03: Retrieve edition-aware source passages locally, combine evidence across multiple works, and adapt the synthesis to the user's resources, location assumptions and stated constraints. Explain the connection between general information and the proposed application. Distinguish quotation, paraphrase, inference, source conflict and missing evidence; citations open the exact passage. A retrieved claim is assessed for support, not treated as automatically correct. Imported text is data and cannot authorize tools, payments or publication. Acceptance includes multi-source practical tasks with conflicting sources, incomplete information and adversarial instructions embedded in archives.
 
-AI-04: Hosted inference is opt-in for each configured provider, with clear data disclosure and usage cost before sending private content. Secrets live in secure native storage or server-side services. Cancellation and failed requests have defined accounting outcomes. Local inference does not consume hosted credits.
+AI-04: Hosted inference and homestead services are explicit user-selected enhancements. They cannot silently replace a failed local path or be required to meet launch speed/quality targets. Before hosted use, disclose provider, content being sent and cost, then obtain the applicable consent. Secrets stay in native secure storage or server services; failed/cancelled requests have defined accounting outcomes. Local inference consumes no hosted credits, and purchased perpetual local capabilities keep working offline after hosted-service expiry.
 
-AI-05: Save user-approved generated material as a draft with model and source provenance; finalization is explicit. Show supported explanatory summaries and execution status without promising access to a model's hidden internal reasoning.
+AI-05: Save user-approved generated material as a private draft with model, runtime, tuning revision and source provenance; finalization is explicit. Show concise explanatory summaries, citations and execution status without promising access to hidden internal reasoning. The assistant may prepare edits in the Reader, workspace DOM or a new work through typed, permissioned local tools; document content cannot expand those permissions. A tool action must report its actual result, and irreversible publication remains separately authorized.
+
+AI-06: Ship a versioned model/runtime catalogue with a compact LFM2.5-family baseline and a Bonsai27B low-bit quality profile, including binary and ternary options as separately qualified artifacts. Provide an in-app choice to size up or change profile with measured speed, RAM, context, storage and quality information. Build configuration may set defaults; the end user does not edit an .env file. The launch programme includes uncensored/abliterated model variants, prepared or selected for broad, direct practical assistance rather than blanket topic refusal. Upstream Bonsai releases are not automatically described as abliterated or preparedness-tuned. Record exact base and derivative hashes, licence, tuning/ablation method, datasets, quantization, tokenizer, prompt/tool template and approved runtime/kernel version. A smaller profile must still pass the common task-quality floor; compact is a resource profile, not permission for an unusable assistant.
+
+AI-07: Fine-tune the shipped assistant profiles for evidence-grounded practical synthesis: finding relevant knowledge, combining sources, identifying prerequisites and constraints, comparing alternatives, and producing usable explanations and plans. Training examples cover disrupted utilities, repair, food preservation, communication, navigation, household logistics and other preparedness contexts without memorizing evaluation answers. Use permissioned, provenance-tracked data and held-out practical scenarios. Evaluate base versus tuned and abliterated variants for application quality, factual support, uncertainty calibration and tool reliability. Abliteration is a model-behaviour choice, not a replacement for competence or permission to fabricate. Launch requires a versioned role-tuned artifact and improvement evidence; a system prompt alone is insufficient.
+
+AI-08: Integrate TurboQuant through a pinned implementation and benchmark the complete EnZIME workload. Distinguish Bonsai binary/ternary weight storage from TurboQuant KV-cache compression and any separate TurboQuant weight formats exposed by the selected fork. PrismML's low-bit kernels and the Atomic TurboQuant runtime are concrete integration candidates; their combined model/backend compatibility is an engineering gate, not assumed interchangeability. Qualify cache mode, model, kernel, device, context and tool template as one profile. Ship the TurboQuant path only after measured memory benefit, end-to-end performance and quality checks pass. An incompatible acceleration mode uses a qualified local alternative; it never removes local AI or triggers automatic cloud use. Upstream isolated kernel speedups are not product benchmarks.
+
+AI-09: Context and memory budgets include model weights, KV cache, runtime workspace, local retrieval, tool/DOM state, conversation and OS headroom. Each launch profile supports at least 16,384 usable total context tokens in the tested workflow, with room explicitly reserved for retrieved evidence, tool results and output; offer larger validated profiles. Do not confuse a model-card maximum or weight-file size with measured working capacity. Long works use indexed retrieval and explicit context compaction, preserve source locators and expose omissions instead of silently dropping critical constraints. Acceptance includes long-source, multi-turn, local-tool and retrieval workloads at the advertised context limit, cancellation and memory pressure. The numerical floor is a release target to validate, not a claim about the current skeleton.
+
+AI-10: Include the baseline assistant, tokenizer, templates, retrieval dependencies and runtime in an installable offline readiness pack, obtainable by direct download or verified USB/SD/LAN transfer. Initial provisioning may use a connection; subsequent startup and the full practical workflow must not require one. The readiness screen verifies both knowledge coverage and local assistant operation. Coordinate model disk allocation with DynDon and mba.robin reservations; resizing a ZIM collection cannot evict the only qualified model or protected user works. Test a fresh offline installation, cold restart, account/provider outage and hosted-entitlement expiry. Every launch model profile must pass a complete ask, retrieve, synthesize, cite and save rehearsal.
 
 ## 12. Creation and durable outputs
 CREATE-01: Users create and revise notes, essays, study collections, and annotated extracts. Autosaved drafts remain application/profile-private by default. Finalize creates an immutable artifact with parent revision, creator, creation time, format, sources, and rights metadata.
@@ -166,7 +181,7 @@ BILL-04: The commercial ledger uses integer minor currency units and append-only
 
 BILL-05: Clients receive a signed entitlement snapshot bound to principal, audience, version, capabilities, issued-at, expiry, and key ID. Validate signature and claims before granting features. Plan key rotation, revoked grant reconciliation, clock rollback handling, and offline grace. Perpetual purchased capabilities and recurring service access have different expiry policies.
 
-BILL-06: Provisional packaging: free Reader; perpetual desktop Studio for advanced creation/spatial capabilities; optional recurring or usage-funded hosted services. Prices, exact feature boundaries, eligible platforms, update entitlement, refund terms, and support promises require owner approval before public sale. No fabricated price or lifetime-service promise is published.
+BILL-06: Every prepper launch offer includes a complete qualified local-AI capability; it cannot be advertised as an optional future enhancement or a hosted-credit dependency. Provisional packaging: free Reader; perpetual desktop Studio for advanced creation/spatial capabilities; optional recurring or usage-funded hosted services. Prices, exact feature boundaries, eligible platforms, update entitlement, refund terms, and support promises require owner approval before public sale. No fabricated price or lifetime-service promise is published.
 
 BILL-07: Account UI provides purchase history, restore, manage subscription, support, device/session controls, and understandable entitlement status. A failed restore must not report success. Payment failures preserve access to owned files and export. RevenueCat/Stripe secrets and BIDLR operator tokens are not shipped to browsers.
 
@@ -175,12 +190,12 @@ SEC-01: Untrusted archives, PDFs, EPUBs, and imported graph content remain isola
 
 SEC-02: Secrets and private profiles are scoped, redacted from logs, and recoverable through documented account procedures. Telemetry is optional; collected events avoid document text, queries, notes, and precise paths by default. Local diagnostics can be exported after review.
 
-REL-01: Core reading works without network after installation and asset acquisition. Updates are signed and recoverable. Database migrations back up before change and fail safely. Interruption of indexing, rendering, inference, or download leaves stored originals intact.
+REL-01: Core reading and practical local-AI workflows work without network after installation and asset acquisition. Updates are signed and recoverable. Database migrations back up before change and fail safely. Interruption of indexing, rendering, inference, or download leaves stored originals intact.
 
 ACC-01: Target WCAG 2.2 AA for web UI, with keyboard and screen-reader validation on named browsers. PDF canvas requires a text/accessibility layer when source permits; scanned works need OCR or an explicit accessible-text limitation. Essential graph actions are available outside 3D.
 
 ## 16. Performance budgets and product measures
-These are acceptance targets, not measured results. Publish the exact reference hardware and fixture hashes with each run. Proposed desktop baseline: four-core CPU, 8 GB RAM, SSD; mobile baseline: supported Android device with 6 GB RAM. Validate separate low-memory behaviour.
+These are acceptance targets, not measured results. Publish the exact reference hardware and fixture hashes with each run. Proposed desktop baseline: four-core CPU, 8 GB RAM, SSD; mobile baseline: supported Android device with 6 GB RAM. Validate separate low-memory behaviour without removing local AI. Publish a CPU-only desktop and modest Android profile; each must pass the same task-quality floor. The following AI thresholds are proposed launch acceptance targets to measure on pinned fixtures, not achieved benchmarks. Freeze the fixture and reviewer rubric before tuning; include ordinary and complex cross-source tasks, not only short prompts.
 
 | Measure | Initial acceptance target |
 |---|---|
@@ -192,24 +207,32 @@ These are acceptance targets, not measured results. Publish the exact reference 
 | Import memory | Bounded independently of multi-GB asset size; measure peak RSS |
 | Offline restart | All installed verified assets reopen; saved place and notes retained |
 | Purchase correctness | All lifecycle fixtures pass; no grant from forged/duplicate return |
+| Local AI warm response | p95 first useful answer token within 3 seconds for a 512-token prompt; exclude status messages and hidden deliberation |
+| Local grounded answer | p95 first useful answer token within 8 seconds including local retrieval for a 6,000-token assembled evidence prompt |
+| Sustained local generation | At least 12 visible answer tokens/second over a 15-minute session on each launch profile; report thermal and energy measurements |
+| Local AI cold readiness | p95 ready for first query within 15 seconds, with installed model and persistent index |
+| Practical task quality | At least 90% held-out tasks pass the frozen application/constraint rubric; at least 95% of externally checkable material claims supported by cited sources |
+| Tuning and compression | Role tuning improves the frozen practical benchmark over its base; quantization/ablation regression at most 2 percentage points while retaining all quality floors |
+| Context and local tools | At least 16,384 usable total tokens; pass source/DOM/tool/conversation fixture with explicit output reserve and no silent constraint loss |
+| Offline practical rehearsal | Every launch profile retrieves, combines sources, cites, executes permitted local edits and saves results with network and account/provider services unavailable |
 
 Product measures: successful first import/read, return-to-reading rate, source citation opens, finalized artifact creation, restore success, support incident rate, and voluntary paid conversion. Instrumentation is opt-in and must not penalize offline users by treating missing telemetry as non-use.
 
 ## 17. Delivery stages and definition of done
 Stage A: design baseline and runnable reference skeleton. Demonstrate local PDF/text/media reading, shared-root asset import, saved state, final text, original Pysanky, and honest checkout configuration. Provide this PRD, adapter contracts, and a test report.
 
-Stage B: dependable Reader beta. Deliver DynDon DD-01..10 across all ZIM download and generation entry points, with Wikipedia as the flagship journey, including balanced coverage, shared-budget accounting and an offline rehearsal. Connect canonical ZIM adapter, complete accessible PDF and EPUB reading, validate rights-aware bookstore fixtures, persist annotations, recover downloads, and prove backup/restore. Native packaging must pass each target platform's smoke suite.
+Stage B: dependable prepper Reader and local-intelligence beta. Deliver AI-01..10, including role-tuned compact and Bonsai27B profiles, TurboQuant integration evidence, cross-source practical synthesis, context/tool tests and the complete offline readiness pack. Meet section 16 speed and quality floors on each launch profile. Deliver DynDon DD-01..10 across all ZIM download and generation entry points, with Wikipedia as the flagship journey, including balanced coverage, shared-budget accounting and an offline rehearsal. Connect canonical ZIM adapter, complete accessible PDF and EPUB reading, validate rights-aware bookstore fixtures, persist annotations, recover downloads, and prove backup/restore. Native packaging must pass each target platform's smoke suite.
 
-Stage C: commercial release. Connect central authentication and BIDLR/RevenueCat, complete lifecycle gauntlet, approve pricing and policies, perform a controlled real purchase/restore/refund, verify support and reconciliation operations, and publish signed builds. All critical security/data-loss bugs closed.
+Stage C: commercial release. Passing Stage B local-AI and DynDon gates is a prerequisite to sales; excellent local inference cannot be deferred to a later release. Connect central authentication and BIDLR/RevenueCat, complete lifecycle gauntlet, approve pricing and policies, perform a controlled real purchase/restore/refund, verify support and reconciliation operations, and publish signed builds. All critical security/data-loss bugs closed.
 
-Stage D: mature knowledge and creator release. Complete true 6DoF, source-linked graph editing, rare egg event, compatible local inference, citation-grounded retrieval, rich finalization/export, and cross-app permissioned storage. Expand hosted services only after accounting and operating controls pass.
+Stage D: mature knowledge and creator release. Complete true 6DoF, source-linked graph editing, rare egg event, expanded local model and synthesis capabilities beyond the mandatory launch baseline, rich finalization/export, and cross-app permissioned storage. Expand hosted services only after accounting and operating controls pass.
 
 A requirement is done only with code, a named acceptance test or recorded manual evidence, target platform, fixture/version, and reviewer. A README claim, mock screen, disabled adapter, or passing test that swallows errors is insufficient.
 
 ## 18. Risks, decisions, and dependencies
 Highest risks: fragmentation across repositories; functional modules disconnected by refactors; confusing placeholders with live billing; cross-app storage assumptions; incompatible model/runtime formats; inaccessible PDF canvas; ambiguous edition rights; and unbounded large-file operations. Mitigation is a single integration ledger with pinned donors, adapters, and evidence per release gate.
 
-Decisions fixed by this baseline: preserve AnZimmermanLib; conventional Reader is first-class; Pysanky is complementary; mba.robin assets use explicit platform permissions; BIDLR is the central commercial authority; hosted checkout is a provider adapter; private content remains local until explicitly shared.
+Decisions fixed by this baseline: excellent local practical intelligence is mandatory at launch; preserve AnZimmermanLib; conventional Reader is first-class; Pysanky is complementary; mba.robin assets use explicit platform permissions; BIDLR is the central commercial authority; hosted checkout is a provider adapter; private content remains local until explicitly shared.
 
 Owner decisions before sale: product name and domain, supported first-release OS versions, Studio offer and price, perpetual update terms, hosted credit units and margins, offline entitlement grace, public catalogue territories, approved first bookstore editions, support channel and refund operations. Engineering may implement reversible defaults, but these commercial promises are not inferred from code.
 
@@ -217,3 +240,6 @@ Owner decisions before sale: product name and domain, supported first-release OS
 The supplied AnZimmerman PRD and Claude ThinkSpace TSX are source requirements and donor material. This document supersedes their architecture prose where it conflicts with bounded large-file IO, maintained adapters, platform storage permissions, or explicit commercial state. It does not revoke authorship or erase source history.
 
 Repository audit and source pins are recorded in DONOR_AUDIT.md. Implementation and acceptance ownership live in RELEASE_CHECKLIST.md. Visual baseline: https://www.figma.com/design/JgLu0wuuXUwNplf2tjUXwf . Official implementation references: https://mozilla.github.io/pdf.js/getting_started/ and https://www.revenuecat.com/docs/web/web-billing/web-purchase-links .
+
+
+Local-AI implementation references: [PrismML Bonsai27B binary GGUF](https://huggingface.co/prism-ml/Bonsai-27B-gguf), [PrismML ternary Bonsai27B](https://huggingface.co/prism-ml/Ternary-Bonsai-27B-gguf), [LFM2.5 Thinking](https://huggingface.co/LiquidAI/LFM2.5-1.2B-Thinking), [Atomic TurboQuant runtime](https://github.com/AtomicBot-ai/atomic-llama-cpp-turboquant), and [Google Research TurboQuant](https://research.google/blog/turboquant-redefining-ai-efficiency-with-extreme-compression/). These identify engineering candidates and upstream methods; EnZIME's fine-tuned, abliterated and combined-runtime profiles require their own pinned artifacts and release evidence.
