@@ -1,8 +1,28 @@
-# EnZIME consolidated market skeleton
-An independently runnable reference package with a landing page, traditional PDF/text/media Reader, local shared-root storage, final-text saving, and the preserved Knowledge Pysanky handoff.
+# EnZIME local knowledge engine
 
-## Run
-Node 24+ required. From this directory:
+EnZIME now has a working local application for mounting knowledge sources,
+reading and annotating them, connecting their knowledge, and asking a real local
+model to apply retrieved passages. Preparedness is the first target use case.
+This independently runnable **local beta** sits alongside the existing Tauri
+projects. It does not close every mature-product or commercial-release gate.
+
+1. **Read:** real ZIM archives, PDF pages, EPUB chapters, HTML, text and media.
+2. **Understand:** a source-bound Knowledge Mesh, lexical retrieval, a configurable
+   real embedding service in this beta, and a spatial navigator with six camera axes.
+3. **Apply:** the shared Chatbot Module, managed GGUF loading or an existing
+   local inference endpoint, streamed answers and mapped source citations.
+4. **Keep:** independent notes, private drafts, immutable final revisions and
+   correction layers, shared model references and personal backups.
+5. **Fit:** DynDon plans complete prepared download units and generates valid
+   budgeted ZIM editions without truncating archive bytes.
+
+The **Knowledge Mesh means semantic relationships between sources**. Sharing is
+a separate import/export concern. Pysanky remains an optional preserved
+playground; reading and reasoning do not depend on its Easter egg functionality.
+
+## Run from source
+
+Use Node **24+**. From this directory:
 
 ```sh
 npm ci
@@ -11,29 +31,105 @@ npm test
 npm start
 ```
 
-Open http://127.0.0.1:4173 . Uses MBA_ROBIN_HOME, otherwise an OS data directory under mba.robin. This is a single-profile, loopback-only reference broker. Do not expose it on a public interface. The public landing should be deployed separately from private storage.
+Open **http://127.0.0.1:4173**. `npm ci` obtains dependencies once; the built
+interface and installed sources are served locally. Set `MBA_ROBIN_HOME` to use
+an existing shared data directory. Otherwise EnZIME uses an operating-system
+data directory named `mba.robin`. A single process owns each catalog.
 
-## Purchase routing
-Set REVENUECAT_PURCHASE_URL to the actual dashboard-generated HTTPS pay.rev.cat URL and REVENUECAT_REDEMPTION_ENABLED=true only after enabling anonymous redemption in RevenueCat. With no configuration, checkout fails closed and the landing says purchases are not open. Prices are not invented. This package does not issue paid entitlements or receive production webhooks. billing.mjs contains a tested Ed25519 verification primitive for later authenticated BIDLR integration.
+## Portable launch
 
-## What is demonstrated
-Import PDF, text/Markdown, MP3, MP4, ZIM and GGUF bytes; PDFs render through bundled PDF.js; text renders as safe text; media uses native controls. ZIM and model objects are stored but their engines are not connected. Saved place and one per-work note persist in SQLite. Final text produces immutable content-addressed objects. Identical bytes deduplicate; a mature edition/reference layer is still required.
+For an extracted Linux portable package:
 
-ThinkSpace.tsx is the original uploaded handoff, preserved separately and bundled into /thinkspace.html. It is a demo, not the final secure graph module. Its endpoint requests are restricted by the preview's CSP. Full 6DoF, rare egg, graph persistence and source-reader bridging remain gates.
+```sh
+./launch.sh
+```
 
-## Primary use case: peripocalyptic practical prepper
-Carry useful knowledge before, during and after infrastructure disruption on the device and storage already available. DynDon fits **all ZIM downloads and generations** to the allocation inside shared mba.robin storage, using balanced coverage or explicit domain and depth/breadth controls. **Download Wikipedia ZIM** is the flagship example; subject libraries, Catholic collections and user-generated/edited archives use the same policy. PRD requirements DD-01..10 define budget accounting, coherent reading units, offline rehearsal, protected resizing, budgeted generation and common integration routing. These remain unimplemented release gates; the landing labels this planned capability explicitly.
+To keep data beside the package on removable storage:
+
+```sh
+MBA_ROBIN_PORTABLE=1 ./launch.sh
+```
+
+The package builder can include Node and the pinned CPU `llama-server` runtime.
+It does not include model weights. The included runtime targets Linux x86-64
+with glibc; native Windows installers and Android packages remain separate gates.
+See [running and packaging instructions](docs/RUNNING.md) for system dependencies,
+the Windows Node launcher, data locations, and packaging commands.
 
 ## Local intelligence is a launch requirement
-Every prepper launch configuration must deliver fast, role-tuned local practical synthesis of Wikipedia and other installed sources. A compact LFM2.5 profile, Bonsai27B low-bit choices, uncensored/abliterated derivatives and TurboQuant integration are specified in AI-01..10. Local retrieval, citations, context/tool capacity and the complete offline readiness pack must pass measured speed and quality gates before sales. Hardware selects a qualified local profile; cloud and homestead services are optional enhancements. The current skeleton has no connected inference engine and therefore does not yet meet this launch contract.
 
-## Product contract
-- docs/PRD.md — mature product specification, including Catholic bookstore and traditional Reader.
-- docs/RELEASE_CHECKLIST.md — market readiness gates and evidence template.
-- docs/DONOR_AUDIT.md — source comparison and recovery decisions.
-- docs/INTEGRATION.md — adapter and deployment boundaries.
+Every prepper launch configuration must deliver fast, role-tuned local practical synthesis of Wikipedia and other installed sources. A compact LFM2.5 profile, Bonsai27B low-bit choices, uncensored/abliterated derivatives and TurboQuant integration are specified in AI-01..10. Local retrieval, citations, context/tool capacity and the complete offline readiness pack must pass measured speed and quality gates before sales. Hardware selects a qualified local profile; cloud and homestead services are optional enhancements. The local beta's recorded inference evidence is bounded; it does not yet qualify this complete launch contract.
 
-Design: https://www.figma.com/design/JgLu0wuuXUwNplf2tjUXwf
+## Local models
 
-## Limits
-PDF canvas preview does not yet include selectable text, outline/search or an accessibility text layer. Text preview is limited to 10 MiB. The reference store has no authenticated multi-app grants, migration framework, resumable download, garbage collection or encrypted profiles. A single note is not the mature annotation system. No live payment, native package, or complete ZIM/AI integration is claimed.
+**LFM 2.5 is the leading default.** Explicit model choices remain available for
+other models supported by the actual engine and device. Bonsai 27B 1-bit/ternary
+and Gemma-family preference labels do not certify backend compatibility.
+
+The Linux launcher discovers a bundled engine automatically. With a separately
+installed engine, set its executable path before launch:
+
+```sh
+ENZIME_LLAMA_SERVER_BIN=/opt/llama.cpp/llama-server ./launch.sh
+```
+
+Import or mount a supported GGUF as a model, select it in assistant settings, and
+start the managed engine. Large models can remain linked to their original
+shared-storage location. Alternatively, connect a running OpenAI-compatible
+local server through Settings or `ENZIME_LLM_ENDPOINT`.
+
+A real **LFM2.5-1.2B-Instruct Q4_K_M** run with official **llama.cpp b10809** has
+passed actual application HTTP retrieval → shared chatbot streaming → cited
+answer → restart with preserved notes/chat. Managed inference requires an
+ephemeral bearer key; unauthenticated engine requests were rejected. Exact
+pins, hashes and the measured environment are in the
+[implementation and validation report](docs/LOCAL_ENGINE_RELEASE.md).
+That short CPU test does not establish TurboQuant, GPU, Android or large-context
+performance. TurboQuant remains unverified until a supporting engine is
+integrated and measured; it is separate from model-weight quantization.
+
+## Source identity and storage
+
+Source bodies remain in their mounted ZIM/PDF/EPUB or immutable managed object.
+The durable mesh holds source identities, article/page locators, hashes,
+relationships and user notes. Parsed text and embedding caches are bounded and
+evictable; clearing them preserves originals, notes and revision identities.
+The reader does not progressively accumulate a permanent copy of Wikipedia.
+
+ZIM title discovery is bounded and reports partial coverage. Opening a PDF or
+EPUB page makes that page available to retrieval; the application does not claim
+to have indexed every unopened page. Embedding retrieval is active only when a
+configured embedding engine returns compatible real vectors.
+
+## DynDon scope
+
+The shared planner applies to complete prepared ZIM download units and to
+generated ZIM editions. It accounts for dependencies, selected domains/depth,
+essentials, reserves, staged output, and persisted resumable transfers.
+**Arbitrary smaller Wikipedia editions require prepared manifests/content units
+or a Creator service that produces them.** A storage slider cannot make any
+remote monolithic ZIM valid by cutting bytes. The common policy remains intended
+for every ZIM corpus, including Catholic collections; cross-application and
+catalogue requirements remain tracked.
+
+## Product and release records
+
+- [Local implementation and evidence](docs/LOCAL_ENGINE_RELEASE.md)
+- [Complete-to-market checklist](docs/RELEASE_CHECKLIST.md)
+- [Mature product specification](docs/PRD.md)
+- [Running and packaging](docs/RUNNING.md)
+- [ZIM compatibility and fixture provenance](native/README.md)
+- [Shared Chatbot Module contract](chatbot/README.md)
+- [Original donor review](docs/DONOR_AUDIT.md)
+
+Older donor/integration documents describe earlier project states. The local
+implementation report supersedes their statements that ZIM and inference are
+unconnected, without reducing the broader PRD requirements.
+
+## Commercial boundary
+
+Checkout routing and a signed-entitlement verification primitive exist. Live
+BIDLR authentication, entitlement reconciliation, provider webhooks, production
+purchase/restore/refund evidence, and approved pricing remain open. Without valid
+configuration the application does not claim to take a payment or activate a
+paid entitlement.
