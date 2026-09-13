@@ -53,7 +53,19 @@ These follow-up findings were raised while the original fixes were being reviewe
 | [3999056143](https://github.com/rebots-online/EnZIME/pull/2#discussion_r3999056143): cross-document annotations | Valid provenance bug. | Bind marks to source node IDs and filter both reader and spatial views by the active node. |
 | [3999056171](https://github.com/rebots-online/EnZIME/pull/2#discussion_r3999056171): public symlink escape | Valid static-serving boundary gap. | Enforce resolved-path containment and regular-file checks before serving static bytes; retain the explicitly documented trusted-local-filesystem boundary. |
 
-### Final PR2 follow-up receipt (13 September 2026)
+### Final PR2 local acceptance (13 September 2026)
+
+The integrator ran `npm test` and `npm run build` after all late parallel-review fixes: 61/61 tests passed, zero failed/skipped, and the build exited 0. All 53 captured PR2 review threads are covered by the original table and follow-up rows, including duplicate dispositions and explicitly retained reference/local-beta scope boundaries. This receipt does not convert the documented production qualification gaps into verified claims.
+
+### Late parallel-review findings
+
+| Review issue | Evaluation | Required merge disposition |
+| --- | --- | --- |
+| [3999062151](https://github.com/rebots-online/EnZIME/pull/2#discussion_r3999062151): stale import completion changes the selected work | Valid asynchronous selection bug. | Capture an import selection generation before uploading; a superseded completion may finish storage but must not replace the newer reader selection. |
+| [3999062153](https://github.com/rebots-online/EnZIME/pull/2#discussion_r3999062153): inconsistent imported dimensions | Duplicate of 3999056110. | Rejected by the shared dimension guard in `66969e3`; covered by the same regression tests. |
+| [3999062157](https://github.com/rebots-online/EnZIME/pull/2#discussion_r3999062157): inherited object keys used as node IDs | Valid: inherited functions can corrupt numeric rendering state. | Reject every `Object.prototype` property name before graph replacement; test the complete set and preservation of the existing graph on rejection. |
+
+### PR2 follow-up receipt at `66969e3` (13 September 2026)
 
 All seven follow-up rows above are addressed. Embedding HTTP/vector rejection (3999011144) was already implemented in `070313e`; expanded tests confirm its failure/retry behavior. The other ThinkSpace follow-ups and resolved-path static serving are implemented in the final follow-up batch. The original 43 threads plus seven additional threads now have explicit dispositions.
 
@@ -63,7 +75,7 @@ Observed worker runs on the final shared PR2 tree: `node --test test/thinkspace-
 
 Scope: the single-user, loopback local beta only. This appendix covers all 25 original review threads captured in `/home/robin/Admin-Manual/.staging/enzime-pr2-pr3-20260913/pr3-threads.json`. The duplicate chat findings share one row; all original comment IDs and links are retained. Backend/storage repairs were published in `c08f25c` and frontend repairs in `db11e4d`. DynDon repairs and their focused regression evidence are included in the integration work.
 
-Parent integration receipt: 212/212 tests passed and the build passed before the remaining PR2 ThinkSpace batch. This is the observed integration stage reported by the parent, not a receipt for the later combined state; rerun and record the combined acceptance after that batch. The DynDon, writer and archive-reader tests also passed in the earlier focused run. This documentation pass did not rerun tests or builds, and the PR2 receipt above is preserved verbatim.
+Final integrated acceptance on 13 September 2026: the parent ran `TMPDIR=<durable-staging-root> npm test` after incorporating all PR2 repairs through `f548030` and resolving the PR3 reader/backend integration. All 223 tests passed, zero failed/skipped; `npm run build` exited 0. This supersedes the earlier 212-test integration-stage receipt. PR2 merged into `master` as `958172f6b21bed842a7f6880859154e2ca559694`. Final GitHub checks must run on the published PR3 head before merge.
 
 The parent reviewed all 25 original threads: 24 published fixes are resolved. Comment `3987309818` remains explicitly deferred/incomplete pending real pinned-engine CORS qualification. Mock-engine key and CORS-environment test coverage does not close that remaining qualification.
 
@@ -96,9 +108,9 @@ The parent reviewed all 25 original threads: 24 published fixes are resolved. Co
 
 Release boundaries and remaining evidence gaps:
 
-- The parent-reported integration stage passed 212/212 tests and the build before the remaining PR2 ThinkSpace batch. A refreshed combined receipt is still needed after that batch. This appendix is not a native, commercial or production release approval.
+- The final combined local acceptance passed 223/223 tests and the build after all PR2 repairs. This appendix is not a native, commercial or production release approval.
 - Restore is runtime-rollback-tested across the catalog, attached mesh database and managed files. Sudden power loss, filesystem durability and cross-database crash atomicity are separate, unproven properties.
 - `ENZIME_DOWNLOAD_ORIGINS` is operator-controlled, accepts exact comma/space-separated origins, and replaces default origins. The same origin check applies to redirect targets. An operator who adds a LAN or other origin expands the trusted fetch scope; browser request fields cannot grant that trust.
 - Running downloads must be paused and awaited by the release route before `releaseJob(..., {removeFiles:false})`. Active generators have no direct abort path; interrupted generation requires a fresh producer or explicit release after recovery. In-place adopted outputs must not be deleted through `removeFiles:true`.
-- Comment `3987309818` remains deferred/incomplete: mock key/CORS-environment tests cover fixture behavior and launch configuration, while real pinned-engine CORS reproduction is unrun. No physical hardware/sensor/audio test, real-browser sandbox/popup/mobile test, or measured performance/real-model quality result is asserted. The managed-runtime fixture, JSDOM UI tests and injected embedding responses establish only their documented contracts.
+- Comment `3987309818` remains deferred/incomplete: mock key/CORS-environment tests cover fixture behavior and launch configuration, while real pinned-engine CORS reproduction is unrun. A bounded lookup found no accessible b10809 executable and matching GGUF in the retained staging/install/cache paths; the older receipt redacts the model location as `[shared-model]` and records bearer HTTP 401 but no CORS probe. No downloads were performed to conceal that gap. No physical hardware/sensor/audio test, real-browser sandbox/popup/mobile test, or measured performance/real-model quality result is asserted. The managed-runtime fixture, JSDOM UI tests and injected embedding responses establish only their documented contracts.
 - The inspected backend mixed-case MIME regression uses the now-normalizing writer. An independent raw mixed-case MIME-table fixture would strengthen branch coverage. This supplementary observation does not change the parent's disposition: all 25 original comments are covered, 24 published fixes are resolved, and only `3987309818` remains pending.
