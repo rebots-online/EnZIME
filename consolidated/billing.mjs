@@ -7,8 +7,8 @@ export function purchaseLink(env=process.env){
  return u.href;
 }
 export function verifyGrant(envelope,{publicKey,subject,now=Date.now()}){
- try {if(!envelope||typeof envelope.payload!=='string'||typeof envelope.signature!=='string')return null;
+ try {if(typeof subject!=='string'||!subject.trim()||!envelope||typeof envelope.payload!=='string'||typeof envelope.signature!=='string')return null;
  const bytes=Buffer.from(envelope.payload,'base64url');if(!verify(null,bytes,publicKey,Buffer.from(envelope.signature,'base64url')))return null;
- const p=JSON.parse(bytes);if(p.v!==1||p.aud!=='mba.robin.enzime'||p.sub!==subject||!Number.isSafeInteger(p.exp)||p.exp*1000<=now||!Array.isArray(p.capabilities)||!p.capabilities.every(x=>typeof x==='string'))return null;return p;
+ const p=JSON.parse(bytes);if(!p||p.v!==1||p.aud!=='mba.robin.enzime'||typeof p.sub!=='string'||!p.sub.trim()||p.sub!==subject||!Number.isSafeInteger(p.exp)||p.exp*1000<=now||!Array.isArray(p.capabilities)||!p.capabilities.every(x=>typeof x==='string'))return null;return p;
  }catch{return null;}
 }
