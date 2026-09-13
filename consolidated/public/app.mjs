@@ -37,7 +37,7 @@ async function refreshStats(){
 }
 async function savePlace(){if(!state.current)return;const id=state.current.id,place={page:state.page,key:state.key,font:state.font,scroll:$('reading').scrollTop},media=$('reading').querySelector('audio,video');if(media&&['audio','video'].includes(state.current.kind))place.time=media.currentTime;await api(`/api/state/${id}`,post(place));}
 async function openAsset(item,{key='',page,remember=true}={}){
- if(item.kind==='model'){show('settings');status('Model file linked. Select a running model, or start the configured local engine.');return;}
+ if(item.kind==='model'){++state.opening;++state.rendering;renderTask?.cancel();show('settings');status('Model file linked. Select a running model, or start the configured local engine.');return;}
  if(item.storage==='missing')throw Error('This backup contains metadata only. Re-import the original file to restore reading.');
  if(remember&&state.current)state.history.push({item:state.current,key:state.key,page:state.page});
  const ticket=++state.opening;clearSelection();state.rendering++;renderTask?.cancel();const old=state.pdf;state.pdf=null;await old?.loadingTask.destroy();if(ticket!==state.opening)return;
@@ -53,18 +53,20 @@ async function openAsset(item,{key='',page,remember=true}={}){
  }else if(['audio','video'].includes(item.kind)){
   const media=el(item.kind,{controls:'',src:`/api/assets/${item.id}/bytes`});media.addEventListener('loadedmetadata',()=>media.currentTime=saved.time||0);media.addEventListener('pause',run(()=>api(`/api/state/${item.id}`,post({time:media.currentTime}))));$('reading').replaceChildren(media);
  }else{
-  if(item.kind==='zim')await entries(true);
+  if(item.kind==='zim'){await entries(true);if(ticket!==state.opening)return;}
   const result=await api(`/api/assets/${item.id}/read?key=${encodeURIComponent(state.key)}`);if(ticket!==state.opening)return;await displayResult(result);
+  if(ticket!==state.opening)return;
   if(item.kind==='epub')$('entry-list').replaceChildren(...result.chapters.map(c=>el('button',{class:'entry',onclick:run(()=>navigateKey(c.key))},c.title)));
  }
- if(ticket!==state.opening)return;await refreshNotes();await refreshStats();status(`Opened ${item.name}`);if(saved.scroll&&!key&&item.kind!=='pdf')$('reading').scrollTop=saved.scroll;
+ if(ticket!==state.opening)return;await refreshNotes();if(ticket!==state.opening)return;await refreshStats();if(ticket!==state.opening)return;status(`Opened ${item.name}`);if(saved.scroll&&!key&&item.kind!=='pdf')$('reading').scrollTop=saved.scroll;
 }
 async function displayResult(result){
+ const ticket=state.opening;
  if(state.source?.id!==result.source.id)clearSelection();
  state.source=result.source;state.key=result.key||result.source.locator?.key||'';
  $('work-title').textContent=result.source.title;$('source-status').textContent=`${result.source.kind.toUpperCase()} · edition ${result.source.edition.slice(0,10)} · ${result.source.key}`;
  if(result.html)renderArchiveHTML(result);else{const article=el('article',{class:'paper'},el('span',{class:'source-label'},state.current.name),result.text);article.style.fontSize=state.font+'px';$('reading').replaceChildren(article);}
- await savePlace();graph?.setSelected(state.source.id);highlightEntry();
+ await savePlace();if(ticket!==state.opening||state.source?.id!==result.source.id)return;graph?.setSelected(state.source.id);highlightEntry();
 }
 function renderArchiveHTML(result){
  const fragment=DOMPurify.sanitize(result.html,{RETURN_DOM:true,FORBID_TAGS:['script','iframe','frame','object','embed','form','input','button','meta','base','link','style','video','audio'],FORBID_ATTR:['style','srcset','formaction','ping','target']});

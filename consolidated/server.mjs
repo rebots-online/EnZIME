@@ -1,6 +1,6 @@
 import http from 'node:http';
-import {readFile,stat,statfs,mkdtemp,rm} from 'node:fs/promises';
-import {createReadStream} from 'node:fs';
+import {readFile,open,statfs,mkdtemp,rm,chmod,realpath,stat} from 'node:fs/promises';
+import {pipeline} from 'node:stream/promises';
 import {Readable} from 'node:stream';
 import {createHash,randomUUID} from 'node:crypto';
 import {DatabaseSync} from 'node:sqlite';
@@ -42,6 +42,7 @@ export async function createApp({root,checkout=null,chatbotOptions={},runtimeOpt
  };
  const store=await openStore(root||process.env.MBA_ROBIN_HOME||path.join(process.env.XDG_DATA_HOME||process.env.LOCALAPPDATA||path.join(os.homedir(),'.local','share'),'mba.robin'));
  const knowledge=await openKnowledge(store.root,{projectionBytes:8*1024**2,vectorBytes:4*1024**2});
+ for(const suffix of ['','-wal','-shm'])await chmod(path.join(store.root,'knowledge.sqlite'+suffix),0o600).catch(error=>{if(error.code!=='ENOENT')throw error;});
  const documents=createDocuments(),archives=new Map(),embedded=new Set(),adopting=new Map(),runningTransfers=new Map();
  const transfers=await createDynDon({root:store.root,allowUrl});
  let managedEndpoint=null,managedModel=null,managedApiKey=null,closing=false;
@@ -163,17 +164,17 @@ export async function createApp({root,checkout=null,chatbotOptions={},runtimeOpt
  }
  const activeRequests=new Set(),activeOperations=new Set();
  async function handle(req,res){
-  const json=(status,data)=>{if(res.headersSent)return;res.writeHead(status,{'Content-Type':'application/json'});res.end(JSON.stringify(data));};
+  const json=(status,data)=>{if(res.destroyed)return;if(res.headersSent){res.destroy();return;}res.writeHead(status,{'Content-Type':'application/json'});res.end(JSON.stringify(data));};
   if(closing)return json(503,{error:'The broker is shutting down.'});
   const abort=new AbortController();req.on('aborted',()=>abort.abort());res.on('close',()=>abort.abort());
-  const input=async(max=1024**2)=>{let size=0;const chunks=[];for await(const c of req){size+=c.length;if(size>max)throw Error('Request exceeds the allowed size.');chunks.push(c);}return JSON.parse(Buffer.concat(chunks).toString()||'{}');};
+  const input=async(max=1024**2)=>{let size=0;const chunks=[];for await(const c of req){size=Math.min(max+1,size+c.length);if(size<=max)chunks.push(c);}if(size>max)throw Object.assign(Error('Request exceeds the allowed size.'),{status:413});return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(Buffer.concat(chunks))||'{}');};
   res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','no-referrer');res.setHeader('Cache-Control','no-store');
   const host=req.headers.host;if(!/^127\.0\.0\.1:\d+$/.test(host||''))return json(403,{error:'Local broker requires 127.0.0.1'});
-  const url=new URL(req.url,`http://${host}`),p=url.pathname;
   if(req.headers.origin&&req.headers.origin!==`http://${host}`)return json(403,{error:'Cross-origin access denied'});
   if(req.headers['sec-fetch-site']==='cross-site')return json(403,{error:'Cross-site access denied'});
   if(!['GET','HEAD'].includes(req.method)&&req.headers['x-mba-client']!=='enzime')return json(403,{error:'Missing application header'});
   try{
+   const url=new URL(req.url,`http://${host}`),p=url.pathname;
    if(await runtimeService.handle({req,res,url,input,json}))return;
    if(p==='/api/config'&&req.method==='GET')return json(200,{storage:'mba.robin',checkoutReady:!!checkout,checkoutPath:checkout?'/checkout':null,release:'local-beta',capabilities:{pdf:true,epub:true,finalText:true,media:true,zimReader:true,modelRuntime:'managed-or-local-connector',liveEntitlements:false},settings:store.getSettings(),chatbot:bot.capabilities(),runtime:runtimeService.status(),downloads:{allowedOrigins:[...allowedOrigins],configurationVariable:'ENZIME_DOWNLOAD_ORIGINS'}});
    if(p==='/checkout'){if(!checkout)return json(503,{error:'Checkout is not configured. No payment has been taken.'});res.writeHead(303,{Location:checkout});return res.end();}
@@ -248,18 +249,34 @@ export async function createApp({root,checkout=null,chatbotOptions={},runtimeOpt
     if(action==='verify'){const verified=await store.verify(id);if(verified.ok&&item.kind==='zim'){try{verified.archive=await withArchive(id,z=>z.verify());}catch(e){verified.ok=false;verified.archiveError=e.message;}}return json(200,verified);}
     if(action==='info')return json(200,item.kind==='pdf'?await withDocuments(()=>documents.pdfInfo(store.file(id))):{item,editions:store.listEditions(id)});
     if(action==='bytes'){
-     const file=store.file(id),current=await stat(file);if(current.size!==item.size)throw Error('Mounted source changed. Re-import it as a new edition.');let start=0,end=item.size-1;const range=req.headers.range;
-     if(range){const m=range.match(/^bytes=(\d*)-(\d*)$/);if(!m||(!m[1]&&!m[2])||item.size===0){res.setHeader('Content-Range',`bytes */${item.size}`);return json(416,{error:'Invalid range'});}if(!m[1])start=Math.max(0,item.size-Number(m[2]));else{start=Number(m[1]);end=m[2]?Math.min(Number(m[2]),end):end;}if(!Number.isSafeInteger(start)||!Number.isSafeInteger(end)||start>end||start>=item.size){res.setHeader('Content-Range',`bytes */${item.size}`);return json(416,{error:'Invalid range'});}res.setHeader('Content-Range',`bytes ${start}-${end}/${item.size}`);}
-     res.writeHead(range?206:200,{'Content-Type':item.mime,'Content-Length':Math.max(0,end-start+1),'Accept-Ranges':'bytes','Content-Security-Policy':"default-src 'none'; sandbox"});if(!item.size||req.method==='HEAD')return res.end();createReadStream(file,{start,end}).on('error',()=>res.destroy()).pipe(res);return;
+     const file=await open(store.file(id),'r');
+     try{
+      const current=await file.stat();if(current.size!==item.size||(item.storage==='mounted'&&current.mtimeMs!==item.file_mtime))throw Error('Mounted source changed. Re-import it as a new edition.');
+      let start=0,end=item.size-1;const range=req.headers.range;
+      if(range){
+       const invalid=()=>{res.setHeader('Content-Range',`bytes */${item.size}`);return json(416,{error:'Invalid range'});};
+       const m=range.match(/^bytes=(\d*)-(\d*)$/);if(!m||(!m[1]&&!m[2])||item.size===0)return invalid();
+       if(!m[1]){const length=Number(m[2]);if(!Number.isSafeInteger(length)||length<=0)return invalid();start=Math.max(0,item.size-length);}
+       else{start=Number(m[1]);const requestedEnd=m[2]?Number(m[2]):end;if(!Number.isSafeInteger(requestedEnd))return invalid();end=Math.min(requestedEnd,end);}
+       if(!Number.isSafeInteger(start)||!Number.isSafeInteger(end)||start>end||start>=item.size)return invalid();
+       res.setHeader('Content-Range',`bytes ${start}-${end}/${item.size}`);
+      }
+      res.writeHead(range?206:200,{'Content-Type':item.mime,'Content-Length':Math.max(0,end-start+1),'Accept-Ranges':'bytes','Content-Security-Policy':"default-src 'none'; sandbox"});
+      if(!item.size||req.method==='HEAD')return res.end();
+      await pipeline(file.createReadStream({start,end,autoClose:false}),res);return;
+     }finally{await file.close();}
     }
    }
    const resource=p.match(/^\/api\/resources\/([a-f0-9]{64})\/(.+)$/);
    if(resource){const[,id,encoded]=resource,item=store.get(id);if(!item||!['zim','epub'].includes(item.kind))throw Error('Unknown archive source.');const key=decodeURIComponent(encoded),r=item.kind==='zim'?await withArchive(id,z=>z.read(key)):await withDocuments(()=>documents.epubRead(store.file(id),key));res.writeHead(200,{'Content-Type':r.mime,'Content-Length':r.bytes.length,'Content-Security-Policy':"default-src 'none'; style-src 'unsafe-inline'; sandbox"});return res.end(req.method==='HEAD'?undefined:r.bytes);}
    if(req.method!=='GET'&&req.method!=='HEAD')return json(405,{error:'Method not allowed'});
    const rel=p==='/'?'index.html':decodeURIComponent(p.slice(1)),target=path.resolve(here,'public',rel);if(!target.startsWith(path.join(here,'public')+path.sep))return json(403,{error:'Invalid path'});
+   const publicRoot=await realpath(path.join(here,'public')),actualTarget=await realpath(target);
+   if(!actualTarget.startsWith(publicRoot+path.sep))return json(403,{error:'Invalid path'});
+   if(!(await stat(actualTarget)).isFile())return json(404,{error:'Resource unavailable'});
    const types={'.html':'text/html','.css':'text/css','.mjs':'text/javascript','.js':'text/javascript','.svg':'image/svg+xml','.wasm':'application/wasm','.woff':'font/woff','.woff2':'font/woff2'};
-   const bytes=await readFile(target);res.writeHead(200,{'Content-Type':types[path.extname(target)]||'application/octet-stream','Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; worker-src 'self' blob:; connect-src 'self'; frame-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'"});res.end(bytes);
-  }catch(e){if(res.headersSent){if(!res.destroyed)res.end();}else json(e.code==='ENOENT'?404:400,{error:e.code==='ENOENT'?'Resource unavailable':e.message});}
+   const bytes=await readFile(actualTarget);res.writeHead(200,{'Content-Type':types[path.extname(target)]||'application/octet-stream','Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; worker-src 'self' blob:; connect-src 'self'; frame-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'"});res.end(req.method==='HEAD'?undefined:bytes);
+  }catch(e){if(res.headersSent){if(!res.destroyed)res.destroy();}else json(e.status===413?413:e.code==='ENOENT'?404:400,{error:e.code==='ENOENT'?'Resource unavailable':e.message});}
  }
  const server=http.createServer((req,res)=>{const work=handle(req,res);activeRequests.add(work);work.catch(()=>res.destroy()).finally(()=>activeRequests.delete(work));});
  const tracked=fn=>(...args)=>{if(closing)return Promise.reject(Error('The broker is shutting down.'));const work=fn(...args);activeOperations.add(work);work.finally(()=>activeOperations.delete(work)).catch(()=>{});return work;};

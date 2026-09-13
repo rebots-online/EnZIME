@@ -1,5 +1,5 @@
 import {DatabaseSync} from 'node:sqlite';
-import {mkdir,rename,unlink,open,readdir,readFile,stat,realpath,link} from 'node:fs/promises';
+import {mkdir,rename,unlink,open,readdir,readFile,stat,realpath,link,chmod} from 'node:fs/promises';
 import {createReadStream,readFileSync,unlinkSync,statSync} from 'node:fs';
 import {createHash,randomUUID} from 'node:crypto';
 import {Readable} from 'node:stream';
@@ -19,13 +19,23 @@ function parse(row){return row?JSON.parse(row.data):undefined;}
 function identifier(id){if(!UUID.test(id||''))throw fail('Invalid record ID');return id;}
 function metadata(value={}){if(!KINDS.has(value.kind)||typeof value.name!=='string'||!value.name.trim()||value.name.length>240||/[\u0000-\u001f]/.test(value.name))throw fail('Invalid asset metadata');return {name:value.name,kind:value.kind,mime:typeof value.mime==='string'&&value.mime.length<=200?value.mime:'application/octet-stream'};}
 function finiteLimit(value,fallback){const n=value??fallback;if(!Number.isSafeInteger(n)||n<0)throw fail('Invalid byte limit');return n;}
+function readingState(value){
+ if(!value||typeof value!=='object'||Array.isArray(value))throw fail('Invalid reading state: expected an object');
+ for(const [key,item]of Object.entries(value)){
+  if(!['page','scroll','font','time','note','key'].includes(key))throw fail('Unknown reading state field');
+  if(key==='note'){if(typeof item!=='string')throw fail('Invalid note');}
+  else if(key==='key'){if(typeof item!=='string'||item.length>4096||/[\u0000-\u001f\u007f]/.test(item))throw fail('Invalid reading key');}
+  else if(typeof item!=='number'||!Number.isFinite(item)||item<0||(key==='page'&&(!Number.isSafeInteger(item)||item<1))||(key==='font'&&(item<14||item>30)))throw fail('Invalid reading position: expected a nonnegative number within the field bounds');
+ }
+ json(value,65536);return value;
+}
 async function digestFile(filePath){const h=createHash('sha256');let size=0;for await(const c of createReadStream(filePath)){size+=c.length;h.update(c);}return {id:h.digest('hex'),size};}
 
 /** One process owns each catalog. Payloads are immutable SHA-256 objects; editions,
  * annotations and revisions hold identity independently from byte deduplication. */
 export async function openStore(root,options={}){
  const quotaBytes=finiteLimit(options.quotaBytes,DEFAULT_LIMIT);
- root=path.resolve(root);await mkdir(root,{recursive:true});root=await realpath(root);
+ root=path.resolve(root);await mkdir(root,{recursive:true,mode:0o700});root=await realpath(root);await chmod(root,0o700);
  const lockPath=path.join(root,'.writer.lock'),token=json({pid:process.pid,token:randomUUID()});let lock;
  try{lock=await open(lockPath,'wx',0o600);}catch(error){
   if(error.code!=='EEXIST')throw error;
@@ -39,7 +49,7 @@ export async function openStore(root,options={}){
  let db,closed=false,queue=Promise.resolve(),active=0;
  const unlock=()=>{try{if(readFileSync(lockPath,'utf8')===token)unlinkSync(lockPath);}catch{}};
  try{
-  await mkdir(path.join(root,'objects'),{recursive:true});await mkdir(path.join(root,'tmp'),{recursive:true});
+  for(const dir of ['objects','tmp']){const target=path.join(root,dir);await mkdir(target,{recursive:true,mode:0o700});await chmod(target,0o700);}
   db=new DatabaseSync(path.join(root,'catalog.sqlite'));
   db.exec(`PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON;
    CREATE TABLE IF NOT EXISTS objects(id TEXT PRIMARY KEY,name TEXT,kind TEXT,mime TEXT,size INTEGER,created TEXT);
@@ -54,6 +64,7 @@ export async function openStore(root,options={}){
    CREATE INDEX IF NOT EXISTS editions_asset ON editions(asset_id);
    CREATE INDEX IF NOT EXISTS annotations_asset ON annotations(asset_id);
    CREATE INDEX IF NOT EXISTS revisions_lineage ON revisions(lineage_id);`);
+  for(const suffix of ['','-wal','-shm'])await chmod(path.join(root,'catalog.sqlite'+suffix),0o600).catch(error=>{if(error.code!=='ENOENT')throw error;});
   const columns=new Set(db.prepare('PRAGMA table_info(objects)').all().map(x=>x.name));
   for(const [name,definition] of [['storage',"TEXT NOT NULL DEFAULT 'managed'"],['source_path','TEXT'],['file_mtime','REAL']])if(!columns.has(name))db.exec(`ALTER TABLE objects ADD COLUMN ${name} ${definition}`);
   // Migrate earlier content-only catalogs without changing asset IDs or state.
@@ -88,7 +99,7 @@ export async function openStore(root,options={}){
   try{
    for await(const chunk of stream){const bytes=Buffer.isBuffer(chunk)?chunk:Buffer.from(chunk);size+=bytes.length;if(size>maxBytes)throw fail('Asset exceeds size limit','SIZE_LIMIT');if(size>quotaBytes)throw fail('Storage quota exceeded','QUOTA_EXCEEDED');hash.update(bytes);await handle.writeFile(bytes);}
    await handle.sync();await handle.close();const id=hash.digest('hex'),existing=get(id);target=path.join(root,'objects',id);
-   if(!existing||existing.storage!=='managed'){checkQuota(size);await rename(tmp,target);addedFile=true;}else await unlink(tmp);
+   if(!existing||existing.storage!=='managed'){checkQuota(size);await rename(tmp,target);addedFile=true;}else{const verified=await digestFile(target);if(verified.id!==id||verified.size!==size)throw fail('Existing object failed integrity verification','INTEGRITY_ERROR');await unlink(tmp);}
    const result=transaction(()=>{
     if(!existing)db.prepare('INSERT INTO objects(id,name,kind,mime,size,created,storage) VALUES(?,?,?,?,?,?,?)').run(id,meta.name,meta.kind,meta.mime,size,now(),'managed');
     else if(existing.storage!=='managed')db.prepare("UPDATE objects SET storage='managed',source_path=NULL,file_mtime=NULL WHERE id=?").run(id);
@@ -107,9 +118,9 @@ export async function openStore(root,options={}){
   listEditions(assetId){ensureOpen();return assetId?db.prepare('SELECT data FROM editions WHERE asset_id=? ORDER BY rowid DESC').all(assetId).map(parse):records('editions');},
   getEdition(id){ensureOpen();return parse(db.prepare('SELECT data FROM editions WHERE id=?').get(id));},
   createEdition(assetId,value={}){ensureOpen();metadata({...requireAsset(assetId),...value});return recordEdition(requireAsset(assetId),value);},
-  readState(id){ensureOpen();return JSON.parse(db.prepare('SELECT state FROM reading WHERE id=?').get(id)?.state||'{}');},
-  saveState(id,state){requireAsset(id);db.prepare('INSERT OR REPLACE INTO reading VALUES(?,?)').run(id,json(state,65536));return state;},
-  patchState(id,patch){requireAsset(id);if(!patch||typeof patch!=='object'||Array.isArray(patch))throw fail('Reading state patch must be an object');json(patch,65536);for(const key of ['__proto__','constructor','prototype'])if(Object.hasOwn(patch,key))throw fail('Invalid reading state patch key');for(const key of ['time','page','scroll'])if(Object.hasOwn(patch,key)&&(!Number.isFinite(patch[key])||patch[key]<0))throw fail('Reading position must be a nonnegative number');return transaction(()=>{const merged={...api.readState(id),...patch};api.saveState(id,merged);return merged;});},
+  readState(id){ensureOpen();try{return JSON.parse(db.prepare('SELECT state FROM reading WHERE id=?').get(id)?.state||'{}');}catch{throw fail('Invalid saved reading state');}},
+  saveState(id,state){requireAsset(id);readingState(state);db.prepare('INSERT OR REPLACE INTO reading VALUES(?,?)').run(id,json(state,65536));return state;},
+  patchState(id,patch){requireAsset(id);readingState(patch);return transaction(()=>{const merged={...api.readState(id),...patch};api.saveState(id,merged);return merged;});},
   saveAnnotation(value={}){
    requireAsset(value.assetId);const id=value.id?identifier(value.id):randomUUID(),old=parse(db.prepare('SELECT data FROM annotations WHERE id=?').get(id));
    if(old&&(old.assetId!==value.assetId||old.editionId!==(value.editionId||null)))throw fail('An annotation source identity is immutable');
@@ -199,7 +210,7 @@ export async function openStore(root,options={}){
     for(const d of manifest.drafts||[])if(d.lastRevisionId&&!revisions.has(d.lastRevisionId))throw fail('Unknown draft revision');
     for(const c of manifest.chats||[]){assertRecord(c,'chat');if(!Array.isArray(c.messages)||c.messages.length>2000||c.messages.some(m=>!m||!['system','user','assistant','tool'].includes(m.role)||typeof m.content!=='string'))throw fail('Invalid backup chat');}
     for(const ref of manifest.modelReferences||[]){assertRecord(ref,'model');if(ref.assetId)ensureReference(ref.assetId);if(typeof ref.name!=='string'||!ref.name.trim()||(!ref.assetId&&!ref.path&&!ref.uri)||(ref.path&&!path.isAbsolute(ref.path))||(ref.uri&&!/^content:\/\//.test(ref.uri)))throw fail('Invalid backup model reference');}
-    for(const reading of manifest.reading||[]){ensureReference(reading.assetId);json(reading.state,65536);}
+    for(const reading of manifest.reading||[]){ensureReference(reading.assetId);readingState(reading.state);}
     if(manifest.settings&&(!manifest.settings||typeof manifest.settings!=='object'||Array.isArray(manifest.settings)))throw fail('Invalid backup settings');json(manifest.settings||{},65536);
     for(const stage of staged){const target=path.join(root,'objects',stage.id),previous=path.join(root,'tmp',randomUUID());try{await link(target,previous);stage.previous=previous;}catch(error){if(error.code!=='ENOENT')throw error;}await rename(stage.tmp,target);stage.written=true;}
     // ATTACH lets both catalogs roll back on one connection if related restore fails.

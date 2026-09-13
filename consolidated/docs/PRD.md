@@ -37,6 +37,10 @@ EnZIME is the product shell. Reader is the conventional document and media exper
 
 The product is not a general-purpose browser, an unrestricted autonomous publisher, or a substitute for source verification. AI interpretation must remain visually distinct from original text, editorial commentary, and liturgical source material. The initial skeleton is a reference implementation and design baseline; its presence does not certify all mature requirements as shipped.
 
+PR2 scope exception, authorized 13 September 2026: the `consolidated/` Node/esbuild package is an executable reference and local beta for evaluating this design. It is not the native product runtime. Tauri 2, Rust and Vite packaging on Windows, Linux and Android remains a release gate; this exception does not relax offline local-AI, security, accessibility or commercial acceptance. The labelled ThinkSpace demo is outside Reader offline acceptance: blank embedding host provides deterministic layout vectors, not semantic inference, and chat requires a separately configured model service. The bundled broker's `connect-src 'self'` policy blocks cross-origin model requests, including other loopback ports and LAN services. Endpoint configuration preserves the intended local AI integration, but does not demonstrate that integration is shipped.
+
+This reference/local-beta scope also explicitly permits the approved LFM2.5/Bonsai and llama.cpp-compatible/TurboQuant evaluation profiles described in AI-06..08 (review 3998998904). They are an exception for this PR's executable design and evaluation work, not an implicit replacement of the root native Gemma/LiteRT baseline. The approved product model requirements remain recorded here; native release needs an explicit model/runtime reconciliation and compatibility decision with measured evidence before any profile is advertised as shipped. No model installation or runtime migration is delivered by this PR.
+
 ## 5. Platform and rollout matrix
 | Surface | First commercial target | Mature expectation |
 |---|---|---|
@@ -44,10 +48,11 @@ The product is not a general-purpose browser, an unrestricted autonomous publish
 | Linux desktop | Same local-AI and Reader launch gates; documented reference distribution | Full desktop parity; portable/shared volumes with permission controls |
 | Android | Reader and qualified local practical AI after desktop core is proven | SAF-aware downloads, expanded local model choices, touch graph, store billing |
 | Web | Landing, supported browser reader, demo, hosted checkout | OPFS/file-handle storage, worker-based reading, supported WASM/WebGPU models |
-| macOS/iOS | Compatibility track, not implied launch commitment | Separately tested packaging, sandbox and store purchase policies |
 | Sanctissimissa | Integration contract and first verified bookstore fixture | Embedded Reader and optional graph links with application-specific styling |
 
 A marketing page or limited reader demo is labelled separately from the prepper launch product. Every surface advertised as that product must pass the same local-AI quality gates; browser or platform limitations cannot be concealed behind a cloud substitution. Device profiles include the CPU path and modest Android hardware, not only flagship GPUs.
+
+Apple platforms are excluded by `INV-NO-APPLE`; no compatibility track or packaging commitment is made for them.
 
 A browser origin cannot silently read a desktop folder or another origin's OPFS. Android applications cannot simply share private app storage under the same namespace. Desktop uses a broker or native host; Android uses user-granted documents/provider permissions; web uses explicit import/export or an authorized bridge. Shared assets do not imply shared private notes.
 

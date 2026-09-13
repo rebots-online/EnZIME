@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from "react";
+import { GRAPH_LIMITS, boundedFileText, validateEmbedding, readGraphFile, modelEndpoint, requireModelTrust, modelRequest, citedSources, isolatedGraphHtml, repulsionForce, applyLook, coastLook } from "./thinkspace-support.mjs";
 
 // ThinkSpace — 6DoF semantic concept navigator (mockup)
 // Controls: drag empty space = pivot/orbit about a vertical hinge out front.
@@ -62,19 +63,7 @@ function parseMd(name,text){
   // text used for embedding = title + body, trimmed
   return {title, tags, text:(title+"\n"+body).slice(0,8000), raw:body.slice(0,1200)};
 }
-// THE SEAM: real version POSTs to Ollama. stub returns deterministic pseudo-embedding
-// from text so the whole pipeline is real except this one call.
-async function embed(text, endpoint, model){
-  if(endpoint){ // real Ollama path: accepts "192.168.0.41:11434" or full URL
-    const base=/^https?:\/\//.test(endpoint)?endpoint:("http://"+endpoint);
-    const r=await fetch(base.replace(/\/$/,"")+"/api/embeddings",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model,prompt:text})});
-    const j=await r.json(); return j.embedding;
-  }
-  // deterministic fake: hash text into a 48-d vector (stable, text-dependent)
-  const D=48, v=new Array(D).fill(0);
-  for(let i=0;i<text.length;i++){ const c=text.charCodeAt(i); v[i%D]+=Math.sin(c*0.13+(i%7))*0.5+Math.cos(c*0.07)*0.5; }
-  const n=Math.hypot(...v)||1; return v.map(x=>x/n);
-}
+// Model calls use the explicit endpoint trust boundary below.
 const cosine=(a,b)=>{let d=0,na=0,nb=0;for(let i=0;i<a.length;i++){d+=a[i]*b[i];na+=a[i]*a[i];nb+=b[i]*b[i];}return d/((Math.sqrt(na)*Math.sqrt(nb))||1);};
 const hashStr=(s)=>{let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h+s.charCodeAt(i))|0;}return h;};
 // project N-d embeddings → 3D via top-3 principal-ish axes (cheap power-iteration-free:
@@ -86,47 +75,56 @@ function projectTo3D(vecs){
 }
 
 // ── connection helpers: Ollama + any OpenAI-compatible host:port ──────────
-function normBase(host){ if(!host) return ""; const h=String(host).trim(); if(!h) return ""; const b=/^https?:\/\//.test(h)?h:("http://"+h); return b.replace(/\/+$/,""); }
-async function listModels(host,key,oai){
-  const base=normBase(host); if(!base) return [];
-  try{
-    if(oai){ const r=await fetch(base+"/v1/models",{headers:key?{Authorization:"Bearer "+key}:{}}); const j=await r.json(); return (j.data||[]).map(m=>m.id).filter(Boolean); }
-    const r=await fetch(base+"/api/tags"); const j=await r.json(); return (j.models||[]).map(m=>m.name).filter(Boolean);
-  }catch{ return []; }
+async function listModels(host,key,oai,trust){
+  const r=await modelRequest(host,oai?"/v1/models":"/api/tags",{headers:oai&&key?{Authorization:"Bearer "+key}:{}},trust,oai?key:"");
+  const j=await r.json();
+  return (oai?j.data||[]:j.models||[]).map(m=>oai?m.id:m.name).filter(m=>typeof m==="string");
 }
-async function embedUnified(text,host,model,key,oai){
-  const base=normBase(host);
-  if(!base){ // deterministic 48-d fallback so the pipeline still runs fully offline
+async function embedUnified(text,host,model,key,oai,trust){
+  if(!String(host||"").trim()){
     const D=48,v=new Array(D).fill(0);
     for(let i=0;i<text.length;i++){const c=text.charCodeAt(i);v[i%D]+=Math.sin(c*0.13+(i%7))*0.5+Math.cos(c*0.07)*0.5;}
     const n=Math.hypot(...v)||1; return v.map(x=>x/n);
   }
-  if(oai){ const r=await fetch(base+"/v1/embeddings",{method:"POST",headers:{"Content-Type":"application/json",...(key?{Authorization:"Bearer "+key}:{})},body:JSON.stringify({model,input:text})}); const j=await r.json(); return (j.data&&j.data[0]&&j.data[0].embedding)||[]; }
-  const r=await fetch(base+"/api/embeddings",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model,prompt:text})}); const j=await r.json(); return j.embedding||[];
+  const r=await modelRequest(host,oai?"/v1/embeddings":"/api/embeddings",{
+    method:"POST",headers:{"Content-Type":"application/json",...(oai&&key?{Authorization:"Bearer "+key}:{})},
+    body:JSON.stringify(oai?{model,input:text}:{model,prompt:text})
+  },trust,oai?key:"");
+  const j=await r.json();
+  return validateEmbedding(oai?j.data?.[0]?.embedding:j.embedding);
 }
 // streaming chat for Ollama (/api/chat NDJSON) or OpenAI-compatible (/v1/chat/completions SSE)
-async function chatStream({host,model,key,oai,system,messages,context,onToken}){
-  const base=normBase(host); if(!base) throw new Error("no chat host");
+async function chatStream({host,model,key,oai,trust,system,messages,context,onToken}){
   const sys=(system||"")+(context&&context.length?("\n\nCONTEXT (cite titles in [brackets]):\n"+context.join("\n\n---\n\n")):"");
   const body={model,stream:true,messages:[{role:"system",content:sys},...messages]};
-  const url=base+(oai?"/v1/chat/completions":"/api/chat");
-  const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json",...(oai&&key?{Authorization:"Bearer "+key}:{})},body:JSON.stringify(body)});
+  const r=await modelRequest(host,oai?"/v1/chat/completions":"/api/chat",{method:"POST",headers:{"Content-Type":"application/json",...(oai&&key?{Authorization:"Bearer "+key}:{})},body:JSON.stringify(body)},trust,oai?key:"");
   if(!r.ok||!r.body) throw new Error("http "+r.status);
-  const rd=r.body.getReader(),dec=new TextDecoder(); let buf="",out="";
-  for(;;){ const {value,done}=await rd.read(); if(done) break; buf+=dec.decode(value,{stream:true});
-    const lines=buf.split("\n"); buf=lines.pop();
-    for(const ln of lines){ const s=ln.trim(); if(!s) continue;
-      if(oai){ if(!s.startsWith("data:")) continue; const d=s.slice(5).trim(); if(d==="[DONE]") continue; try{ const j=JSON.parse(d); const tok=j.choices?.[0]?.delta?.content||""; if(tok){out+=tok;onToken&&onToken(tok);} }catch{} }
-      else { try{ const j=JSON.parse(s); const tok=j.message?.content||""; if(tok){out+=tok;onToken&&onToken(tok);} }catch{} }
+  const rd=r.body.getReader(),dec=new TextDecoder(); let buf="",out="",ended=false;
+  const consume=(line)=>{
+    if(ended) return;
+    let data=line.trim(); if(!data) return;
+    if(oai){if(!data.startsWith("data:"))return;data=data.slice(5).trim();if(data==="[DONE]"){ended=true;return;}}
+    let record;
+    try{record=JSON.parse(data);}catch{return;}
+    const token=(oai?record.choices?.[0]?.delta?.content:record.message?.content)||"";
+    if(typeof token==="string"&&token){out+=token;onToken?.(token);}
+  };
+  try{
+    for(;;){
+      const {value,done}=await rd.read();
+      buf+=done?dec.decode():dec.decode(value,{stream:true});
+      const lines=buf.split("\n");buf=lines.pop();
+      lines.forEach(consume);
+      if(ended){await rd.cancel();break;}
+      if(done){consume(buf);break;}
     }
-  }
+  }finally{rd.releaseLock();}
   return out;
 }
 const KB_SYSTEM="You are the knowledge-base companion inside ThinkSpace. Answer ONLY from the provided context. Cite the node titles you used inline like [Title]. If the answer is not in the context, say so plainly and suggest what to look for instead. Be concise and concrete.";
 
 // ── tiny, escape-first markdown → html for the reader pane ────────────────
-function escapeHtml(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-function scrubHtml(h){ return String(h).replace(/<script[\s\S]*?<\/script>/gi,"").replace(/ on[a-z]+\s*=\s*"[^"]*"/gi,"").replace(/ on[a-z]+\s*=\s*'[^']*'/gi,"").replace(/javascript:/gi,""); }
+function escapeHtml(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
 function mdToHtml(src){
   if(!src) return "";
   const fences=[]; let s=String(src).replace(/```([\s\S]*?)```/g,(_,c)=>{fences.push(c);return `\u0000${fences.length-1}\u0000`;});
@@ -174,19 +172,21 @@ export default function ThinkSpace(){
   // live graph: starts as SEED, replaced when a folder is ingested
   const graph=useRef(SEED);
   const [graphVer,setGraphVer]=useState(0);
-  const [ingest,setIngest]=useState({open:false,busy:false,count:0,total:0,endpoint:"",model:"qwen3-embedding:8b",thresh:0.55});
+  const graphEpoch=useRef(0), importBusy=useRef(false);
+  const [ingest,setIngest]=useState({open:false,busy:false,count:0,total:0,err:null,thresh:0.55});
   const [load,setLoad]=useState({maxNodes:300,minConf:0,total:0,shown:0,err:null});
 
   // ── tabs · connections · chat · reader (new) ──
   const [tab,setTab]=useState("spatial");          // "spatial" | "reader"
   const tabRef=useRef(tab); tabRef.current=tab;
   const [conn,setConn]=useState({
-    embedHost:"", embedModel:"qwen3-embedding:8b", embedKey:"", embedOAI:false,
-    chatHost:"",  chatModel:"gemma4:e2b",          chatKey:"",  chatOAI:false,
+    embedHost:"", embedModel:"qwen3-embedding:8b", embedKey:"", embedOAI:false, embedTrust:"",
+    chatHost:"",  chatModel:"gemma4:e2b",          chatKey:"",  chatOAI:false, chatTrust:"",
   });
   const connRef=useRef(conn); connRef.current=conn;
   const [models,setModels]=useState({embed:[],chat:[]});
   const [modelsBusy,setModelsBusy]=useState({embed:false,chat:false});
+  const [modelsError,setModelsError]=useState({embed:"",chat:""});
   const [chat,setChat]=useState({open:false,busy:false,q:"",msgs:[]});
   const [readerId,setReaderId]=useState("entropy");
   const nodeVecs=useRef({});                        // id -> Float-ish[] for RAG retrieval
@@ -196,87 +196,74 @@ export default function ThinkSpace(){
     sim.current={nodes:SEED.nodes.map((n,i)=>{const a=(i/SEED.nodes.length)*Math.PI*2;const p=[Math.cos(a)*220,Math.sin(a*1.3)*120,Math.sin(a)*180];return{...n,p,v:[0,0,0],home:[...p]};})};
   }
 
-  // ── load ANY conformant graph JSON (getrecall, claude-export, client-files,
-  //    whatever) — keyed on SHAPE not filename. scale filters for big graphs. ──
+  const replaceGraph=(placed,edges)=>{
+    if(!placed.length) throw new Error("The graph has no nodes. Choose a nonempty graph.");
+    graph.current={nodes:placed.map(({id,title,onto,raw,html,media})=>({id,title,onto,raw,html,media})),edges};
+    sim.current={nodes:placed.map(n=>({...n,p:[...n.p],v:[0,0,0],home:[...n.p]}))};
+    nodeVecs.current=Object.fromEntries(placed.filter(n=>n.vec).map(n=>[n.id,n.vec]));
+    graphEpoch.current++;
+    const first=placed[0].id;
+    selRef.current=first; setSel(first); setReaderId(first); setTrail([first]);
+    setDiveInto(null); setJourney(false); setSelMenu(null); setAnnos([]);
+    setHover(null); setGrabbed(null); setReResolving(false);
+    lookDrag.current=null; nodeDrag.current=null;
+    eggs.current=[]; shards.current=[]; shatter.current={}; eggCooldown.current=0;
+    charge.current={active:false,since:0,armed:false}; setReticle(null);
+    cam.current={pos:[0,0,-560],yaw:0,pitch:0,vYaw:0,vPitch:0,vFwd:0};
+    setChat(c=>({...c,busy:false,msgs:[]}));
+    setGraphVer(v=>v+1);
+  };
   const loadGraphJson=async(file)=>{
+    if(importBusy.current) return;
+    importBusy.current=true;
     try{
-      const j=JSON.parse(await file.text());
-      // accept a few shapes: {nodes,edges} | {graph:{...}} | bare array of nodes
-      const g = j.nodes ? j : (j.graph||j.data||{nodes:Array.isArray(j)?j:[],edges:[]});
-      let nodes=(g.nodes||[]).map((n,i)=>({
-        id:n.id!=null?String(n.id):("n"+i),
-        title:n.title||n.name||n.label||("node "+i),
-        onto:n.onto||n.type||n.category||"field",
-        raw:n.raw||n.text||n.body||n.snippet||"",
-        html:n.html||n.content_html||"",
-        media:n.media||[],
-        vec:(Array.isArray(n.vec)?n.vec:(Array.isArray(n.embedding)?n.embedding:null)),
-        _pos:n.pos||n.position||null,
-      }));
-      // normalize unknown onto values into our palette buckets
-      const okOnto=Object.keys(ONTO);
-      nodes=nodes.map(n=>({...n,onto:okOnto.includes(n.onto)?n.onto:okOnto[Math.abs(hashStr(String(n.onto)))%okOnto.length]}));
-      let edges=(g.edges||g.links||[]).map(e=>({
-        from:String(e.from!=null?e.from:e.source),to:String(e.to!=null?e.to:e.target),
-        rel:e.rel||e.type||"related",conf:e.conf!=null?e.conf:(e.weight!=null?e.weight:0.7),
-      }));
-      // ── scale guard: huge graphs (e.g. 4198 nodes) won't render in SVG. cap
-      //    to the most-connected slice + a confidence floor, keep it flyable. ──
-      const CAP=load.maxNodes||300;
-      if(nodes.length>CAP){
-        const deg={}; edges.forEach(e=>{deg[e.from]=(deg[e.from]||0)+e.conf;deg[e.to]=(deg[e.to]||0)+e.conf;});
-        nodes=[...nodes].sort((a,b)=>(deg[b.id]||0)-(deg[a.id]||0)).slice(0,CAP);
-        const keep=new Set(nodes.map(n=>n.id));
-        edges=edges.filter(e=>keep.has(e.from)&&keep.has(e.to)&&e.conf>=(load.minConf||0));
-      } else {
-        edges=edges.filter(e=>e.conf>=(load.minConf||0));
-      }
-      const idset=new Set(nodes.map(n=>n.id));
-      edges=edges.filter(e=>idset.has(e.from)&&idset.has(e.to));
-      const placed=nodes.map((n,i)=>{
-        const p=n._pos?[...n._pos]:[(Math.random()-0.5)*340,(Math.random()-0.5)*340,(Math.random()-0.5)*340];
-        return {id:n.id,title:n.title,onto:n.onto,raw:n.raw,html:n.html,media:n.media,vec:n.vec,p};
-      });
-      graph.current={nodes:placed.map(n=>({id:n.id,title:n.title,onto:n.onto,raw:n.raw,html:n.html,media:n.media})),edges};
-      sim.current={nodes:placed.map(n=>({...n,v:[0,0,0],home:[...n.p]}))};
-      const nv={}; placed.forEach(n=>{ if(n.vec) nv[n.id]=n.vec; }); nodeVecs.current=nv;
-      setSel(placed[0]?.id||"n0"); setReaderId(placed[0]?.id||"n0"); setGraphVer(v=>v+1);
-      setLoad(s=>({...s,total:(g.nodes||[]).length,shown:placed.length,err:null}));
-      setIngest(s=>({...s,open:false}));
-    }catch(err){ setLoad(s=>({...s,err:"bad JSON: "+err.message})); }
+      const result=await readGraphFile(file,{maxNodes:load.maxNodes,minConf:load.minConf,ontoKeys:Object.keys(ONTO),relationKeys:Object.keys(REL)});
+      replaceGraph(result.nodes,result.edges);
+      setLoad(s=>({...s,total:result.total,shown:result.nodes.length,err:null}));
+      setIngest(s=>({...s,open:false,err:null}));
+    }catch(err){ setLoad(s=>({...s,err:"Graph import failed: "+err.message})); }
+    finally{ importBusy.current=false; }
   };
   const ONTO_KEYS=Object.keys(ONTO);
   const ingestFiles=async(fileList)=>{
-    const files=Array.from(fileList).filter(f=>/\.md$/i.test(f.name));
-    if(!files.length) return;
-    setIngest(s=>({...s,busy:true,count:0,total:files.length}));
-    const C=connRef.current;
-    const docs=[];
-    for(let i=0;i<files.length;i++){
-      const f=files[i];
-      const text=await f.text();
-      const parsed=parseMd(f.name,text);
-      // folder name (first path segment) → color hint only; drives nothing else
-      const path=(f.webkitRelativePath||"").split("/");
-      const folder=path.length>1?path[path.length-2]:"";
-      const onto=ONTO_KEYS[Math.abs(hashStr(folder))%ONTO_KEYS.length];
-      const vec=await embedUnified(parsed.text, C.embedHost, C.embedModel, C.embedKey, C.embedOAI);
-      docs.push({id:"n"+i, title:parsed.title, onto, vec, raw:parsed.raw, folder});
-      setIngest(s=>({...s,count:i+1}));
+    if(importBusy.current) return;
+    importBusy.current=true;
+    setIngest(s=>({...s,busy:true,count:0,total:0,err:null}));
+    try{
+      if(fileList.length>GRAPH_LIMITS.nodes) throw new Error("Choose a smaller folder.");
+      const files=Array.from(fileList).filter(f=>/\.md$/i.test(f.name));
+      const cap=Math.min(GRAPH_LIMITS.documents,load.maxNodes);
+      if(!files.length) throw new Error("Choose a folder containing Markdown (.md) files.");
+      if(files.length>cap) throw new Error("Choose at most "+cap+" Markdown files, or load a bounded graph export.");
+      if(files.some(f=>f.size>GRAPH_LIMITS.documentBytes)||files.reduce((sum,f)=>sum+f.size,0)>GRAPH_LIMITS.bytes) throw new Error("Use Markdown files under 512 KiB and a folder under 8 MiB.");
+      setIngest(s=>({...s,total:files.length}));
+      const C={...connRef.current}, docs=[];
+      if(C.embedHost.trim()) requireModelTrust(C.embedHost,C.embedTrust,C.embedOAI?C.embedKey:"");
+      for(let i=0;i<files.length;i++){
+        const f=files[i], text=await boundedFileText(f,GRAPH_LIMITS.documentBytes);
+        const parsed=parseMd(f.name,text);
+        const path=(f.webkitRelativePath||"").split("/");
+        const folder=path.length>1?path[path.length-2]:"";
+        const onto=ONTO_KEYS[Math.abs(hashStr(folder))%ONTO_KEYS.length];
+        const vec=validateEmbedding(await embedUnified(parsed.text,C.embedHost,C.embedModel,C.embedKey,C.embedOAI,C.embedTrust),docs[0]?.vec.length);
+        docs.push({id:"n"+i,title:parsed.title,onto,vec,raw:parsed.raw,folder});
+        setIngest(s=>({...s,count:i+1}));
+      }
+      const edges=[];
+      for(let i=0;i<docs.length;i++)for(let j=i+1;j<docs.length;j++){
+        const c=cosine(docs[i].vec,docs[j].vec);
+        if(c>=ingest.thresh) edges.push({from:docs[i].id,to:docs[j].id,rel:"related",conf:Math.min(0.99,c)});
+      }
+      const pos=projectTo3D(docs.map(d=>d.vec));
+      replaceGraph(docs.map((d,i)=>({...d,p:pos[i]})),edges.sort((a,b)=>b.conf-a.conf).slice(0,Math.min(GRAPH_LIMITS.visibleEdges,docs.length*4)));
+      setLoad(s=>({...s,total:docs.length,shown:docs.length,err:null}));
+      setIngest(s=>({...s,open:false}));
+    }catch(err){
+      setIngest(s=>({...s,open:true,err:"Ingestion failed: "+err.message+" Check Data connections, endpoint approval and browser network policy, then choose the folder again. Blank embedding host runs the offline layout demo."}));
+    }finally{
+      importBusy.current=false;
+      setIngest(s=>({...s,busy:false}));
     }
-    // edges: cosine similarity over the threshold
-    const edges=[];
-    for(let i=0;i<docs.length;i++)for(let j=i+1;j<docs.length;j++){
-      const c=cosine(docs[i].vec,docs[j].vec);
-      if(c>=ingest.thresh) edges.push({from:docs[i].id,to:docs[j].id,rel:"related",conf:Math.min(0.99,c)});
-    }
-    // 3D positions from embedding projection (the "shadow"); sim adds life on top
-    const pos=projectTo3D(docs.map(d=>d.vec));
-    graph.current={nodes:docs.map((d,i)=>({id:d.id,title:d.title,onto:d.onto,raw:d.raw})),edges};
-    sim.current={nodes:docs.map((d,i)=>({id:d.id,title:d.title,onto:d.onto,raw:d.raw,p:[...pos[i]],v:[0,0,0],home:[...pos[i]]}))};
-    const nv={}; docs.forEach(d=>{ nv[d.id]=d.vec; }); nodeVecs.current=nv;
-    setSel(docs[0]?.id||"n0"); setReaderId(docs[0]?.id||"n0"); setGraphVer(v=>v+1);
-    setIngest(s=>({...s,busy:false,open:false}));
   };
 
   const cam=useRef({pos:[0,0,-560],yaw:0,pitch:0,vYaw:0,vPitch:0,vFwd:0});
@@ -309,8 +296,8 @@ export default function ThinkSpace(){
   const soundRef=useRef(sound); soundRef.current=sound;
   const audio=useRef({ctx:null,pad:null});
 
-  // sky (device orientation) — defaults ON
-  const [sky,setSky]=useState({on:true,lat:null,lon:null});
+  // Orientation is opt-in and never requests geographic coordinates.
+  const [sky,setSky]=useState({on:false,err:null});
   const skyHeading=useRef(0);
 
   // focus gate (so E doesn't leak into page inputs)
@@ -320,7 +307,7 @@ export default function ThinkSpace(){
 
   const byId=()=>Object.fromEntries(sim.current.nodes.map(n=>[n.id,n]));
 
-  useEffect(()=>{ setTrail(tr=>tr[tr.length-1]===sel?tr:[...tr,sel]); },[sel]);
+  useEffect(()=>{ setTrail(tr=>{const valid=tr.filter(id=>graph.current.nodes.some(n=>n.id===id));return valid[valid.length-1]===sel?valid:[...valid,sel].slice(-300);}); },[sel]);
 
   // ── audio (procedural, no files) ──
   const initAudio=()=>{
@@ -351,40 +338,37 @@ export default function ThinkSpace(){
     src.connect(bp); bp.connect(g); g.connect(ctx.destination); src.start();
   };
   const toggleSound=()=>{
-    setSound(s=>{
-      if(!s){initAudio(); audio.current.ctx?.resume();}
-      else if(audio.current.pad) audio.current.pad.gain.linearRampToValueAtTime(0,audio.current.ctx.currentTime+0.6);
-      return !s;
-    });
+    const enabled=!sound;
+    if(enabled){ initAudio(); audio.current.ctx?.resume(); }
+    const a=audio.current;
+    if(a.ctx&&a.pad){
+      a.pad.gain.cancelScheduledValues(a.ctx.currentTime);
+      a.pad.gain.setValueAtTime(a.pad.gain.value,a.ctx.currentTime);
+      a.pad.gain.linearRampToValueAtTime(enabled?0.5:0,a.ctx.currentTime+0.6);
+    }
+    soundRef.current=enabled; setSound(enabled);
   };
 
-  // ── sky enable (real orientation hooks + graceful fallback) ──
   const enableSky=async()=>{
     try{
-      if(typeof DeviceOrientationEvent!=="undefined" && DeviceOrientationEvent.requestPermission){
-        const p=await DeviceOrientationEvent.requestPermission();
-        if(p!=="granted"){ setSky(s=>({...s,on:true})); return; }
-      }
-      window.addEventListener("deviceorientation",(e)=>{
-        const h=e.webkitCompassHeading!=null?e.webkitCompassHeading:(e.alpha!=null?360-e.alpha:null);
-        if(h!=null) skyHeading.current=h;
-      },true);
-      navigator.geolocation?.getCurrentPosition(
-        pos=>setSky(s=>({...s,lat:pos.coords.latitude,lon:pos.coords.longitude,on:true})),
-        ()=>setSky(s=>({...s,on:true})),{timeout:4000}
-      );
-      setSky(s=>({...s,on:true}));
-    }catch{ setSky(s=>({...s,on:true})); }
+      if(typeof DeviceOrientationEvent==="undefined") throw new Error("Device orientation is unavailable.");
+      if(DeviceOrientationEvent.requestPermission && await DeviceOrientationEvent.requestPermission()!=="granted") throw new Error("Orientation permission was denied.");
+      setSky({on:true,err:null});
+    }catch(err){ setSky({on:false,err:err.message}); }
   };
-  const toggleSky=()=>{ if(sky.on) setSky(s=>({...s,on:false})); else enableSky(); };
-
-  // ── default-on bootstrapping: heading listener + arm ambient audio on first gesture ──
+  const toggleSky=()=>{ if(sky.on) setSky({on:false,err:null}); else return enableSky(); };
   useEffect(()=>{
-    const onOri=(e)=>{ const h=e.webkitCompassHeading!=null?e.webkitCompassHeading:(e.alpha!=null?360-e.alpha:null); if(h!=null) skyHeading.current=h; };
+    if(!sky.on) return;
+    const onOri=(e)=>{const h=e.webkitCompassHeading??(e.alpha!=null?360-e.alpha:null);if(Number.isFinite(h)) skyHeading.current=h;};
     window.addEventListener("deviceorientation",onOri,true);
-    const arm=()=>{ if(soundRef.current){ initAudio(); audio.current.ctx?.resume(); } window.removeEventListener("pointerdown",arm); window.removeEventListener("keydown",arm); };
-    window.addEventListener("pointerdown",arm); window.addEventListener("keydown",arm);
-    return ()=>{ window.removeEventListener("deviceorientation",onOri,true); window.removeEventListener("pointerdown",arm); window.removeEventListener("keydown",arm); };
+    return ()=>window.removeEventListener("deviceorientation",onOri,true);
+  },[sky.on]);
+
+  // Arm ambient audio on the first user gesture.
+  useEffect(()=>{
+    const arm=()=>{if(soundRef.current){initAudio();audio.current.ctx?.resume();}window.removeEventListener("pointerdown",arm);window.removeEventListener("keydown",arm);};
+    window.addEventListener("pointerdown",arm);window.addEventListener("keydown",arm);
+    return ()=>{window.removeEventListener("pointerdown",arm);window.removeEventListener("keydown",arm);};
   },[]);
 
   // ── projectile launchers ──
@@ -397,6 +381,7 @@ export default function ThinkSpace(){
   const fireEgg=(targetId)=>{
     const ns=sim.current.nodes;
     const tgt=targetId?byId()[targetId]:ns[Math.floor(Math.random()*ns.length)];
+    if(!tgt) return;
     const sp=projectRef.current(tgt.p); if(!sp) return;
     eggs.current.push({mode:"homing",x:W/2,y:H-30,tx:sp.x,ty:sp.y,t:0,target:tgt.id,hue:Math.random()*360,
       seed:Math.floor(Math.random()*99999),spin:Math.random()<0.5?"tumble":"spiral",spinV:1.5+Math.random()*2});
@@ -442,12 +427,7 @@ export default function ThinkSpace(){
       for(let i=0;i<ns.length;i++){
         const n=ns[i];
         if(n.id===grabId) continue;
-        let f=[0,0,0];
-        for(let j=0;j<ns.length;j++){
-          if(i===j) continue;
-          const d=sub(n.p,ns[j].p); const r=len(d);
-          f=add(f,scale(d,C.charge/(r*r*r)));
-        }
+        let f=repulsionForce(ns,i,C.charge);
         f=add(f,scale(n.p,feral?-0.003:-0.012));
         // home-tether: untouched node springboks to its slot; a wrangled/re-placed
         // node's `home` has MOVED, so this tethers it to the NEW equilibrium.
@@ -469,6 +449,7 @@ export default function ThinkSpace(){
 
       // camera look (pivot about offset vertical hinge handled in drag); fall fwd
       const c=cam.current;
+      if(!lookDrag.current&&!nodeDrag.current) coastLook(c,ns,C.lookDamp);
       c.pitch=Math.max(-1.1,Math.min(1.1,c.pitch));
       const {fwd}=basis();
       if(Math.abs(c.vFwd)>0.01 && map[selRef.current]){
@@ -528,7 +509,7 @@ export default function ThinkSpace(){
         egg.t+=0.045;
         if(egg.t>=1){
           shatter.current[egg.target]=1;
-          const tn=map[egg.target]; const sp=project(tn.p);
+          const tn=map[egg.target]; const sp=tn?project(tn.p):null;
           if(sp) for(let s=0;s<14;s++){const a=Math.random()*Math.PI*2,sd=1+Math.random()*3;shards.current.push({x:sp.x,y:sp.y,vx:Math.cos(a)*sd,vy:Math.sin(a)*sd-1,life:1,hue:ONTO[tn.onto].c,sz:2+Math.random()*4});}
           if(soundRef.current) playShatter();
           eggs.current.splice(i,1);
@@ -592,6 +573,7 @@ export default function ThinkSpace(){
   const onDown=(e)=>{
     interact.current=performance.now();
     const [mx,my]=evtXY(e); const map=byId();
+    cam.current.vYaw=0; cam.current.vPitch=0;
     let hit=null,hitD=1e9;
     for(const n of sim.current.nodes){ const sp=project(n.p); if(!sp) continue; const r=Math.max(7,22*(FOV/sp.z)*0.5); const dd=Math.hypot(sp.x-mx,sp.y-my); if(dd<r+4&&sp.z<hitD){hit=n;hitD=sp.z;} }
     if(hit){ nodeDrag.current={id:hit.id,depth:project(hit.p).z,moved:0,origin:[...hit.p],lastX:null,lastY:null,wrangle:!e.altKey}; setGrabbed(hit.id); return; }
@@ -620,13 +602,9 @@ export default function ThinkSpace(){
       const dx=e.clientX-lookDrag.current.x,dy=e.clientY-lookDrag.current.y;
       lookDrag.current.x=e.clientX; lookDrag.current.y=e.clientY;
       const c=cam.current;
-      const ns=sim.current.nodes; let cen=[0,0,0]; ns.forEach(n=>cen=add(cen,n.p)); cen=scale(cen,1/ns.length);
-      const hinge=add(c.pos,scale(sub(cen,c.pos),0.55));
-      const dYaw=dx*0.0042;
-      const rel=sub(c.pos,hinge); const cs=Math.cos(dYaw),sn=Math.sin(dYaw);
-      c.pos=[hinge[0]+(rel[0]*cs-rel[2]*sn),c.pos[1],hinge[2]+(rel[0]*sn+rel[2]*cs)];
-      c.yaw+=dYaw;
-      c.pitch=Math.max(-1.1,Math.min(1.1,c.pitch+dy*0.0016));
+      c.vYaw=Math.max(-0.12,Math.min(0.12,dx*0.0042));
+      c.vPitch=Math.max(-0.08,Math.min(0.08,dy*0.0016));
+      applyLook(c,sim.current.nodes,c.vYaw,c.vPitch);
     }
   };
   const onUp=()=>{
@@ -653,22 +631,22 @@ export default function ThinkSpace(){
 
   // ── pull model list from a host into the combo dropdown ──
   const fetchModels=async(kind)=>{
-    const host=kind==="embed"?conn.embedHost:conn.chatHost;
-    const key =kind==="embed"?conn.embedKey :conn.chatKey;
-    const oai =kind==="embed"?conn.embedOAI :conn.chatOAI;
-    setModelsBusy(s=>({...s,[kind]:true}));
-    const list=await listModels(host,key,oai);
-    setModels(s=>({...s,[kind]:list}));
-    setModelsBusy(s=>({...s,[kind]:false}));
+    const C={...connRef.current};
+    setModelsBusy(s=>({...s,[kind]:true})); setModelsError(s=>({...s,[kind]:""}));
+    try{
+      const list=await listModels(C[kind+"Host"],C[kind+"Key"],C[kind+"OAI"],C[kind+"Trust"]);
+      setModels(s=>({...s,[kind]:list}));
+    }catch(err){setModelsError(s=>({...s,[kind]:err.message}));}
+    finally{setModelsBusy(s=>({...s,[kind]:false}));}
   };
 
   // ── RAG retrieval over the loaded nodes (vectors if dims match query, else lexical) ──
-  const retrieveKB=async(query,k=6)=>{
+  const retrieveKB=async(query,k=6,C=connRef.current)=>{
     const ns=graph.current.nodes, vmap=nodeVecs.current;
     const sampleVec=ns.map(n=>vmap[n.id]).find(Boolean);
     if(sampleVec){
       try{
-        const qv=await embedUnified(query,conn.embedHost,conn.embedModel,conn.embedKey,conn.embedOAI);
+        const qv=await embedUnified(query,C.embedHost,C.embedModel,C.embedKey,C.embedOAI,C.embedTrust);
         if(qv.length===sampleVec.length){
           const scored=ns.filter(n=>vmap[n.id]).map(n=>({n,score:cosine(qv,vmap[n.id])})).sort((a,b)=>b.score-a.score).slice(0,k);
           if(scored.length) return scored.map(s=>({id:s.n.id,title:s.n.title,onto:s.n.onto,raw:s.n.raw,score:s.score}));
@@ -677,7 +655,7 @@ export default function ThinkSpace(){
     }
     const toks=query.toLowerCase().split(/\W+/).filter(w=>w.length>2);
     const scored=ns.map(n=>{const hay=((n.title||"")+" "+(n.raw||"")).toLowerCase();let sc=0;toks.forEach(tk=>{if(hay.includes(tk))sc++;});return {n,score:sc};}).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,k);
-    const pick=scored.length?scored:ns.slice(0,Math.min(k,ns.length)).map(n=>({n,score:0}));
+    const pick=scored;
     return pick.map(s=>({id:s.n.id,title:s.n.title,onto:s.n.onto,raw:s.n.raw,score:s.score}));
   };
 
@@ -685,19 +663,20 @@ export default function ThinkSpace(){
     const q=(preset!=null?preset:chat.q).trim(); if(!q||chat.busy) return;
     const history=chat.msgs.filter(m=>m.content).map(m=>({role:m.role,content:m.content}));
     setChat(c=>({...c,q:"",busy:true,msgs:[...c.msgs,{role:"user",content:q},{role:"assistant",content:""}]}));
-    if(!normBase(conn.chatHost)){
-      setChat(c=>{const m=[...c.msgs];m[m.length-1]={role:"assistant",content:"No chat host set. Open ⊞ data → CHAT and enter an Ollama ip:port (e.g. 192.168.0.41:11434) or an OpenAI-compatible base URL + API key, then ↻ models to pick one."};return {...c,busy:false,msgs:m};});
-      return;
-    }
+    const epoch=graphEpoch.current, C={...connRef.current};
     try{
-      const top=await retrieveKB(q);
-      const context=top.map(n=>`[${n.title}]\n${(n.raw||"").slice(0,1200)}`);
-      await chatStream({host:conn.chatHost,model:conn.chatModel,key:conn.chatKey,oai:conn.chatOAI,system:KB_SYSTEM,context,
+      requireModelTrust(C.chatHost,C.chatTrust,C.chatOAI?C.chatKey:"");
+      const top=await retrieveKB(q,6,C);
+      if(epoch!==graphEpoch.current) return;
+      const context=top.map(n=>"["+n.title+"]\n"+(n.raw||"").slice(0,1200));
+      const answer=await chatStream({host:C.chatHost,model:C.chatModel,key:C.chatKey,oai:C.chatOAI,trust:C.chatTrust,system:KB_SYSTEM,context,
         messages:[...history,{role:"user",content:q}],
-        onToken:(tok)=>setChat(c=>{const m=[...c.msgs];const last=m[m.length-1];m[m.length-1]={...last,content:(last.content||"")+tok};return {...c,msgs:m};})});
-      setChat(c=>{const m=[...c.msgs];m[m.length-1]={...m[m.length-1],sources:top};return {...c,busy:false,msgs:m};});
+        onToken:(tok)=>{if(epoch!==graphEpoch.current)return;setChat(c=>{const m=[...c.msgs];const last=m[m.length-1];if(!last)return c;m[m.length-1]={...last,content:(last.content||"")+tok};return {...c,msgs:m};});}});
+      if(epoch!==graphEpoch.current) return;
+      setChat(c=>{const m=[...c.msgs];if(!m.length)return {...c,busy:false};m[m.length-1]={...m[m.length-1],sources:citedSources(answer,top)};return {...c,busy:false,msgs:m};});
     }catch(err){
-      setChat(c=>{const m=[...c.msgs];m[m.length-1]={role:"assistant",content:"⚠ chat failed: "+err.message+" — check the Chat host/model in ⊞ data (and that the server permits this origin; native Tauri bypasses CORS)."};return {...c,busy:false,msgs:m};});
+      if(epoch!==graphEpoch.current) return;
+      setChat(c=>{const m=[...c.msgs];if(!m.length)return {...c,busy:false};m[m.length-1]={role:"assistant",content:"Chat failed: "+err.message+" Check Data connections and endpoint approval. The bundled demo allows only same-origin network requests; local AI integration remains a native release gate."};return {...c,busy:false,msgs:m};});
     }
   };
 
@@ -741,6 +720,7 @@ export default function ThinkSpace(){
         {tab==="spatial"&&<button onClick={()=>setEdgeMode(m=>m==="vectors"?"flow":"vectors")} style={btn}>edge: {edgeMode}</button>}
       </div>
 
+      {sky.err&&<div role="status" style={{fontSize:11,color:"#ffd479",padding:"6px 14px"}}>Sky off: {sky.err}</div>}
       <div ref={stageRef} style={{position:"relative",aspectRatio:"760 / 520"}}>
         {ingest.open&&(
           <div style={{position:"absolute",top:10,left:"50%",transform:"translateX(-50%)",zIndex:12,width:340,maxHeight:"calc(100% - 20px)",overflowY:"auto",padding:16,borderRadius:14,background:"rgba(12,16,38,0.96)",backdropFilter:"blur(16px)",border:"1px solid #2a3a6a",boxShadow:"0 20px 60px #000a"}}>
@@ -750,11 +730,11 @@ export default function ThinkSpace(){
               <span onClick={()=>setIngest(s=>({...s,open:false}))} style={{cursor:"pointer",color:"#7a86b8",fontSize:14}}>✕</span>
             </div>
             <p style={{fontSize:11,color:"#9aa6d8",lineHeight:1.6,margin:"0 0 12px"}}>
-              Point <b style={{color:"#7cffc4"}}>embeddings</b> + <b style={{color:"#7cffc4"}}>chat</b> at any Ollama <i>ip:port</i> (they can differ) or an OpenAI-compatible base URL. Blank embed host = built-in demo. Then ↻ to pull the model list.
+              Choose a trusted Ollama or OpenAI-compatible service for embeddings and chat. Approve each endpoint below before listing models or sending content. Blank embedding host uses a deterministic offline layout demo, not a semantic model. This bundled demo permits only same-origin requests.
             </p>
             <div style={{fontSize:10,letterSpacing:1,color:"#7ee8fa",textShadow:"0 0 8px #7ee8fa",margin:"0 0 8px"}}>CONNECTIONS</div>
-            <ConnFields kind="embed" conn={conn} setConn={setConn} models={models.embed} busy={modelsBusy.embed} onList={()=>fetchModels("embed")} title="embeddings" accent="#7cffc4" phHost="192.168.0.41:11434 (blank = demo)" phModel="qwen3-embedding:8b"/>
-            <ConnFields kind="chat" conn={conn} setConn={setConn} models={models.chat} busy={modelsBusy.chat} onList={()=>fetchModels("chat")} title="chat / inference" accent="#7ee8fa" phHost="192.168.0.41:11434 or OpenAI URL" phModel="gemma4:e2b"/>
+            <ConnFields kind="embed" conn={conn} setConn={setConn} models={models.embed} busy={modelsBusy.embed} error={modelsError.embed} onList={()=>fetchModels("embed")} title="embeddings" accent="#7cffc4" phHost="192.168.0.41:11434 (blank = demo)" phModel="qwen3-embedding:8b"/>
+            <ConnFields kind="chat" conn={conn} setConn={setConn} models={models.chat} busy={modelsBusy.chat} error={modelsError.chat} onList={()=>fetchModels("chat")} title="chat / inference" accent="#7ee8fa" phHost="192.168.0.41:11434 or OpenAI URL" phModel="gemma4:e2b"/>
             <div style={{fontSize:10,letterSpacing:1,color:"#5d6796",textAlign:"center",margin:"4px 0 10px"}}>— ingest / load —</div>
             <div style={{display:"flex",gap:8,marginBottom:8}}>
               <div style={{flex:1}}>
@@ -770,6 +750,7 @@ export default function ThinkSpace(){
               ⬆ load graph JSON (any name)
               <input type="file" accept=".json,application/json" style={{display:"none"}} onChange={e=>e.target.files[0]&&loadGraphJson(e.target.files[0])}/>
             </label>
+            <div style={{fontSize:10,color:"#9aa6d8",marginBottom:8}}>JSON: 8 MiB, 10,000 input nodes, 40,000 input edges; at most 800 visible nodes and 3,200 edges. Large layouts use sampled repulsion. Markdown: up to 128 files, 512 KiB each, 8 MiB total.</div>
             {load.shown>0&&<div style={{fontSize:10,color:load.shown<load.total?"#ffd479":"#7cffc4",textAlign:"center",marginBottom:8}}>showing {load.shown} of {load.total} nodes{load.shown<load.total?" (most-connected slice — raise cap or lower min-edge for more)":""}</div>}
             {load.err&&<div style={{fontSize:10,color:"#ff7a7a",textAlign:"center",marginBottom:8}}>{load.err}</div>}
             <label style={{display:"block",fontSize:10,color:"#7a86b8",marginBottom:4}}>edge threshold · {ingest.thresh.toFixed(2)} (cosine)</label>
@@ -782,6 +763,7 @@ export default function ThinkSpace(){
                 <input type="file" webkitdirectory="" directory="" multiple style={{display:"none"}} onChange={e=>ingestFiles(e.target.files)}/>
               </label>
             )}
+            {ingest.err&&<div role="alert" style={{fontSize:11,color:"#ff7a7a",marginTop:8}}>{ingest.err}</div>}
             {graphVer>0&&<div style={{fontSize:10,color:"#7cffc4",textAlign:"center",marginTop:8}}>✓ live graph: {graph.current.nodes.length} nodes · {graph.current.edges.length} edges</div>}
           </div>
         )}
@@ -966,7 +948,7 @@ export default function ThinkSpace(){
               <span style={{fontSize:10,color:"#7a86b8"}}>{trail.length} stops · 4 or Esc to dive back in</span>
             </div>
             <svg viewBox={`0 0 ${W} ${H-60}`} style={{flex:1,width:"100%"}}>
-              {(()=>{ const pts=trail.map((id,i)=>{const x=60+(i/Math.max(1,trail.length-1))*(W-120);const y=(H-60)/2+Math.sin(i*1.3)*90+Math.cos(i*0.7)*40;return{id,x,y,onto:map[id].onto,title:map[id].title};});
+              {(()=>{ const pts=trail.filter(id=>map[id]).map((id,i)=>{const x=60+(i/Math.max(1,trail.length-1))*(W-120);const y=(H-60)/2+Math.sin(i*1.3)*90+Math.cos(i*0.7)*40;return{id,x,y,onto:map[id].onto,title:map[id].title};});
                 return (<>{pts.slice(1).map((p,i)=>{const a=pts[i];const mx=(a.x+p.x)/2,my=(a.y+p.y)/2-28;return <path key={i} d={`M${a.x},${a.y} Q${mx},${my} ${p.x},${p.y}`} fill="none" stroke="#3a4a7a" strokeWidth={2} strokeDasharray="2 5" markerEnd="url(#jar)"/>;})}
                   <defs><marker id="jar" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5a6aaa"/></marker></defs>
                   {pts.map((p,i)=>(<g key={i} style={{cursor:"pointer"}} onClick={()=>{setSel(p.id);setJourney(false);}}><circle cx={p.x} cy={p.y} r={14} fill="#0a0e22" stroke={ONTO[p.onto].c} strokeWidth={2} style={{filter:`drop-shadow(0 0 8px ${ONTO[p.onto].c})`}}/><text x={p.x} y={p.y+30} textAnchor="middle" fontSize={10} fill="#dfe7ff">{p.title}</text><text x={p.x} y={p.y+4} textAnchor="middle" fontSize={9} fill="#7a86b8">{i+1}</text></g>))}</>);
@@ -1027,7 +1009,7 @@ export default function ThinkSpace(){
             onSend={()=>sendChat()}
             onSource={onSource}
             onClose={()=>setChat(c=>({...c,open:false}))}
-            connOk={!!normBase(conn.chatHost)}
+            connOk={!!conn.chatHost.trim()&&!!conn.chatTrust}
           />
         )}
 
@@ -1058,10 +1040,13 @@ const btn={background:"rgba(126,232,250,0.08)",color:"#9ad8ff",border:"1px solid
 const inS={width:"100%",boxSizing:"border-box",background:"#0a0e22",border:"1px solid #1f2a55",borderRadius:8,color:"#dfe7ff",fontSize:11,padding:"6px 8px"};
 
 // ── connection editor (used twice: embeddings + chat) ──
-function ConnFields({kind,conn,setConn,models,busy,onList,title,accent,phHost,phModel}){
-  const up=(field,val)=>setConn(c=>({...c,[kind+field]:val}));
+function ConnFields({kind,conn,setConn,models,busy,error,onList,title,accent,phHost,phModel}){
+  const up=(field,val)=>setConn(c=>({...c,[kind+field]:val,...(["Host","Key","OAI"].includes(field)?{[kind+"Trust"]:""}:{})}));
   const host=conn[kind+"Host"]||"", model=conn[kind+"Model"]||"", key=conn[kind+"Key"]||"", oai=!!conn[kind+"OAI"];
   const listId=kind+"-models";
+  let endpoint={base:"",local:true}, invalid="";
+  try{endpoint=modelEndpoint(host);}catch(err){invalid=err.message;}
+  const trusted=!!endpoint.base&&conn[kind+"Trust"]===endpoint.base;
   return (
     <div style={{marginBottom:12,padding:"10px",borderRadius:10,background:"rgba(126,232,250,0.03)",border:"1px solid #182146"}}>
       <div style={{display:"flex",alignItems:"center",marginBottom:6}}>
@@ -1073,9 +1058,16 @@ function ConnFields({kind,conn,setConn,models,busy,onList,title,accent,phHost,ph
       <div style={{display:"flex",gap:6}}>
         <input list={listId} value={model} onChange={e=>up("Model",e.target.value)} placeholder={phModel} style={{...inS,flex:1}}/>
         <datalist id={listId}>{models.map(m=>(<option key={m} value={m}/>))}</datalist>
-        <button onClick={onList} disabled={busy} style={{...btn,whiteSpace:"nowrap",opacity:busy?0.6:1}}>{busy?"…":"↻ models"}</button>
+        <button onClick={onList} disabled={busy||!trusted} style={{...btn,whiteSpace:"nowrap",opacity:busy?0.6:1}}>{busy?"…":"↻ models"}</button>
       </div>
       {oai&&<input type="password" value={key} onChange={e=>up("Key",e.target.value)} placeholder="API key" style={{...inS,marginTop:6}}/>}
+      {invalid&&<div role="alert" style={{fontSize:10,color:"#ff7a7a",marginTop:6}}>{invalid}</div>}
+      {endpoint.base&&<label style={{display:"block",fontSize:10,color:"#ffd479",lineHeight:1.5,marginTop:8}}>
+        <input type="checkbox" checked={trusted} onChange={e=>up("Trust",e.target.checked?endpoint.base:"")}/>
+        I trust {endpoint.base} and allow {kind==="embed"?"document text and queries":"queries, conversation history and retrieved document text"}{oai?" plus my API key":""} to be sent there when I use this connection.
+        {endpoint.base.startsWith("http:")?" HTTP is unencrypted; use only a trusted local model service.":" HTTPS protects transport; the service operator receives this content."}
+      </label>}
+      {error&&<div role="alert" style={{fontSize:10,color:"#ff7a7a",marginTop:6}}>{error}</div>}
       {models.length>0&&<div style={{fontSize:9,color:"#5d6796",marginTop:4}}>{models.length} models · type to filter</div>}
     </div>
   );
@@ -1093,10 +1085,10 @@ function ReaderView({nodes,edges,sel,onSel,annos,addAnno,onSpatial,onChat}){
   const node=byId[sel]||nodes[0];
   if(!node) return <div style={{position:"absolute",inset:0,zIndex:8,display:"flex",alignItems:"center",justifyContent:"center",color:"#5d6796",fontSize:13,background:"#05060f"}}>no documents — load a graph or ingest a folder in ⊞ data</div>;
   const oc=ONTO[node.onto]||{c:"#7ee8fa",label:"node"};
-  const bodyHtml=node.html?scrubHtml(node.html):mdToHtml(node.raw||node.title||"");
+  const bodyHtml=node.html?isolatedGraphHtml(node.html):mdToHtml(node.raw||node.title||"");
   const links=edges.filter(e=>e.from===node.id||e.to===node.id).map(e=>{const oid=e.from===node.id?e.to:e.from;return {oid,node:byId[oid],rel:e.rel};}).filter(x=>x.node);
-  const resolve=(href)=>{ if(!href) return null; let h=String(href).trim(); if(/^https?:|^mailto:/i.test(h)) return {ext:h}; h=h.replace(/^#/,""); try{h=decodeURIComponent(h);}catch(e){} const low=h.toLowerCase(); const hit=nodes.find(n=>String(n.id).toLowerCase()===low)||nodes.find(n=>String(n.title||"").toLowerCase()===low)||nodes.find(n=>low.length>2&&String(n.title||"").toLowerCase().includes(low)); return hit?{id:hit.id}:{ext:href}; };
-  const onBodyClick=(e)=>{ const a=e.target.closest&&e.target.closest("a"); if(!a) return; e.preventDefault(); const r=resolve(a.getAttribute("href")); if(r&&r.id) onSel(r.id); else if(r&&r.ext) window.open(r.ext,"_blank","noopener"); };
+  const resolve=(href)=>{ if(!href) return null; let h=String(href).trim(); if(/^https?:|^mailto:/i.test(h)) return {ext:h}; h=h.replace(/^#/,""); try{h=decodeURIComponent(h);}catch(e){} const low=h.toLowerCase(); const hit=nodes.find(n=>String(n.id).toLowerCase()===low)||nodes.find(n=>String(n.title||"").toLowerCase()===low)||nodes.find(n=>low.length>2&&String(n.title||"").toLowerCase().includes(low)); return hit?{id:hit.id}:null; };
+  const onBodyClick=(e)=>{ const a=e.target.closest&&e.target.closest("a"); if(!a) return; e.preventDefault(); const r=resolve(a.getAttribute("href")); if(r&&r.id) onSel(r.id); else if(r&&r.ext){try{const url=new URL(r.ext);if(["http:","https:","mailto:"].includes(url.protocol)&&!url.username&&!url.password)window.open(url.href,"_blank","noopener,noreferrer");}catch{}} };
   const onBodyUp=(e)=>{ const s=window.getSelection&&window.getSelection(); const text=s?String(s).trim():""; if(!text){setMenu(null);return;} const host=e.currentTarget.getBoundingClientRect(); let rect=host; try{rect=s.getRangeAt(0).getBoundingClientRect();}catch(err){} setMenu({x:rect.left-host.left+rect.width/2,y:rect.top-host.top,w:host.width,text}); };
   return (
     <div style={{position:"absolute",inset:0,zIndex:8,display:"flex",background:"radial-gradient(ellipse at 50% 0%, #0b1030 0%, #05060f 70%)"}}>
@@ -1128,7 +1120,9 @@ function ReaderView({nodes,edges,sel,onSel,annos,addAnno,onSpatial,onChat}){
             <button onClick={()=>onSpatial(node.id)} style={{...btn,borderColor:"#2a4a7a"}}>◎ show in space</button>
             <button onClick={()=>onChat(node.title)} style={{...btn,color:"#05060f",background:"#7cffc4",border:"none"}}>✦ ask about this</button>
           </div>
-          <div onClick={onBodyClick} onMouseUp={onBodyUp} style={{fontSize:14,lineHeight:1.75,color:"#c9d2f5",wordBreak:"break-word"}} dangerouslySetInnerHTML={{__html:bodyHtml}}/>
+          {node.html?<iframe title={"Isolated document: "+node.title} sandbox="" referrerPolicy="no-referrer" srcDoc={bodyHtml} style={{display:"block",width:"100%",height:360,border:"1px solid #1f2a55",borderRadius:8}}/>:
+            <div onClick={onBodyClick} onMouseUp={onBodyUp} style={{fontSize:14,lineHeight:1.75,color:"#c9d2f5",wordBreak:"break-word"}} dangerouslySetInnerHTML={{__html:bodyHtml}}/>}
+          {node.html&&<p style={{fontSize:10,color:"#7a86b8"}}>Imported HTML is isolated. Use the source links below to navigate; selection annotations are available for Markdown documents.</p>}
           {links.length>0&&(
             <div style={{marginTop:28,paddingTop:16,borderTop:"1px solid #161b38"}}>
               <div style={{fontSize:10,letterSpacing:1,color:"#7a86b8",marginBottom:10}}>LINKS</div>
@@ -1168,13 +1162,13 @@ function ChatPanel({chat,setChat,onSend,onSource,onClose,connOk}){
         <span style={{width:8,height:8,borderRadius:8,background:"#7cffc4",boxShadow:"0 0 10px #7cffc4"}}/>
         <strong style={{fontSize:12,letterSpacing:1}}>CHAT WITH KNOWLEDGE</strong>
         <div style={{flex:1}}/>
-        <button onClick={()=>setChat(c=>({...c,msgs:[]}))} title="clear" style={{...btn,padding:"3px 8px"}}>⌫</button>
+        <button onClick={()=>setChat(c=>({...c,msgs:[]}))} disabled={chat.busy} title="clear" style={{...btn,padding:"3px 8px"}}>⌫</button>
         <button onClick={onClose} title="close" style={{...btn,padding:"3px 9px"}}>✕</button>
       </div>
       <div ref={scroller} style={{flex:1,overflowY:"auto",padding:"14px"}}>
         {chat.msgs.length===0&&(
           <div style={{fontSize:12,color:"#7a86b8",lineHeight:1.7,padding:"6px 2px"}}>
-            Ask anything about the nodes you've loaded — answers cite the baubles they came from, and the citations are clickable.
+            Ask about the loaded nodes. Source chips appear only for exact, unambiguous node titles cited in the response. Check the source text to verify each claim.
             {!connOk&&<div style={{marginTop:10,padding:"8px 10px",borderRadius:8,background:"rgba(255,212,121,0.08)",border:"1px solid #4a3a1a",color:"#ffd479",fontSize:11}}>⚠ Set a <b>Chat host</b> in ⊞ data → CHAT first (Ollama ip:port or an OpenAI-compatible URL + key).</div>}
           </div>
         )}

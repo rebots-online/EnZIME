@@ -7,6 +7,29 @@ The mature PRD remains the product contract. See
 [LOCAL_ENGINE_RELEASE.md](LOCAL_ENGINE_RELEASE.md) for implementation boundaries
 and exact inference evidence.
 
+## PR2 reference scope and review dispositions (13 September 2026)
+
+The owner authorized the existing PR design as an executable Node/esbuild reference and local beta. This scoped exception addresses review 3978345743; native Tauri 2/Rust/Vite packages for Windows, Linux and Android remain a release gate. Apple targets are excluded by `INV-NO-APPLE` (3978345849). Review 3998998904: the approved LFM2.5/Bonsai and llama.cpp-compatible/TurboQuant evaluation requirements are explicitly scoped to this reference/local beta. They do not silently replace the root native Gemma/LiteRT baseline. Reconcile and qualify native model/runtime choices before release; this PR does not install or migrate a model runtime.
+
+ThinkSpace is a labelled interaction demo, outside Reader offline acceptance (3985321551). Its blank embedding host produces deterministic layout vectors, not semantic embeddings; chat requires a configured service. The broker's existing `connect-src 'self'` blocks cross-origin connections, including LAN and other loopback ports. Configuring those hosts does not establish that this bundled demo can connect, and no CSP relaxation or native bridge is supplied here. Production local inference and grounded offline retrieval must pass Stage B.
+
+Model-host reviews 3978403446 and 3985321847 are addressed with explicit, per-endpoint session approval before model listing, embeddings or chat; host, key or protocol-mode edits revoke approval. Only fixed model API routes on credential-free HTTP(S) service origins are allowed. Remote services require HTTPS; API keys require HTTPS except on loopback. Fetches omit browser credentials and referrers and reject redirects. Approved local/LAN services remain an intended integration; this is a browser request boundary, not server-side SSRF. Service operators receive the explicitly disclosed text and any configured key. Local DNS/service integrity and the receiving model service remain trusted; endpoint approval does not authenticate a server or override CSP/CORS. Future native connectivity requires its own permission and offline acceptance evidence.
+
+Local broker review 3978345950 is a documented trust boundary: the loopback broker trusts local-host processes. `X-MBA-Client` is a browser-origin guard, not authentication; a publicly retrievable random token would not isolate hostile local clients. Bind only to `127.0.0.1`, retain private profile directory/file permissions, and do not claim multi-user or hostile-local-process isolation. Such isolation requires a separately authenticated/scoped broker and remains part of STORE-04 acceptance.
+
+ThinkSpace regression scope: bounded JSON bytes and input counts before normalization, at most 800 visible nodes/3,200 edges, sampled repulsion with at most 48 peers per node, and Markdown ingestion limited to 128 documents/512 KiB each/8 MiB total. These bounds are not evidence of the production 30 fps target. Imported HTML uses an opaque-origin, scriptless sandbox with a restrictive resource policy; HTML selection annotations and in-document privileged navigation are unavailable, while graph links and Markdown annotations remain available. Citation chips validate exact, unambiguous titles actually cited in the answer; semantic support for each claim still needs production retrieval evaluation. Sky uses orientation only and remains off if permission is denied or unavailable.
+
+### PR2 verification receipt: 13 September 2026
+
+Run in the shared PR2 worktree with Node v24.18.0, including the integrator's concurrent atomic-state fixes, before the integration commit:
+
+- `cd consolidated && node --test test/thinkspace-review.test.mjs`: exit 0, 27 passed, 0 failed. Includes final SSE/NDJSON records without newlines, split UTF-8 and terminal `[DONE]` cancellation (3998998889), plus rejection of remote domain names resembling private IPv4 prefixes.
+- `cd consolidated && npm test`: exit 0, 47 passed, 0 failed, 0 skipped. This is a dated run result, not a permanent suite-size claim.
+- `cd consolidated && npm run build`: exit 0; observed `PDF.js and preserved ThinkSpace bundled locally.` The earlier JSX error at ThinkSpace line 755 was corrected before this successful build.
+
+ThinkSpace tests execute the component handlers with a minimal hook/event harness and test the shared guards directly. They assert sandbox attributes/resource policy and mocked network behavior; they do not constitute browser-engine isolation, real model-host connectivity, device sensor, auditory or frame-rate measurements. Those remain named platform/release evidence gates. The parent integrator supplies the publication commit and merge receipt.
+
+
 ## A. Local implementation delivered
 
 - [x] Runnable Node 24+ application, bundled browser assets, source build/test
