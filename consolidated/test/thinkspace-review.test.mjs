@@ -106,6 +106,18 @@ test('visible node and edge bounds remain enforced when callers request a larger
   assert.ok(result.edges.every(e => e.conf === 1));
 });
 
+test('imported node IDs reject every Object.prototype property name before graph replacement', async () => {
+  const h = harness(); h.data();
+  for (const id of Object.getOwnPropertyNames(Object.prototype)) {
+    await assert.rejects(support.readGraphFile(graphFile({nodes: [{id}]}), opts), /Object\.prototype property name/, id);
+    await h.load({nodes: [{id}]});
+    assert.match(h.state(s => s && typeof s === 'object' && 'maxNodes' in s).value.err, /Object\.prototype property name/);
+    assert.ok(h.refs().some(r => r.current?.nodes?.[0]?.id === 'entropy'), id);
+  }
+  const valid = await support.readGraphFile(graphFile({nodes: [{id: 'toString-guide'}]}), opts);
+  assert.equal(valid.nodes[0].id, 'toString-guide');
+});
+
 test('embedding responses must be nonempty, finite, bounded and dimensionally consistent', () => {
   for (const vector of [[], [NaN], [Infinity], ['1'], Array(8193).fill(1)]) assert.throws(() => support.validateEmbedding(vector), /invalid/);
   assert.throws(() => support.validateEmbedding([1, 2], 3), /inconsistent/);

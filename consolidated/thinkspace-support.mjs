@@ -31,7 +31,7 @@ export async function readGraphFile(file, {maxNodes = 300, minConf = 0, ontoKeys
   let nodes = g.nodes.map((n, i) => {
     if (!n || typeof n !== 'object' || Array.isArray(n)) throw new Error(`Node ${i + 1} must be an object.`);
     const id = n.id == null ? 'n' + i : String(n.id);
-    if (!id.trim() || id.length > 256 || ids.has(id) || ['__proto__', 'constructor', 'prototype'].includes(id)) throw new Error(`Node ${i + 1} needs a unique, nonempty ID (up to 256 characters).`);
+    if (!id.trim() || id.length > 256 || ids.has(id) || Object.hasOwn(Object.prototype, id) || id === 'prototype') throw new Error(`Node ${i + 1} needs a unique, nonempty ID (up to 256 characters) that is not an Object.prototype property name.`);
     ids.add(id);
     const onto = n.onto || n.type || n.category;
     const position = n.pos || n.position;

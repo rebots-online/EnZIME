@@ -53,7 +53,19 @@ These follow-up findings were raised while the original fixes were being reviewe
 | [3999056143](https://github.com/rebots-online/EnZIME/pull/2#discussion_r3999056143): cross-document annotations | Valid provenance bug. | Bind marks to source node IDs and filter both reader and spatial views by the active node. |
 | [3999056171](https://github.com/rebots-online/EnZIME/pull/2#discussion_r3999056171): public symlink escape | Valid static-serving boundary gap. | Enforce resolved-path containment and regular-file checks before serving static bytes; retain the explicitly documented trusted-local-filesystem boundary. |
 
-### Final PR2 follow-up receipt (13 September 2026)
+### Final PR2 local acceptance (13 September 2026)
+
+The integrator ran `npm test` and `npm run build` after all late parallel-review fixes: 61/61 tests passed, zero failed/skipped, and the build exited 0. All 53 captured PR2 review threads are covered by the original table and follow-up rows, including duplicate dispositions and explicitly retained reference/local-beta scope boundaries. This receipt does not convert the documented production qualification gaps into verified claims.
+
+### Late parallel-review findings
+
+| Review issue | Evaluation | Required merge disposition |
+| --- | --- | --- |
+| [3999062151](https://github.com/rebots-online/EnZIME/pull/2#discussion_r3999062151): stale import completion changes the selected work | Valid asynchronous selection bug. | Capture an import selection generation before uploading; a superseded completion may finish storage but must not replace the newer reader selection. |
+| [3999062153](https://github.com/rebots-online/EnZIME/pull/2#discussion_r3999062153): inconsistent imported dimensions | Duplicate of 3999056110. | Rejected by the shared dimension guard in `66969e3`; covered by the same regression tests. |
+| [3999062157](https://github.com/rebots-online/EnZIME/pull/2#discussion_r3999062157): inherited object keys used as node IDs | Valid: inherited functions can corrupt numeric rendering state. | Reject every `Object.prototype` property name before graph replacement; test the complete set and preservation of the existing graph on rejection. |
+
+### PR2 follow-up receipt at `66969e3` (13 September 2026)
 
 All seven follow-up rows above are addressed. Embedding HTTP/vector rejection (3999011144) was already implemented in `070313e`; expanded tests confirm its failure/retry behavior. The other ThinkSpace follow-ups and resolved-path static serving are implemented in the final follow-up batch. The original 43 threads plus seven additional threads now have explicit dispositions.
 

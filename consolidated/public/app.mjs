@@ -1,4 +1,4 @@
-const $=id=>document.getElementById(id);let current=null,pdf=null,page=1,font=19,renderTask=null,opening=0,rendering=0;
+const $=id=>document.getElementById(id);let current=null,pdf=null,page=1,font=19,renderTask=null,opening=0,rendering=0,importing=0;
 const status=t=>$('status').textContent=t;
 async function api(url,options){const r=await fetch(url,options);if(!r.ok)throw Error((await r.json()).error);return r.json();}
 const post=body=>({method:'POST',headers:{'X-MBA-Client':'enzime'},body});
@@ -12,7 +12,7 @@ async function openAsset(item){const ticket=++opening;rendering++;current=item;r
  else {const p=document.createElement('p');p.className='paper';p.textContent=`Stored in mba.robin. ${item.kind==='zim'?'AnZimmermanLib reader':'Local inference'} adapter is not connected in this preview.`;$('reading').append(p);}
  if(ticket===opening)status(`Opened ${item.name}`);
 }
-$('upload').onchange=async e=>{try{const file=e.target.files[0];if(!file)return;const ext=file.name.split('.').pop().toLowerCase();const kind={pdf:'pdf',txt:'final',md:'final',zim:'zim',gguf:'model',mp3:'audio',mp4:'video'}[ext];if(!kind)throw Error('Unsupported file type');status('Importing to mba.robin…');const item=await api(`/api/assets?kind=${kind}&name=${encodeURIComponent(file.name)}`,post(file));await refresh();await openAsset(item);}catch(e){status(e.message);}};
+$('upload').onchange=async e=>{const file=e.target.files[0];if(!file)return;const ticket=++importing;let selection=++opening;rendering++;renderTask?.cancel();const active=()=>ticket===importing&&selection===opening;try{const ext=file.name.split('.').pop().toLowerCase();const kind={pdf:'pdf',txt:'final',md:'final',zim:'zim',gguf:'model',mp3:'audio',mp4:'video'}[ext];if(!kind)throw Error('Unsupported file type');status('Importing to mba.robin…');const item=await api(`/api/assets?kind=${kind}&name=${encodeURIComponent(file.name)}`,post(file));await refresh();if(!active())return;const loading=openAsset(item);selection=opening;await loading;}catch(e){if(active())status(e.message);}};
 $('prev').onclick=()=>{page--;draw().catch(e=>status(e.message))};$('next').onclick=()=>{page++;draw().catch(e=>status(e.message))};$('page').onchange=()=>{page=Number($('page').value)||1;draw().catch(e=>status(e.message))};$('zoom').onchange=()=>draw().catch(e=>status(e.message));
 for(const [id,delta] of [['smaller',-1],['larger',1]])$(id).onclick=()=>{font=Math.max(14,Math.min(30,font+delta));const p=$('reading').querySelector('.paper');if(p)p.style.fontSize=font+'px';};
 $('bookmark').onclick=()=>save().then(()=>status('Reading place saved.')).catch(e=>status(e.message));
