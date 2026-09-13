@@ -1,0 +1,210 @@
+{
+  "startedAt": "2026-09-11T02:57:47.630Z",
+  "acceptanceType": "real-local-model-over-HTTP-app",
+  "model": "LiquidAI LFM2.5-1.2B-Instruct Q4_K_M",
+  "runtime": {
+    "configured": true,
+    "status": {
+      "state": "ready",
+      "endpoint": "http://127.0.0.1:8099/v1",
+      "assetId": "b1b3de114215d9507409a662a501a631095a479a419584e8a2ded6304b19b4f5",
+      "modelId": "[shared-model]/LFM2.5-1.2B-Instruct-Q4_K_M.gguf",
+      "modelName": "LFM2.5-1.2B-Instruct-Q4_K_M.gguf",
+      "contextSize": 4096,
+      "gpuLayers": 0,
+      "threads": 4,
+      "lastError": null,
+      "pid": 17,
+      "kvCache": {
+        "compression": null,
+        "status": "backend-default",
+        "turboQuantVerified": false
+      },
+      "authentication": {
+        "mode": "ephemeral-bearer",
+        "verified": true
+      }
+    }
+  },
+  "calls": [
+    {
+      "route": "/api/mount",
+      "status": 201
+    },
+    {
+      "route": "/api/runtime/start",
+      "status": 200
+    },
+    {
+      "route": "/api/config",
+      "status": 200
+    },
+    {
+      "route": "/api/assets/<content-id>/read?key=C/Field_light",
+      "status": 200
+    },
+    {
+      "route": "/api/sources/<content-id>/read",
+      "status": 200
+    },
+    {
+      "route": "/api/annotations",
+      "status": 201
+    },
+    {
+      "route": "/api/chats",
+      "status": 200
+    },
+    {
+      "route": "/api/assets/<content-id>/verify",
+      "status": 200
+    },
+    {
+      "route": "/api/stats",
+      "status": 200
+    },
+    {
+      "route": "/api/annotations?assetId=<content-id>",
+      "status": 200
+    },
+    {
+      "route": "/api/chats",
+      "status": 200
+    },
+    {
+      "route": "/api/sources/<content-id>/read",
+      "status": 200
+    },
+    {
+      "route": "/api/sources/<content-id>/read",
+      "status": 200
+    },
+    {
+      "route": "/api/assets/<content-id>/verify",
+      "status": 200
+    },
+    {
+      "route": "/api/runtime",
+      "status": 200
+    }
+  ],
+  "passed": true,
+  "modelSHA256": "b1b3de114215d9507409a662a501a631095a479a419584e8a2ded6304b19b4f5",
+  "sourceSHA256": "e7f80ea9636477610e19de60dd05c1904b5e3b2cb3d6ff0d93f2664b35280cfd",
+  "linkedModel": {
+    "id": "b1b3de114215d9507409a662a501a631095a479a419584e8a2ded6304b19b4f5",
+    "storage": "mounted",
+    "size": 730895168
+  },
+  "modelLoadMs": 3083,
+  "directUnauthenticatedModelsStatus": 401,
+  "directUnauthenticatedChatStatus": 401,
+  "publicStatusContainsApiKey": false,
+  "source": {
+    "assetId": "e7f80ea9636477610e19de60dd05c1904b5e3b2cb3d6ff0d93f2664b35280cfd",
+    "key": "C/Field_light",
+    "sourceId": "242c5344378db0dd6b94f2e3ccc227937b55774572387db957b449cfc7f95e4d",
+    "text": "Offline arithmetic acceptance source. The fictional test light draws 6 watts. Running this light for 3 hours requires 18 watt-hours (6 W times 3 h). This simple arithmetic example ignores battery losses and is not equipment advice.",
+    "contentHash": "a45c9cc4816099c7c6d7097f5732063a3807403d434c421428e9879ccf9bae92"
+  },
+  "firstTokenMs": 4490,
+  "generationMs": 5234,
+  "answer": "The source states that the fictional test light draws 6 watts and running it for 3 hours requires 18 watt-hours. This information is cited directly from the excerpt. [S1]",
+  "retrieval": {
+    "mode": "lexical+graph",
+    "embeddings": "No query embedding supplied; vector retrieval is inactive.",
+    "embeddingModel": null,
+    "compatibleVectors": 0,
+    "candidateVectors": 0,
+    "incompatibleVectors": 0,
+    "activeSources": 1,
+    "candidates": 1,
+    "partial": false,
+    "scope": "Mounted source metadata and bounded disposable text/vector projections.",
+    "errors": [],
+    "discovery": {
+      "archives": [
+        {
+          "assetId": "e7f80ea9636477610e19de60dd05c1904b5e3b2cb3d6ff0d93f2664b35280cfd",
+          "title": "Arithmetic-source.zim",
+          "matchedTitles": 1,
+          "complete": true
+        }
+      ],
+      "scope": "Opened document pages, registered sources and bounded ZIM title discovery; unopened PDF/EPUB pages are not a full-text index."
+    }
+  },
+  "completion": {
+    "model": "[shared-model]/LFM2.5-1.2B-Instruct-Q4_K_M.gguf",
+    "citations": [
+      {
+        "id": "S1",
+        "sourceId": "242c5344378db0dd6b94f2e3ccc227937b55774572387db957b449cfc7f95e4d",
+        "title": "Offline arithmetic acceptance source",
+        "sourceRef": {
+          "sourceId": "242c5344378db0dd6b94f2e3ccc227937b55774572387db957b449cfc7f95e4d",
+          "assetId": "e7f80ea9636477610e19de60dd05c1904b5e3b2cb3d6ff0d93f2664b35280cfd",
+          "edition": "e7f80ea9636477610e19de60dd05c1904b5e3b2cb3d6ff0d93f2664b35280cfd",
+          "key": "C/Field_light",
+          "title": "Offline arithmetic acceptance source",
+          "kind": "zim",
+          "locator": {
+            "assetId": "e7f80ea9636477610e19de60dd05c1904b5e3b2cb3d6ff0d93f2664b35280cfd",
+            "key": "C/Field_light"
+          },
+          "contentHash": "a45c9cc4816099c7c6d7097f5732063a3807403d434c421428e9879ccf9bae92",
+          "layerId": "[\"e7f80ea9636477610e19de60dd05c1904b5e3b2cb3d6ff0d93f2664b35280cfd\",\"e7f80ea9636477610e19de60dd05c1904b5e3b2cb3d6ff0d93f2664b35280cfd\"]",
+          "corpusId": "e7f80ea9636477610e19de60dd05c1904b5e3b2cb3d6ff0d93f2664b35280cfd"
+        },
+        "truncated": false
+      }
+    ],
+    "citedSourceIds": [
+      "S1"
+    ],
+    "unsupportedCitationIds": [],
+    "finishReason": "stop",
+    "citationStatus": "source-mapped-not-entailment-verified"
+  },
+  "citationOpenedOriginal": true,
+  "note": {
+    "id": "6f7915ab-90f9-4526-b55c-59fa617785c5",
+    "sourceId": "d09ab2ff3f10199de1c3cef688418a520d366cf6648b2961e4a1eaf994a6c59a",
+    "text": "Acceptance note: the source arithmetic is 6 W \u00d7 3 h = 18 Wh; real battery losses require separate treatment."
+  },
+  "chatId": "22cfb07e-25ad-4da3-84e7-1cfc1a0cf3f0",
+  "sourceArchiveVerified": true,
+  "modelBytesDuplicated": 0,
+  "firstShutdownStoppedModel": true,
+  "restart": {
+    "notePreserved": true,
+    "chatPreserved": true,
+    "citationMappingPreserved": true,
+    "citationStillOpensOriginal": true,
+    "noteSnapshotPreserved": true,
+    "archiveVerified": true,
+    "runtime": "stopped"
+  },
+  "originalHashesUnchanged": {
+    "model": true,
+    "zim": true
+  },
+  "endedAt": "2026-09-11T02:57:58.344Z",
+  "sanitization": {
+    "absoluteModelPaths": "Replaced with [shared-model]/ plus the original filename; IDs, hashes, timings and results are unchanged.",
+    "credentials": "No bearer token is included."
+  },
+  "artifactProvenance": {
+    "runtimeRepository": "ggml-org/llama.cpp",
+    "runtimeRelease": "b10809",
+    "runtimeCommit": "5266f24da75dc449bd56cbed7addb9c8e4a6a73e",
+    "runtimeArchive": "llama-b10809-bin-ubuntu-x64.tar.gz",
+    "runtimeArchiveSHA256": "5e34434ddc6d03cd1584f403201aff0d4bd1a5793a72ff7e286532dfd1e4b941",
+    "serverExecutableSHA256": "07723ae07835bdf11cf0d00d68eb4df8308df0603f689c64c9f841a626cad01d",
+    "modelRepository": "LiquidAI/LFM2.5-1.2B-Instruct-GGUF",
+    "modelRevision": "6767265158422fb8a19c62ceb45f16f05363615b",
+    "modelFilename": "LFM2.5-1.2B-Instruct-Q4_K_M.gguf",
+    "modelSHA256": "b1b3de114215d9507409a662a501a631095a479a419584e8a2ded6304b19b4f5",
+    "modelBytes": 730895168
+  }
+}

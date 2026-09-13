@@ -3,3 +3,6 @@ public/vendor/
 public/thinkspace.js
 .env
 .data/
+
+public/app.js
+release/

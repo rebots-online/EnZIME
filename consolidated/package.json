@@ -1,1 +1,27 @@
-{"name":"@mba-robin/enzime-market-skeleton","version":"0.1.0","private":true,"type":"module","engines":{"node":">=24"},"scripts":{"start":"node server.mjs","test":"node --test test/*.test.mjs","build":"node build.mjs"},"dependencies":{"pdfjs-dist":"6.3.289","react":"19.2.4","react-dom":"19.2.4"},"devDependencies":{"esbuild":"0.25.12"}}
+{
+  "name": "@mba-robin/enzime-local-engine",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "build": "node build.mjs",
+    "package:linux": "node scripts/package.mjs"
+  },
+  "dependencies": {
+    "dompurify": "^3.3.3",
+    "fflate": "^0.8.2",
+    "linkedom": "^0.18.12",
+    "pdfjs-dist": "6.3.289",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12",
+    "jsdom": "^26.1.0"
+  }
+}
