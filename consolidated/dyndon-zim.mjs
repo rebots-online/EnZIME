@@ -10,16 +10,26 @@ function clean(value, label) {
   if(s.includes('\0') || Buffer.byteLength(s)>65535) throw Error(`Invalid ZIM ${label}`);
   return s;
 }
+function mediaType(value) {
+  const mime=clean(value,'MIME');
+  const match=/^([!#$%&'*+.^_`|~\da-z-]+)\/([!#$%&'*+.^_`|~\da-z-]+)((?: *; *[!#$%&'*+.^_`|~\da-z-]+=(?:[!#$%&'*+.^_`|~\da-z-]+|"(?:[\x20\x21\x23-\x5b\x5d-\x7e]|\\[\x20-\x7e])*"))*)$/i.exec(mime);
+  if(!match || match[1].includes('*') || match[2].includes('*')) throw Error('Invalid ZIM MIME');
+  // Keep parameter values intact; media type names are case-insensitive.
+  return match[1].toLowerCase()+'/'+match[2].toLowerCase()+match[3].trimStart();
+}
 function prepare(records, options={}) {
   if(!Array.isArray(records)) throw Error('ZIM records must be an array');
   const seen=new Set();
   const entries=records.map((record,index)=>{
-    const key=clean(record.key || record.id || `article-${index+1}`,'key').replace(/^C\//,'');
+    const key=clean(record.key ?? record.id ?? `article-${index+1}`,'key').replace(/^C\//,'');
+    if(/[\x00-\x1f\ufffd]/.test(key) || encoder(key).toString('utf8')!==key) throw Error('Invalid ZIM key');
     if(!key || seen.has(key)) throw Error('ZIM article keys must be unique and nonempty');
     seen.add(key);
     const bytes=Buffer.isBuffer(record.bytes)?record.bytes:Buffer.from(record.html ?? record.text ?? record.body ?? '', 'utf8');
     if(bytes.length>0xfffffff0) throw Error('ZIM record exceeds a 32-bit cluster');
-    return {namespace:'C',key,title:clean(record.title || key,'title'),mime:clean(record.mime || (record.html!==undefined?'text/html':'text/plain'),'MIME'),bytes};
+    const title=clean(record.title || key,'title');
+    if(16+Buffer.byteLength(key)+1+Buffer.byteLength(title)+1>65536) throw Error('Oversized ZIM directory entry');
+    return {namespace:'C',key,title,mime:mediaType(record.mime ?? (record.html!==undefined?'text/html':'text/plain')),bytes};
   });
   const metadata={Title:options.title || 'EnZIME knowledge edition',Description:options.description || 'A storage-fit edition created with EnZIME',Language:options.language || 'eng',Creator:options.creator || 'EnZIME',Publisher:options.publisher || 'EnZIME',Date:options.date || new Date().toISOString().slice(0,10)};
   for(const [key,value] of Object.entries(metadata)) entries.push({namespace:'M',key,title:'',mime:'text/plain',bytes:encoder(clean(value,'metadata'))});
@@ -27,6 +37,7 @@ function prepare(records, options={}) {
   const mimes=[...new Set(entries.map(e=>e.mime))].sort();
   if(mimes.length>=65534) throw Error('Too many MIME types');
   const mimeBytes=encoder(mimes.map(x=>x+'\0').join('')+'\0');
+  if(mimeBytes.length>1024*1024) throw Error('Oversized ZIM MIME table');
   const dirents=entries.map((e,index)=>{
     const fixed=Buffer.alloc(16); fixed.writeUInt16LE(mimes.indexOf(e.mime),0);fixed[2]=0;fixed[3]=e.namespace.charCodeAt(0);fixed.writeUInt32LE(0,4);fixed.writeUInt32LE(index,8);fixed.writeUInt32LE(0,12);
     return Buffer.concat([fixed,encoder(e.key+'\0'+e.title+'\0')]);
@@ -42,7 +53,7 @@ function prepare(records, options={}) {
   const header=Buffer.alloc(80);header.writeUInt32LE(0x044d495a,0);header.writeUInt16LE(6,4);header.writeUInt16LE(1,6);
   const identity=createHash('sha256');for(const e of entries){identity.update(e.namespace+'\0'+e.key+'\0'+e.title+'\0'+e.mime+'\0');identity.update(e.bytes);}identity.digest().copy(header,8,0,16);
   header.writeUInt32LE(entries.length,24);header.writeUInt32LE(entries.length,28);header.writeBigUInt64LE(BigInt(urlPtrPos),32);header.writeBigUInt64LE(BigInt(titlePtrPos),40);header.writeBigUInt64LE(BigInt(clusterPtrPos),48);header.writeBigUInt64LE(80n,56);
-  const main=entries.findIndex(e=>e.namespace==='C'&&(e.mime==='text/html'||e.mime==='text/plain'));header.writeUInt32LE(main<0?0xffffffff:main,64);header.writeUInt32LE(0xffffffff,68);header.writeBigUInt64LE(BigInt(checksumPos),72);
+  const main=entries.findIndex(e=>e.namespace==='C'&&/^(?:text\/(?:html|plain)|application\/xhtml\+xml)(?:;|$)/i.test(e.mime));header.writeUInt32LE(main<0?0xffffffff:main,64);header.writeUInt32LE(0xffffffff,68);header.writeBigUInt64LE(BigInt(checksumPos),72);
   return {entries,header,mimeBytes,urlPointers,titlePointers,clusterPointers,dirents,size:checksumPos+16};
 }
 export function estimateZimBytes(records, options={}) {return prepare(records,options).size;}

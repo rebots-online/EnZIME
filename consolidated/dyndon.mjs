@@ -165,6 +165,10 @@ export async function createDynDon({root,allowUrl=()=>false,fetchImpl=fetch,tran
   async function generateZim(records,options={}){
     if(!Array.isArray(records)||records.length>50000)throw Error('Generation requires at most 50,000 article records');
     const {metadata={},...budgetOptions}=options;
+    // Validate the whole input before reserving space, including duplicate canonical
+    // keys across records. Keep fallback keys stable when the planner omits articles.
+    records=records.map((record,i)=>({...record,key:record.key ?? record.id ?? `article-${i+1}`}));
+    estimateZimBytes(records,metadata);
     const fixed=estimateZimBytes([],metadata);
     const manifest={id:options.id||'generated-zim',version:'1',title:metadata.title||'EnZIME generated edition',units:[{id:'__zim_structure__',domain:'Edition metadata',topic:'Metadata',size:fixed,essential:true},...records.map((record,i)=>({id:String(record.id||record.key||`article-${i+1}`),title:record.title,domain:record.domain,topic:record.topic,depth:record.depth,priority:record.priority,pinned:record.pinned,essential:record.essential,dependencies:record.dependencies||[],articleCount:1,size:estimateZimBytes([record],metadata)-fixed}))]};
     const job=await createJob('generation',manifest,budgetOptions);
@@ -174,11 +178,28 @@ export async function createDynDon({root,allowUrl=()=>false,fetchImpl=fetch,tran
     return runGeneration(job.id,generateZimChunks(picked,metadata));
   }
   async function releaseJob(id,{removeFiles=false}={}){return serial(async()=>{if(running.has(id))throw Error('Cannot release a running job');const job=await getJob(id);
-    if(!removeFiles&&job.outputs.length)throw Error('Move or import outputs, then release with removeFiles:true');
+    // Catalog sources may be mounted in place. Releasing a reservation leaves
+    // published bytes and output references intact unless deletion is explicit.
     if(removeFiles)for(const output of job.outputs)await unlink(output.path).catch(e=>{if(e.code!=='ENOENT')throw e;});
     for(const name of await readdir(stageDir))if(name.startsWith(job.id))await unlink(path.join(stageDir,name));
-    job.status=job.status==='complete'?'released':'cancelled';await save(job);return job;
+    job.status=['complete','released'].includes(job.status)?'released':'cancelled';await save(job);return job;
   });}
+  // No producer or transfer from the previous broker survives this startup.
+  for(const job of await listJobs())if(job.status==='running'){
+    job.status='paused';job.pauseReason='DYNDON_RESTARTED';
+    if(job.type==='generation'){
+      job.error='Generation interrupted by broker restart; rerun with a producer or release the reservation';
+      await unlink(path.join(stageDir,job.id+'.generated.part')).catch(e=>{if(e.code!=='ENOENT')throw e;});
+    }else{
+      job.error='Download interrupted by broker restart; partial bytes retained for resume';
+      for(const unit of job.units)if(unit.status!=='complete'){
+        if(['downloading','verifying'].includes(unit.status))unit.status='paused';
+        const part=await exists(path.join(stageDir,job.id+'-'+sha256(unit.id)+'.part'));
+        if(part)unit.bytesReceived=part.size;
+      }
+    }
+    await save(job);
+  }
   return {plan:(manifest,options={})=>serial(async()=>planDynDon(manifest,await accountedOptions(options))),createDownloadJob:(manifest,options={})=>createJob('download',manifest,options),createGenerationJob:(manifest,options={})=>createJob('generation',manifest,options),runDownload,resumeDownload:runDownload,pauseDownload,close,runGeneration,getJob,listJobs,releaseJob,generateZim,
     async startDownload(manifest,options={}){const job=await createJob('download',manifest,options);return runDownload(job.id);}};
 }
