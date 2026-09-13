@@ -1,0 +1,1 @@
+{"name":"@mba-robin/enzime-market-skeleton","version":"0.1.0","private":true,"type":"module","engines":{"node":">=24"},"scripts":{"start":"node server.mjs","test":"node --test test/*.test.mjs","build":"node build.mjs"},"dependencies":{"pdfjs-dist":"6.3.289","react":"19.2.4","react-dom":"19.2.4"},"devDependencies":{"esbuild":"0.25.12"}}
