@@ -1,6 +1,10 @@
 # EnZIME
 
-**Current runnable local engine:** [consolidated/README.md](consolidated/README.md).
+**Target order: offline-first Android, then offline Linux/Windows desktop,
+then web.** See [build instructions and local checkout locations](BUILDING.md).
+
+**Tested local-engine reference, not native-platform completion:**
+[consolidated/README.md](consolidated/README.md).
 The `consolidated/` application now connects real ZIM/PDF/EPUB reading, bounded
 knowledge-mesh retrieval, persistent notes/revisions, DynDon and local LFM2.5
 inference. Run `cd consolidated && npm ci && npm run build && npm start`, or use
