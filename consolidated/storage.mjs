@@ -9,6 +9,7 @@ export async function openStore(root){
  db.exec('PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS objects(id TEXT PRIMARY KEY,name TEXT,kind TEXT,mime TEXT,size INTEGER,created TEXT); CREATE TABLE IF NOT EXISTS reading(id TEXT PRIMARY KEY,state TEXT);');
  for(const suffix of ['','-wal','-shm'])await chmod(path.join(root,'catalog.sqlite'+suffix),0o600).catch(e=>{if(e.code!=='ENOENT')throw e;});
  return {root,close:()=>db.close(),list:()=>db.prepare('SELECT * FROM objects ORDER BY created DESC').all(),get:id=>db.prepare('SELECT * FROM objects WHERE id=?').get(id),file:id=>path.join(root,'objects',id),
+ patchState(id,patch){if(!patch||typeof patch!=='object'||Array.isArray(patch))throw Error('Invalid reading state');db.exec('BEGIN IMMEDIATE');try{const value={...this.readState(id),...patch};this.saveState(id,value);db.exec('COMMIT');return value;}catch(e){db.exec('ROLLBACK');throw e;}},
  async put(stream,{name,kind,mime},maxBytes=20*1024**3){
  if(!['zim','model','final','pdf','audio','video'].includes(kind)||typeof name!=='string'||!name||name.length>240||typeof mime!=='string'||!mime) throw Error('Invalid asset metadata');
  const tmp=path.join(root,'tmp',randomUUID()); const file=await open(tmp,'wx',0o600); const hash=createHash('sha256'); let size=0;
