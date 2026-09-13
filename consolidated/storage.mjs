@@ -1,5 +1,5 @@
 import {DatabaseSync} from 'node:sqlite';
-import {mkdir,rename,unlink,open,readdir,readFile,stat,realpath} from 'node:fs/promises';
+import {mkdir,rename,unlink,open,readdir,readFile,stat,realpath,link} from 'node:fs/promises';
 import {createReadStream,readFileSync,unlinkSync,statSync} from 'node:fs';
 import {createHash,randomUUID} from 'node:crypto';
 import {Readable} from 'node:stream';
@@ -9,7 +9,9 @@ const HASH=/^[a-f0-9]{64}$/;
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-5][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
 const KINDS=new Set(['zim','model','final','pdf','audio','video','document','clip','graph','epub','html']);
 const DEFAULT_LIMIT=20*1024**3;
-const BACKUP_LIMIT=64*1024**2;
+export const BACKUP_LIMIT=64*1024**2;
+// Base64 payloads plus bounded JSON metadata; exports enforce the same wire cap.
+export const BACKUP_REQUEST_LIMIT=Math.ceil(BACKUP_LIMIT/3)*4+16*1024**2;
 const now=()=>new Date().toISOString();
 function fail(message,code='INVALID_INPUT'){const error=Error(message);error.code=code;return error;}
 function json(value,max=1024**2){const result=JSON.stringify(value);if(result===undefined||Buffer.byteLength(result)>max)throw fail('Metadata exceeds size limit');return result;}
@@ -66,7 +68,9 @@ export async function openStore(root,options={}){
  const ensureOpen=()=>{if(closed)throw fail('Storage is closed','STORE_CLOSED');};
  const run=fn=>{ensureOpen();active++;const result=queue.then(()=>{ensureOpen();return fn();}).finally(()=>active--);queue=result.catch(()=>{});return result;};
  const transaction=fn=>{ensureOpen();db.exec('BEGIN IMMEDIATE');try{const result=fn();db.exec('COMMIT');return result;}catch(error){db.exec('ROLLBACK');throw error;}};
- const get=id=>{ensureOpen();return HASH.test(id||'')?db.prepare('SELECT * FROM objects WHERE id=?').get(id):undefined;};
+ const selectedAsset=row=>{if(!row)return;const {selected_edition,...asset}=row;let edition;try{edition=selected_edition?JSON.parse(selected_edition):null;}catch{throw fail('Invalid stored edition metadata');}return edition?{...asset,name:edition.name,kind:edition.kind,mime:edition.mime,editionId:edition.id}:asset;};
+ const assetQuery='SELECT o.*, (SELECT data FROM editions WHERE asset_id=o.id ORDER BY rowid DESC LIMIT 1) AS selected_edition FROM objects o';
+ const get=id=>{ensureOpen();return HASH.test(id||'')?selectedAsset(db.prepare(assetQuery+' WHERE o.id=?').get(id)):undefined;};
  const requireAsset=id=>{const a=get(id);if(!a)throw fail('Unknown asset','NOT_FOUND');return a;};
  const storedBytes=()=>db.prepare("SELECT COALESCE(SUM(size),0) AS size FROM objects WHERE storage='managed'").get().size;
  const checkQuota=extra=>{if(storedBytes()+extra>quotaBytes)throw fail('Storage quota exceeded','QUOTA_EXCEEDED');};
@@ -88,15 +92,16 @@ export async function openStore(root,options={}){
    const result=transaction(()=>{
     if(!existing)db.prepare('INSERT INTO objects(id,name,kind,mime,size,created,storage) VALUES(?,?,?,?,?,?,?)').run(id,meta.name,meta.kind,meta.mime,size,now(),'managed');
     else if(existing.storage!=='managed')db.prepare("UPDATE objects SET storage='managed',source_path=NULL,file_mtime=NULL WHERE id=?").run(id);
-    const asset=requireAsset(id),edition=recordEdition(asset,{...value,...meta});return {...asset,editionId:edition.id};
+    const asset=requireAsset(id),edition=recordEdition(asset,{...value,...meta});return {...asset,name:edition.name,kind:edition.kind,mime:edition.mime,editionId:edition.id};
    });return result;
   }catch(error){await handle.close().catch(()=>{});await unlink(tmp).catch(()=>{});if(addedFile)await unlink(target).catch(()=>{});throw error;}
  };
  const records=table=>db.prepare(`SELECT data FROM ${table} ORDER BY rowid DESC`).all().map(parse);
  const assertSourceRefs=refs=>{if(!Array.isArray(refs)||refs.length>500)throw fail('Invalid source references');for(const ref of refs){if(!ref||typeof ref!=='object'||!HASH.test(ref.assetId||''))throw fail('Invalid source reference');requireAsset(ref.assetId);if(ref.editionId){const e=parse(db.prepare('SELECT data FROM editions WHERE id=?').get(ref.editionId));if(!e||e.assetId!==ref.assetId)throw fail('Source edition does not match asset');}}json(refs);return refs;};
  const api={root,
+  async drain(){await queue;},
   close(){if(closed)return;if(active)throw fail('Wait for pending storage operations before closing','STORE_BUSY');db.close();closed=true;unlock();},
-  list(){ensureOpen();return db.prepare('SELECT * FROM objects ORDER BY created DESC').all();},get,
+  list(){ensureOpen();return db.prepare(assetQuery+' ORDER BY o.created DESC').all().map(selectedAsset);},get,
   file(id){const a=requireAsset(id);if(a.storage==='missing')throw fail('Source bytes are not present; restore or remount the source','SOURCE_MISSING');if(a.storage==='mounted'){const source=statSync(a.source_path);if(source.size!==a.size||source.mtimeMs!==a.file_mtime)throw fail('Mounted source changed; verify and remount it as a new edition','SOURCE_CHANGED');return a.source_path;}return path.join(root,'objects',id);},
   put(stream,value,maxBytes){return run(()=>putInternal(stream,value,maxBytes));},
   listEditions(assetId){ensureOpen();return assetId?db.prepare('SELECT data FROM editions WHERE asset_id=? ORDER BY rowid DESC').all(assetId).map(parse):records('editions');},
@@ -104,6 +109,7 @@ export async function openStore(root,options={}){
   createEdition(assetId,value={}){ensureOpen();metadata({...requireAsset(assetId),...value});return recordEdition(requireAsset(assetId),value);},
   readState(id){ensureOpen();return JSON.parse(db.prepare('SELECT state FROM reading WHERE id=?').get(id)?.state||'{}');},
   saveState(id,state){requireAsset(id);db.prepare('INSERT OR REPLACE INTO reading VALUES(?,?)').run(id,json(state,65536));return state;},
+  patchState(id,patch){requireAsset(id);if(!patch||typeof patch!=='object'||Array.isArray(patch))throw fail('Reading state patch must be an object');json(patch,65536);for(const key of ['__proto__','constructor','prototype'])if(Object.hasOwn(patch,key))throw fail('Invalid reading state patch key');for(const key of ['time','page','scroll'])if(Object.hasOwn(patch,key)&&(!Number.isFinite(patch[key])||patch[key]<0))throw fail('Reading position must be a nonnegative number');return transaction(()=>{const merged={...api.readState(id),...patch};api.saveState(id,merged);return merged;});},
   saveAnnotation(value={}){
    requireAsset(value.assetId);const id=value.id?identifier(value.id):randomUUID(),old=parse(db.prepare('SELECT data FROM annotations WHERE id=?').get(id));
    if(old&&(old.assetId!==value.assetId||old.editionId!==(value.editionId||null)))throw fail('An annotation source identity is immutable');
@@ -158,7 +164,7 @@ export async function openStore(root,options={}){
   mount(filePath,value={}){return run(async()=>{
    const meta=metadata(value),sourcePath=await realpath(filePath),before=await stat(sourcePath);if(!before.isFile())throw fail('Mount requires a regular file');
    const digest=await digestFile(sourcePath),after=await stat(sourcePath);if(before.size!==after.size||before.mtimeMs!==after.mtimeMs||before.ino!==after.ino)throw fail('Source changed during mount','SOURCE_CHANGED');
-   return transaction(()=>{let asset=get(digest.id);if(!asset){db.prepare('INSERT INTO objects(id,name,kind,mime,size,created,storage,source_path,file_mtime) VALUES(?,?,?,?,?,?,?,?,?)').run(digest.id,meta.name,meta.kind,meta.mime,digest.size,now(),'mounted',sourcePath,after.mtimeMs);asset=get(digest.id);}else if(asset.storage!=='managed'){db.prepare("UPDATE objects SET storage='mounted',source_path=?,file_mtime=? WHERE id=?").run(sourcePath,after.mtimeMs,digest.id);asset=get(digest.id);}const edition=recordEdition(asset,{...value,...meta});return {...asset,editionId:edition.id};});
+   return transaction(()=>{let asset=get(digest.id);if(!asset){db.prepare('INSERT INTO objects(id,name,kind,mime,size,created,storage,source_path,file_mtime) VALUES(?,?,?,?,?,?,?,?,?)').run(digest.id,meta.name,meta.kind,meta.mime,digest.size,now(),'mounted',sourcePath,after.mtimeMs);asset=get(digest.id);}else if(asset.storage!=='managed'){db.prepare("UPDATE objects SET storage='mounted',source_path=?,file_mtime=? WHERE id=?").run(sourcePath,after.mtimeMs,digest.id);asset=get(digest.id);}const edition=recordEdition(asset,{...value,...meta});return {...asset,name:edition.name,kind:edition.kind,mime:edition.mime,editionId:edition.id};});
   });},
   verify(id){return run(async()=>{
    const asset=requireAsset(id);try{const filePath=api.file(id),before=await stat(filePath),result=await digestFile(filePath),after=await stat(filePath),changed=before.size!==after.size||before.mtimeMs!==after.mtimeMs;return {assetId:id,ok:!changed&&result.id===id&&result.size===asset.size,expectedHash:id,actualHash:result.id,expectedSize:asset.size,actualSize:result.size,sourceChanged:changed||(asset.storage==='mounted'&&(after.mtimeMs!==asset.file_mtime||after.size!==asset.size)),storage:asset.storage,checkedAt:now()};}catch(error){return {assetId:id,ok:false,storage:asset.storage,error:error.message,checkedAt:now()};}
@@ -172,18 +178,18 @@ export async function openStore(root,options={}){
    if(includeBytes){let total=0;for(const object of objects){if(object.storage==='missing')continue;total+=object.size;if(total>maxBytes)throw fail('Backup byte limit exceeded; use manifest and streaming asset export','SIZE_LIMIT');const data=await readFile(api.file(object.id));if(createHash('sha256').update(data).digest('hex')!==object.id)throw fail('Source integrity check failed during backup','INTEGRITY_ERROR');object.bytes=data.toString('base64');}}
    return manifest;
   });},
-  importBackup(manifest,{maxBytes=BACKUP_LIMIT}={}){return run(async()=>{
+  importBackup(manifest,{maxBytes=BACKUP_LIMIT,restoreRelated}={}){return run(async()=>{
    maxBytes=finiteLimit(maxBytes,BACKUP_LIMIT);
    if(!manifest||manifest.format!=='enzime-backup'||manifest.version!==1)throw fail('Unsupported backup format');
    const groups=['objects','editions','reading','annotations','drafts','revisions','chats','modelReferences'];for(const group of groups)if(!Array.isArray(manifest[group]||[])||(manifest[group]||[]).length>100000)throw fail('Invalid backup collection');
-   const objects=manifest.objects||[],byId=new Map(),staged=[],written=[],seenRecords=new Set();let payloadBytes=0,requiredBytes=0;
+   const objects=manifest.objects||[],byId=new Map(),staged=[],seenRecords=new Set();let payloadBytes=0,requiredBytes=0,attached=false,committed=false;
    const ensureReference=id=>{if(!HASH.test(id||'')||(!byId.has(id)&&!get(id)))throw fail('Backup references an unknown asset');};
    const assertRecord=(record,collection)=>{if(!record||!UUID.test(record.id||'')||seenRecords.has(collection+record.id))throw fail('Invalid or duplicate backup record ID');seenRecords.add(collection+record.id);json(record,4*1024**2);};
    try{
     for(const object of objects){metadata(object);if(!HASH.test(object.id||'')||byId.has(object.id)||!Number.isSafeInteger(object.size)||object.size<0)throw fail('Invalid backup object');if(get(object.id)&&get(object.id).size!==object.size)throw fail('Existing object identity mismatch','INTEGRITY_ERROR');byId.set(object.id,object);
-     if(object.bytes!==undefined){if(typeof object.bytes!=='string'||object.bytes.length>Math.ceil(maxBytes/3)*4+4||!/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(object.bytes))throw fail('Invalid backup bytes');const bytes=Buffer.from(object.bytes,'base64');payloadBytes+=bytes.length;if(payloadBytes>maxBytes)throw fail('Backup byte limit exceeded','SIZE_LIMIT');if(bytes.length!==object.size||createHash('sha256').update(bytes).digest('hex')!==object.id)throw fail('Backup object integrity mismatch','INTEGRITY_ERROR');if(get(object.id)?.storage!=='managed'){requiredBytes+=bytes.length;checkQuota(requiredBytes);const tmp=path.join(root,'tmp',randomUUID()),f=await open(tmp,'wx',0o600);try{await f.writeFile(bytes);await f.sync();}finally{await f.close();}staged.push({tmp,id:object.id});}}
+     if(object.bytes!==undefined){if(typeof object.bytes!=='string'||object.bytes.length>Math.ceil(maxBytes/3)*4+4||object.bytes.length%4!==0||!/^[A-Za-z0-9+/]*={0,2}$/.test(object.bytes))throw fail('Invalid backup bytes');const bytes=Buffer.from(object.bytes,'base64');if(bytes.toString('base64')!==object.bytes)throw fail('Invalid backup bytes');payloadBytes+=bytes.length;if(payloadBytes>maxBytes)throw fail('Backup byte limit exceeded','SIZE_LIMIT');if(bytes.length!==object.size||createHash('sha256').update(bytes).digest('hex')!==object.id)throw fail('Backup object integrity mismatch','INTEGRITY_ERROR');if(get(object.id)?.storage!=='managed'){requiredBytes+=bytes.length;checkQuota(requiredBytes);}const tmp=path.join(root,'tmp',randomUUID()),stage={tmp,id:object.id};staged.push(stage);const f=await open(tmp,'wx',0o600);try{await f.writeFile(bytes);await f.sync();}finally{await f.close();}}
     }
-    const editions=new Map(api.listEditions().map(x=>[x.id,x]));for(const e of manifest.editions||[]){assertRecord(e,'edition');ensureReference(e.assetId);if(typeof e.sourceId!=='string'||typeof e.version!=='string')throw fail('Invalid backup edition');const old=editions.get(e.id);if(old&&json(old)!==json(e))throw fail('Immutable edition conflict');editions.set(e.id,e);}
+    const editions=new Map(api.listEditions().map(x=>[x.id,x]));for(const e of manifest.editions||[]){assertRecord(e,'edition');metadata(e);ensureReference(e.assetId);if(typeof e.sourceId!=='string'||typeof e.version!=='string')throw fail('Invalid backup edition');const old=editions.get(e.id);if(old&&json(old)!==json(e))throw fail('Immutable edition conflict');editions.set(e.id,e);}
     for(const e of manifest.editions||[]){if(e.parentEditionId&&!editions.has(e.parentEditionId))throw fail('Unknown backup parent edition');const visited=new Set([e.id]);let p=e.parentEditionId;while(p){if(visited.has(p))throw fail('Edition lineage cycle');visited.add(p);p=editions.get(p)?.parentEditionId;}}
     const checkRefs=refs=>{if(!Array.isArray(refs))throw fail('Invalid source references');for(const ref of refs){ensureReference(ref.assetId);if(ref.editionId&&editions.get(ref.editionId)?.assetId!==ref.assetId)throw fail('Backup source edition mismatch');}};
     for(const a of manifest.annotations||[]){assertRecord(a,'annotation');ensureReference(a.assetId);if(!a.locator||typeof a.locator!=='object'||!Object.keys(a.locator).length||typeof a.text!=='string')throw fail('Invalid backup annotation');if(a.editionId&&editions.get(a.editionId)?.assetId!==a.assetId)throw fail('Backup annotation edition mismatch');const old=parse(db.prepare('SELECT data FROM annotations WHERE id=?').get(a.id));if(old&&(old.assetId!==a.assetId||old.editionId!==(a.editionId||null)))throw fail('Annotation identity conflict');}
@@ -195,10 +201,13 @@ export async function openStore(root,options={}){
     for(const ref of manifest.modelReferences||[]){assertRecord(ref,'model');if(ref.assetId)ensureReference(ref.assetId);if(typeof ref.name!=='string'||!ref.name.trim()||(!ref.assetId&&!ref.path&&!ref.uri)||(ref.path&&!path.isAbsolute(ref.path))||(ref.uri&&!/^content:\/\//.test(ref.uri)))throw fail('Invalid backup model reference');}
     for(const reading of manifest.reading||[]){ensureReference(reading.assetId);json(reading.state,65536);}
     if(manifest.settings&&(!manifest.settings||typeof manifest.settings!=='object'||Array.isArray(manifest.settings)))throw fail('Invalid backup settings');json(manifest.settings||{},65536);
-    for(const stage of staged){await rename(stage.tmp,path.join(root,'objects',stage.id));written.push(stage.id);}
+    for(const stage of staged){const target=path.join(root,'objects',stage.id),previous=path.join(root,'tmp',randomUUID());try{await link(target,previous);stage.previous=previous;}catch(error){if(error.code!=='ENOENT')throw error;}await rename(stage.tmp,target);stage.written=true;}
+    // ATTACH lets both catalogs roll back on one connection if related restore fails.
+    if(restoreRelated){db.prepare('ATTACH DATABASE ? AS restore_mesh').run(path.join(root,'knowledge.sqlite'));attached=true;}
     transaction(()=>{
      for(const object of objects){const present=get(object.id),hasBytes=staged.some(s=>s.id===object.id);if(!present)db.prepare('INSERT INTO objects(id,name,kind,mime,size,created,storage) VALUES(?,?,?,?,?,?,?)').run(object.id,object.name,object.kind,object.mime||'application/octet-stream',object.size,object.created||now(),hasBytes?'managed':'missing');else if(hasBytes)db.prepare("UPDATE objects SET storage='managed',source_path=NULL,file_mtime=NULL WHERE id=?").run(object.id);}
-     for(const e of manifest.editions||[])db.prepare('INSERT OR IGNORE INTO editions VALUES(?,?,?)').run(e.id,e.assetId,json(e));
+     // Manifests list newest first; insert oldest first to retain the selected edition.
+     for(const e of [...(manifest.editions||[])].reverse())db.prepare('INSERT OR IGNORE INTO editions VALUES(?,?,?)').run(e.id,e.assetId,json(e));
      for(const a of manifest.annotations||[])db.prepare('INSERT OR REPLACE INTO annotations VALUES(?,?,?)').run(a.id,a.assetId,json(a));
      for(const d of manifest.drafts||[])db.prepare('INSERT OR REPLACE INTO drafts VALUES(?,?)').run(d.id,json(d,4*1024**2));
      for(const r of manifest.revisions||[])db.prepare('INSERT OR IGNORE INTO revisions VALUES(?,?,?,?)').run(r.id,r.assetId,r.lineageId,json(r));
@@ -206,8 +215,10 @@ export async function openStore(root,options={}){
      for(const ref of manifest.modelReferences||[])db.prepare('INSERT OR REPLACE INTO model_references VALUES(?,?)').run(ref.id,json(ref));
      for(const reading of manifest.reading||[])db.prepare('INSERT OR REPLACE INTO reading VALUES(?,?)').run(reading.assetId,json(reading.state,65536));
      if(manifest.settings)db.prepare("INSERT OR REPLACE INTO settings VALUES('preferences',?)").run(json(manifest.settings,65536));
-    });return {importedObjects:objects.length,importedBytes:requiredBytes,missingObjects:objects.filter(x=>get(x.id).storage==='missing').length};
-   }catch(error){for(const stage of staged)await unlink(stage.tmp).catch(()=>{});for(const id of written)await unlink(path.join(root,'objects',id)).catch(()=>{});throw error;}
+     if(restoreRelated){const result=restoreRelated(db);if(result?.then)throw fail('Related restore must be synchronous');}
+    });committed=true;return {importedObjects:objects.length,importedBytes:payloadBytes,missingObjects:objects.filter(x=>get(x.id).storage==='missing').length};
+   }catch(error){const failures=[error];for(const stage of staged){if(!stage.written)continue;try{const target=path.join(root,'objects',stage.id);if(stage.previous){await rename(stage.previous,target);stage.previous=null;}else await unlink(target);}catch(failure){stage.keepPrevious=true;failures.push(failure);}}if(failures.length>1)throw new AggregateError(failures,'Backup failed and payload rollback requires recovery');throw error;
+   }finally{if(attached)db.exec('DETACH DATABASE restore_mesh');for(const stage of staged){await unlink(stage.tmp).catch(()=>{});if(stage.previous&&(committed||!stage.keepPrevious))await unlink(stage.previous).catch(()=>{});}}
   });}
  };
  return api;

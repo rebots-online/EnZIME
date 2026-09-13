@@ -116,9 +116,9 @@ test('HTTP DynDon generation adopts a verified ZIM without copying output payloa
 });
 
 test('HTTP background model download pauses, resumes ranges, adopts shared bytes and reports runtime configuration',async t=>{
- const a=await app(t),bytes=Buffer.alloc(65536,41);bytes.write('GGUF download protocol fixture');let requests=0,range;
+ const allowedOrigins=new Set(),a=await app(t,{allowDownloadUrl:url=>allowedOrigins.has(url.origin)}),bytes=Buffer.alloc(65536,41);bytes.write('GGUF download protocol fixture');let requests=0,range;
  const upstream=http.createServer((req,res)=>{requests++;range=req.headers.range;const offset=range?Number(range.match(/bytes=(\d+)-/)[1]):0;res.writeHead(offset?206:200,{'Content-Length':bytes.length-offset,'Content-Type':'application/octet-stream',ETag:'"fixture-v1"',...(offset?{'Content-Range':`bytes ${offset}-${bytes.length-1}/${bytes.length}`}:{})});if(!offset){res.write(bytes.subarray(0,16384));}else res.end(bytes.subarray(offset));});
- await new Promise(resolve=>upstream.listen(0,'127.0.0.1',resolve));t.after(async()=>{upstream.closeAllConnections();await new Promise(resolve=>upstream.close(resolve));});
+ await new Promise(resolve=>upstream.listen(0,'127.0.0.1',resolve));allowedOrigins.add(`http://127.0.0.1:${upstream.address().port}`);t.after(async()=>{upstream.closeAllConnections();await new Promise(resolve=>upstream.close(resolve));});
  const manifest={id:'fixture-model',units:[{id:'model',kind:'model',title:'GGUF download fixture',size:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex'),url:`http://127.0.0.1:${upstream.address().port}/model`,essential:true}]};
  const started=await a.json('/api/dyndon/download',{manifest,options:{desiredBytes:1024**2,reserveBytes:0}});assert.equal(started.status,'queued');
  async function waitFor(predicate){for(let tries=0;tries<200;tries++){const job=(await a.json('/api/downloads')).find(j=>j.id===started.id);if(predicate(job))return job;await new Promise(resolve=>setTimeout(resolve,5));}throw Error('Timed out awaiting transfer fixture');}

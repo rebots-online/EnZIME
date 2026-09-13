@@ -17,8 +17,8 @@ import { generateUncompressedZim } from '../dyndon-zim.mjs';
 // advertisement is a protocol fixture; no LLM generation is represented here.
 test('application DOM integrates reader, citations, notes, creator, downloads and model settings with the local API', { timeout: 40_000 }, async t => {
   const root = await mkdtemp(path.join(tmpdir(), 'enzime-ui-'));
-  const modelCalls = [];
-  const app = await createApp({ root, runtimeOptions: { binary: '' }, chatbotOptions: {
+  const modelCalls = [], downloadOrigins = new Set();
+  const app = await createApp({ root, allowDownloadUrl: url => downloadOrigins.has(url.origin), runtimeOptions: { binary: '' }, chatbotOptions: {
     fetchImpl: async (url, options = {}) => {
       modelCalls.push({ url, method: options.method || 'GET' });
       if (url.endsWith('/models')) return Response.json({ data: [
@@ -163,7 +163,11 @@ test('application DOM integrates reader, citations, notes, creator, downloads an
     assert.equal(article.querySelectorAll('img')[1].hasAttribute('src'), false);
     assert.equal(article.querySelector('[data-external]').getAttribute('href'), '#external');
     assert.match(article.querySelector('meta[http-equiv="Content-Security-Policy"]').content, /script-src 'none'/);
-    assert.match(byId('source-status').textContent, new RegExp(zim.id.slice(0, 10)));
+    assert.match(byId('source-status').textContent, new RegExp(zim.editionId.slice(0, 10)));
+    const source = (await json(`/api/assets/${zim.id}/read?key=C/01-water`)).source;
+    assert.equal(source.assetId, zim.id, 'Payload identity remains its content hash');
+    assert.equal(source.edition, zim.editionId, 'The citation identifies the selected immutable edition');
+    assert.equal((await json(`/api/sources/${source.id}/read`)).source.id, source.id, 'Reopening a citation preserves source identity');
     assert.ok([...byId('entry-list').querySelectorAll('button')].some(button => button.textContent === 'Soil records'));
     const soil = [...byId('entry-list').querySelectorAll('button')].find(button => button.textContent === 'Soil records');
     soil.click();
@@ -180,7 +184,7 @@ test('application DOM integrates reader, citations, notes, creator, downloads an
     assert.ok(results.length >= 2);
     const hit = results.find(result => result.querySelector('h3').textContent === 'Water storage');
     assert.ok(hit, 'Real ZIM passage is represented in the search UI');
-    assert.match(hit.querySelector('.eyebrow').textContent, new RegExp(zim.id.slice(0, 10)));
+    assert.match(hit.querySelector('.eyebrow').textContent, new RegExp(zim.editionId.slice(0, 10)));
     assert.match(hit.querySelector('p').textContent, /Water storage inspection/);
     hit.querySelector('button').click();
     await waitFor(() => byId('view-reader').classList.contains('active') && byId('work-title').textContent === 'Water storage', 'source citation navigation');
@@ -284,6 +288,7 @@ test('application DOM integrates reader, citations, notes, creator, downloads an
       }
     });
     await new Promise(resolve => upstream.listen(0, '127.0.0.1', resolve));
+    downloadOrigins.add(`http://127.0.0.1:${upstream.address().port}`);
     st.after(async () => {
       upstream.closeAllConnections();
       await new Promise(resolve => upstream.close(resolve));

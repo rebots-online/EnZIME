@@ -312,6 +312,7 @@ export async function openKnowledge(root, options = {}) {
     return scores;
   }
   async function search(query, config = {}) {
+    config.signal?.throwIfAborted();
     string(query, 'query', 8000);
     const tokens = [...new Set(words(query))];
     const limit = Math.max(1, Math.min(30, Number(config.limit) || 8));
@@ -347,12 +348,13 @@ export async function openKnowledge(root, options = {}) {
     const verifiedVectors = new Set();
     const resolver = config.resolveBody || sourceResolver;
     const queue = [...candidates];
-    await Promise.all(Array.from({length: Math.min(4, queue.length)}, async () => {
+    const workers = await Promise.allSettled(Array.from({length: Math.min(4, queue.length)}, async () => {
       while (queue.length) {
+        config.signal?.throwIfAborted();
         const row = queue.shift();
         let projection;
-        try { projection = await project(row.source.id, resolver); }
-        catch (error) { errors.push({sourceId: row.source.id, error: error.message}); continue; }
+        try { projection = await project(row.source.id, resolver); config.signal?.throwIfAborted(); }
+        catch (error) { config.signal?.throwIfAborted(); if (error.name === 'AbortError' || ['ABORT_ERR', 'CANCELLED'].includes(error.code)) throw error; errors.push({sourceId: row.source.id, error: error.message}); continue; }
         const textRank = row.metadata + lexical(tokens, projection.text);
         const vr = vectorRank.get(row.source.id);
         const semantic = vr?.hash === projection.contentHash ? vr.score : 0;
@@ -366,6 +368,9 @@ export async function openKnowledge(root, options = {}) {
           scores: {lexical: textRank, vector: semantic, graph: relation}});
       }
     }));
+    const failed = workers.find(worker => worker.status === 'rejected');
+    if (failed) throw failed.reason;
+    config.signal?.throwIfAborted();
     const results = evidence.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id)).slice(0, limit);
     const status = {
       mode: queryVector && verifiedVectors.size ? 'lexical+graph+vector' : 'lexical+graph',
