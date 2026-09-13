@@ -26,6 +26,7 @@ export async function readGraphFile(file, {maxNodes = 300, minConf = 0, ontoKeys
   if (!g.nodes.length) throw new Error('The graph has no nodes. Choose a nonempty graph.');
   if (g.nodes.length > GRAPH_LIMITS.nodes || inputEdges.length > GRAPH_LIMITS.edges) throw new Error(`Graph exceeds ${GRAPH_LIMITS.nodes} nodes or ${GRAPH_LIMITS.edges} edges. Export a smaller graph.`);
   const ids = new Set();
+  let vectorDimensions;
   const asText = (v, fallback, limit) => typeof v === 'string' && v ? v.slice(0, limit) : fallback;
   let nodes = g.nodes.map((n, i) => {
     if (!n || typeof n !== 'object' || Array.isArray(n)) throw new Error(`Node ${i + 1} must be an object.`);
@@ -36,7 +37,9 @@ export async function readGraphFile(file, {maxNodes = 300, minConf = 0, ontoKeys
     const position = n.pos || n.position;
     const p = Array.isArray(position) && position.length === 3 && position.every(x => Number.isFinite(x) && Math.abs(x) <= 1e6) ? [...position] : [0, 1, 2].map(() => (Math.random() - 0.5) * 340);
     const vec = n.vec ?? n.embedding;
-    return {id, title: asText(n.title || n.name || n.label, 'node ' + i, 512), onto: ontoKeys.includes(onto) ? onto : 'field', raw: asText(n.raw || n.text || n.body || n.snippet, '', 32000), html: asText(n.html || n.content_html, '', 128000), media: Array.isArray(n.media) ? n.media.slice(0, 32) : [], vec: vec == null ? null : validateEmbedding(vec), p};
+    const embedding = vec == null ? null : validateEmbedding(vec, vectorDimensions);
+    if (embedding) vectorDimensions ??= embedding.length;
+    return {id, title: asText(n.title || n.name || n.label, 'node ' + i, 512), onto: ontoKeys.includes(onto) ? onto : 'field', raw: asText(n.raw || n.text || n.body || n.snippet, '', 32000), html: asText(n.html || n.content_html, '', 128000), media: Array.isArray(n.media) ? n.media.slice(0, 32) : [], vec: embedding, p};
   });
   let edges = inputEdges.flatMap(e => {
     if (!e || typeof e !== 'object') return [];
@@ -90,6 +93,49 @@ export async function modelRequest(host, path, options, approvedBase, key = '') 
   const response = await fetch(base + path, {...options, credentials: 'omit', redirect: 'error', referrerPolicy: 'no-referrer', signal: AbortSignal.timeout(120000)});
   if (!response.ok) throw new Error('Model service returned HTTP ' + response.status + '. Check the host, model and key.');
   return response;
+}
+
+function knowledgeText(node) {
+  if (!node.html) return String(node.raw || '');
+  // Text extraction only: never insert imported markup into an application DOM.
+  // Ignore invisible executable/style content and preserve block boundaries.
+  const entities = {amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' '};
+  return String(node.html)
+    .replace(/<!--[\s\S]*?(?:-->|$)/g, ' ')
+    .replace(/<(script|style|template|noscript)\b[^>]*>[\s\S]*?(?:<\/\1\s*>|$)/gi, ' ')
+    .replace(/<\/?[a-z][a-z\d:-]*\b(?:"[^"]*"|'[^']*'|[^'">])*>/gi, '\n')
+    .replace(/&(#x[\da-f]+|#\d+|amp|lt|gt|quot|apos|nbsp);/gi, (match, entity) => {
+      if (entity[0] !== '#') return entities[entity.toLowerCase()] || match;
+      const point = entity[1].toLowerCase() === 'x' ? parseInt(entity.slice(2), 16) : parseInt(entity.slice(1), 10);
+      return point > 0 && point <= 0x10ffff && !(point >= 0xd800 && point <= 0xdfff) ? String.fromCodePoint(point) : ' ';
+    })
+    .replace(/[ \t]+/g, ' ').replace(/\n\s*\n/g, '\n\n').trim();
+}
+
+export function relevantPassage(node, query, limit = 1200) {
+  const text = knowledgeText(node);
+  const stop = new Set(['the', 'and', 'for', 'with', 'from', 'this', 'that', 'what', 'which', 'about', 'tell', 'how', 'does', 'are']);
+  const terms = [...new Set(String(query).slice(0, 4096).toLowerCase().match(/[\p{L}\p{N}]+/gu) || [])].filter(term => term.length > 2 && !stop.has(term)).slice(0, 24);
+  const title = String(node.title || '').toLowerCase();
+  const titleHits = terms.filter(term => title.includes(term)).length;
+  // Overlapping windows allow matches anywhere in the bounded source, including
+  // a term spanning a window boundary. Preserve the selected source verbatim.
+  let bestStart = 0, bestHits = -1;
+  const stride = Math.max(1, Math.floor(limit / 2));
+  for (let start = 0; start < text.length; start += stride) {
+    const window = text.slice(start, start + limit).toLowerCase();
+    const hits = terms.filter(term => window.includes(term)).length;
+    if (hits > bestHits) {bestHits = hits; bestStart = start;}
+  }
+  return {raw: text.slice(bestStart, bestStart + limit), score: terms.length ? (Math.max(0, bestHits) + titleHits * 0.35) / terms.length : 0};
+}
+
+export function rankKnowledge(nodes, query, k = 6, vectorScores = new Map()) {
+  return nodes.map(node => {
+    const passage = relevantPassage(node, query);
+    const semantic = vectorScores.get(node.id);
+    return {id: node.id, title: node.title, onto: node.onto, raw: passage.raw, score: passage.score + (Number.isFinite(semantic) ? Math.max(0, semantic) : 0), matched: passage.score > 0 || Number.isFinite(semantic)};
+  }).filter(node => node.matched).sort((a, b) => b.score - a.score).slice(0, k);
 }
 
 export function citedSources(answer, candidates) {

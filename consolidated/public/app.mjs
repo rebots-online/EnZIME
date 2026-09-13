@@ -2,7 +2,7 @@ import DOMPurify from 'dompurify';
 import {mountMesh} from './mesh.mjs';
 const $=id=>document.getElementById(id);
 const state={assets:[],current:null,source:null,pdf:null,page:1,key:'',font:19,view:'library',filter:'all',settings:{},history:[],messages:[],chatId:null,evidence:[],draft:null,draftVersion:0,manifest:null,plan:null,entriesOffset:0,opening:0,rendering:0};
-let graph,renderTask,chatAbort,saveTimer,downloadTimer,downloadSnapshot='',entryQuery='',pdfTextMode=false,pdfSearchPage=1,draftSaveQueue=Promise.resolve();
+let graph,renderTask,chatAbort,saveTimer,downloadTimer,downloadSnapshot='',entryQuery='',pdfTextMode=false,pdfSearchPage=1,draftSaveQueue=Promise.resolve(),importing=0;
 const status=(message,error=false)=>{$('status').textContent=message;$('status').classList.toggle('error',error);};
 const report=e=>status(e.message||String(e),true);
 const run=fn=>(...args)=>{try{return Promise.resolve(fn(...args)).catch(report);}catch(error){report(error);return Promise.resolve();}};
@@ -189,7 +189,10 @@ async function loadDownloads(){
  const snapshot=jobs.map(j=>`${j.id}:${j.status}:${j.adoptionStatus}`).join('|');if(snapshot!==downloadSnapshot){downloadSnapshot=snapshot;await refresh();}else await refreshStats();
  if(state.view==='downloads'&&jobs.some(j=>j.active))downloadTimer=setTimeout(()=>loadDownloads().catch(report),1000);
 }
-async function importFiles(files){for(const file of files){const ext=file.name.split('.').pop().toLowerCase(),kind={zim:'zim',pdf:'pdf',epub:'epub',txt:'final',md:'final',html:'html',htm:'html',mp3:'audio',mp4:'video',gguf:'model'}[ext];if(!kind)throw Error(`Unsupported file: ${file.name}`);status(`Importing ${file.name}…`);const a=await api(`/api/assets?kind=${kind}&name=${encodeURIComponent(file.name)}`,{method:'POST',headers:{'X-MBA-Client':'enzime'},body:file});await refresh();if(files.length===1)await openAsset(a);}status('Import complete.');}
+async function importFiles(files){
+ if(!files.length)return;const ticket=++importing;let selection=++state.opening;state.rendering++;renderTask?.cancel();const active=()=>ticket===importing&&selection===state.opening;
+ try{for(const file of files){const ext=file.name.split('.').pop().toLowerCase(),kind={zim:'zim',pdf:'pdf',epub:'epub',txt:'final',md:'final',html:'html',htm:'html',mp3:'audio',mp4:'video',gguf:'model'}[ext];if(!kind)throw Error(`Unsupported file: ${file.name}`);if(active())status(`Importing ${file.name}…`);const a=await api(`/api/assets?kind=${kind}&name=${encodeURIComponent(file.name)}`,{method:'POST',headers:{'X-MBA-Client':'enzime'},body:file});await refresh();if(active()&&files.length===1){const loading=openAsset(a);selection=state.opening;await loading;}}if(active())status('Import complete.');}catch(error){if(active())throw error;}
+}
 for(const n of document.querySelectorAll('[data-view]'))n.onclick=()=>show(n.dataset.view);
 for(const n of document.querySelectorAll('[data-go]'))n.onclick=()=>show(n.dataset.go);
 for(const n of document.querySelectorAll('[data-filter]'))n.onclick=()=>{state.filter=n.dataset.filter;document.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('selected',b===n));drawLibrary();};

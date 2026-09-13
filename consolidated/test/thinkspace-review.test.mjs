@@ -20,7 +20,7 @@ function walk(node, predicate, out = []) {
 // A hook/event harness runs the actual component handlers without a browser or new dependencies.
 function harness({orientation} = {}) {
   const slots = [], listeners = new Map(), frames = new Map();
-  let cursor = 0, effects = [], nextFrame = 0, tree;
+  let cursor = 0, effects = [], nextFrame = 0, tree, activeComponent;
   const react = {
     useState(initial) {const i = cursor++; if (!slots[i]) slots[i] = {kind: 'state', value: typeof initial === 'function' ? initial() : initial}; return [slots[i].value, value => {slots[i].value = typeof value === 'function' ? value(slots[i].value) : value;}];},
     useRef(initial) {const i = cursor++; if (!slots[i]) slots[i] = {kind: 'ref', value: {current: initial}}; return slots[i].value;},
@@ -48,8 +48,8 @@ function harness({orientation} = {}) {
   });
   vm.runInContext(code, context);
   const api = {
-    exports: module.exports, listeners,
-    render(component = module.exports.default, props) {cursor = 0; tree = component(props); return tree;},
+    exports: module.exports, listeners, window,
+    render(component = module.exports.default, props) {if (activeComponent !== component) {slots.length = 0; effects = []; activeComponent = component;} cursor = 0; tree = component(props); return tree;},
     flush() {const pending = effects; effects = []; for (const effect of pending) effect();},
     find(predicate) {return walk(tree, predicate)[0];},
     all(predicate) {return walk(tree, predicate);},
@@ -59,7 +59,11 @@ function harness({orientation} = {}) {
     emit(name, event = {}) {for (const fn of [...listeners.get(name) || []]) fn(event);},
     frame() {const [id, fn] = frames.entries().next().value; frames.delete(id); fn();},
     data() {api.button('⊞ data').props.onClick(); api.render();},
-    connection(kind, values) {const editor = api.find(n => n.type?.name === 'ConnFields' && n.props.kind === kind); assert.ok(editor); editor.props.setConn(c => ({...c, ...Object.fromEntries(Object.entries(values).map(([key, val]) => [kind + key, val]))})); api.render();},
+    connection(kind, values) {
+      const editor = api.find(n => n.type?.name === 'ConnFields' && n.props.kind === kind); assert.ok(editor);
+      editor.props.setConn(c => ({...c, ...Object.fromEntries(Object.entries(values).filter(([key]) => key !== 'Trust').map(([key, val]) => [kind + key, val]))})); api.render();
+      if ('Trust' in values) {api.find(n => n.type?.name === 'ConnFields' && n.props.kind === kind).props.setConn(c => ({...c, [kind + 'Trust']: values.Trust})); api.render();}
+    },
     async load(value) {const picker = api.find(n => n.type === 'input' && n.props.accept); assert.ok(picker); await picker.props.onChange({target: {files: [graphFile(value)]}}); api.render();},
     async ingest(files) {const picker = api.find(n => n.type === 'input' && n.props.webkitdirectory === ''); assert.ok(picker); await picker.props.onChange({target: {files}}); api.render();},
   };
@@ -161,13 +165,14 @@ test('failed embedding ingestion restores the chooser, preserves the graph and p
   assert.ok(h.refs().some(r => r.current?.nodes?.[0]?.id === 'n0'));
 });
 
-test('HTTP failures and empty embedding responses also recover ingestion', async t => {
-  for (const response of [new Response('{}', {status: 500}), new Response('{"embedding":[]}')]) {
+test('HTTP failures and empty or nonfinite embedding responses recover ingestion without replacing the graph', async t => {
+  for (const response of [new Response('{}', {status: 500}), new Response('{"embedding":[]}'), new Response('{"embedding":[1e309]}'), new Response('{"embedding":[null]}'), new Response('{}')]) {
     const h = harness(); h.data(); h.connection('embed', {Host: 'localhost:11434', Trust: 'http://localhost:11434'});
     t.mock.method(globalThis, 'fetch', async () => response);
     await h.ingest([file('text', 'book.md')]);
     assert.equal(h.state(s => s && typeof s === 'object' && 'thresh' in s).value.busy, false);
     assert.ok(h.find(n => n.props?.role === 'alert'));
+    assert.ok(h.refs().some(r => r.current?.nodes?.[0]?.id === 'entropy'));
   }
 });
 
@@ -303,4 +308,131 @@ test('SSE DONE cancels the open stream and ignores tokens buffered after the ter
   t.mock.method(globalThis, 'fetch', async () => new Response(body));
   const answer = await h.exports.chatStream({host: 'localhost:11434', trust: 'http://localhost:11434', model: 'test', oai: true, messages: [], onToken: token => tokens.push(token)});
   assert.equal(answer, 'before'); assert.deepEqual(tokens, ['before']); assert.equal(cancelled, true); assert.equal(body.locked, false);
+});
+
+test('query-specific passages include matching source text beyond the opening prefix', () => {
+  const node = {id: 'manual', title: 'Manual', raw: 'Ignition adjustment: set the timing first.\n' + 'General background. '.repeat(800) + '\nDrainage maintenance: clear the impeller before restarting.'};
+  const ignition = support.relevantPassage(node, 'ignition timing');
+  const drainage = support.relevantPassage(node, 'drainage impeller');
+  assert.match(ignition.raw, /set the timing first/);
+  assert.match(drainage.raw, /clear the impeller before restarting/);
+  assert.ok(drainage.raw.length <= 1200); assert.notEqual(ignition.raw, drainage.raw);
+});
+
+test('HTML-only sources participate in retrieval alongside nodes with embeddings', () => {
+  const nodes = [{id: 'unrelated', title: 'Other', raw: 'Unrelated background'}, {id: 'html', title: 'Manual', html: '<script>invisiblekeyword</script><style>anotherinvisiblekeyword</style><p>Pressure&nbsp;valve&#32;inspection prevents leaks.</p>'}];
+  const ranked = support.rankKnowledge(nodes, 'pressure valve inspection', 6, new Map([['unrelated', 0.9]]));
+  assert.equal(ranked[0].id, 'html'); assert.match(ranked[0].raw, /Pressure valve inspection/);
+  assert.doesNotMatch(ranked[0].raw, /invisiblekeyword|<script>|<p>/);
+  assert.deepEqual(support.rankKnowledge([nodes[1]], 'invisiblekeyword'), []);
+});
+
+async function askInHarness(h, query) {
+  h.button('\u2726 chat').props.onClick(); h.render();
+  h.find(n => n.type?.name === 'ChatPanel').props.setChat(c => ({...c, q: query})); h.render();
+  await h.find(n => n.type?.name === 'ChatPanel').props.onSend(); h.render();
+  const chat = h.state(s => s && typeof s === 'object' && 'msgs' in s).value;
+  assert.equal(chat.busy, false);
+  return chat;
+}
+
+test('Markdown ingestion retains late passages and sends the relevant passage to chat', async t => {
+  const h = harness(); h.data(); h.connection('chat', {Host: 'localhost:11434', Trust: 'http://localhost:11434'});
+  const late = 'Emergency water pump priming: open the bleed valve before restarting.';
+  await h.ingest([file('Background information. '.repeat(800) + '\n' + late, 'Pump manual.md')]);
+  let sent;
+  t.mock.method(globalThis, 'fetch', async (url, init) => {sent = JSON.parse(init.body); return new Response(JSON.stringify({message: {content: 'Open the bleed valve [Pump manual].'}}) + '\n');});
+  await askInHarness(h, 'emergency water pump priming');
+  assert.ok(sent.messages[0].content.includes(late));
+  assert.ok(h.refs().some(r => r.current?.nodes?.[0]?.raw?.endsWith(late)));
+});
+
+test('HTML-only imported nodes send matching later text to chat instead of an empty context', async t => {
+  const h = harness(); h.data(); h.connection('chat', {Host: 'localhost:11434', Trust: 'http://localhost:11434'});
+  const late = 'Hydraulic pump inspection: replace the cracked pressure hose.';
+  await h.load({nodes: [{id: 'manual', title: 'Workshop manual', html: '<p>' + 'General introduction. '.repeat(200) + '</p><section><p>' + late + '</p></section>'}]});
+  let sent;
+  t.mock.method(globalThis, 'fetch', async (url, init) => {sent = JSON.parse(init.body); return new Response(JSON.stringify({message: {content: 'Replace the hose [Workshop manual].'}}) + '\n');});
+  const chat = await askInHarness(h, 'hydraulic pump pressure hose');
+  assert.ok(sent.messages[0].content.includes(late));
+  assert.doesNotMatch(sent.messages[0].content, /<section>|<p>/);
+  assert.deepEqual(Array.from(chat.msgs.at(-1).sources, s => s.id), ['manual']);
+});
+
+test('graph imports use the first non-null vector dimension and reject mixed lengths before replacement', async () => {
+  const nodes = [{id: 'plain'}, {id: 'two', vec: [1, 2]}, {id: 'three', embedding: [1, 2, 3]}];
+  await assert.rejects(support.readGraphFile(graphFile({nodes}), opts), /inconsistent vector/);
+  const result = await support.readGraphFile(graphFile({nodes: nodes.slice(0, 2).concat({id: 'alsoTwo', embedding: [3, 4]})}), opts);
+  assert.equal(result.nodes[0].vec, null); assert.equal(result.nodes[2].vec.length, 2);
+  const h = harness(); h.data(); await h.load({nodes});
+  assert.match(h.state(s => s && typeof s === 'object' && 'maxNodes' in s).value.err, /inconsistent vector/);
+  assert.ok(h.refs().some(r => r.current?.nodes?.[0]?.id === 'entropy'));
+});
+
+test('stale model completion cannot overwrite a newer endpoint list or clear its busy flag', async t => {
+  const h = harness(); h.data(); h.connection('embed', {Host: 'localhost:11434', Trust: 'http://localhost:11434'});
+  const pending = new Map();
+  t.mock.method(globalThis, 'fetch', url => new Promise(resolve => pending.set(url, resolve)));
+  const editor = () => h.find(n => n.type?.name === 'ConnFields' && n.props.kind === 'embed');
+  const old = editor().props.onList(); h.render(); assert.equal(editor().props.busy, true);
+  h.connection('embed', {Host: 'localhost:11435', Trust: 'http://localhost:11435'});
+  assert.equal(editor().props.busy, false); assert.equal(editor().props.models.length, 0);
+  const current = editor().props.onList(); h.render();
+  pending.get('http://localhost:11434/api/tags')(new Response('{"models":[{"name":"old-model"}]}'));
+  await old; h.render(); assert.equal(editor().props.busy, true); assert.equal(editor().props.models.length, 0);
+  pending.get('http://localhost:11435/api/tags')(new Response('{"models":[{"name":"new-model"}]}'));
+  await current; h.render(); assert.equal(editor().props.busy, false); assert.deepEqual(Array.from(editor().props.models), ['new-model']);
+});
+
+test('key, API mode and trust edits invalidate pending model lists and their completion errors', async t => {
+  for (const changed of [{Key: 'new-key'}, {OAI: true}, {Trust: ''}]) {
+    const h = harness(); h.data(); h.connection('embed', {Host: 'localhost:11434', Trust: 'http://localhost:11434'});
+    let reject;
+    t.mock.method(globalThis, 'fetch', () => new Promise((resolve, failure) => {reject = failure;}));
+    const editor = () => h.find(n => n.type?.name === 'ConnFields' && n.props.kind === 'embed');
+    const pending = editor().props.onList(); h.render(); h.connection('embed', changed);
+    assert.equal(editor().props.busy, false); assert.equal(editor().props.models.length, 0);
+    reject(new Error('stale failure')); await pending; h.render();
+    assert.equal(editor().props.error, ''); assert.equal(editor().props.models.length, 0);
+  }
+});
+
+test('reader and spatial annotations retain their source node, stay scoped, and clear on graph replacement', async () => {
+  const h = harness(); h.button('\u25a4 reader').props.onClick(); h.render();
+  const child = harness();
+  const reader = () => h.find(n => n.type?.name === 'ReaderView');
+  const bounds = () => ({left: 0, top: 0, width: 500, height: 100});
+  const selection = text => ({toString: () => text, getRangeAt: () => ({getBoundingClientRect: bounds}), removeAllRanges() {}});
+  function annotate(text) {
+    child.window.getSelection = () => selection(text);
+    child.render(child.exports.ReaderView, reader().props);
+    child.find(n => n.props?.dangerouslySetInnerHTML).props.onMouseUp({currentTarget: {getBoundingClientRect: bounds}});
+    child.render(child.exports.ReaderView, reader().props);
+    child.find(n => n.type === 'button' && n.props.title === 'annotate').props.onClick();
+    h.render();
+  }
+  annotate('ENTROPY_MARK');
+  const marks = h.state(s => Array.isArray(s) && s[0]?.nodeId);
+  assert.equal(marks.value[0].nodeId, 'entropy');
+  reader().props.onSel('heat'); h.render();
+  assert.doesNotMatch(textOf(child.render(child.exports.ReaderView, reader().props)), /1 annotation/);
+  annotate('HEAT_MARK');
+  assert.equal(marks.value[1].nodeId, 'heat');
+  assert.match(textOf(child.render(child.exports.ReaderView, reader().props)), /1 annotation for this document/);
+  h.button('\u2726 space').props.onClick(); h.render();
+  function dive(id) {
+    const svg = h.find(n => n.type === 'svg' && n.props.onDoubleClick);
+    svg.props.ref.current = {getBoundingClientRect: () => ({left: 0, top: 0, width: 760, height: 520})};
+    const node = h.refs().find(r => r.current?.nodes?.[0]?.p).current.nodes.find(n => n.id === id);
+    svg.props.onDoubleClick({clientX: 380 + node.p[0] * 620 / (node.p[2] + 560), clientY: 260 + node.p[1] * 620 / (node.p[2] + 560)});
+    return h.render();
+  }
+  let view = textOf(dive('entropy')); assert.match(view, /ENTROPY_MARK/); assert.doesNotMatch(view, /HEAT_MARK/);
+  h.window.getSelection = () => selection('SPATIAL_MARK');
+  h.find(n => n.type === 'div' && n.props.onMouseUp).props.onMouseUp({currentTarget: {getBoundingClientRect: bounds}, clientX: 10, clientY: 10}); h.render();
+  h.find(n => n.type === 'div' && n.props.style?.padding === '9px 14px' && textOf(n).includes('annotate')).props.onClick(); h.render();
+  assert.equal(marks.value.at(-1).nodeId, 'entropy');
+  h.button('\u2715 surface').props.onClick(); h.render();
+  view = textOf(dive('heat')); assert.match(view, /HEAT_MARK/); assert.doesNotMatch(view, /ENTROPY_MARK|SPATIAL_MARK/);
+  h.data(); await h.load({nodes: [{id: 'replacement'}]}); assert.equal(marks.value.length, 0);
 });

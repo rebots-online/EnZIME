@@ -26,7 +26,7 @@ async function reader(t,assets,initial={}){
   t.after(()=>{window.close();assert.deepEqual(problems,[]);});
   window.fetch=async(input,options={})=>{
     const url=new URL(input,window.location.href),method=options.method||'GET';
-    let body;try{body=options.body?JSON.parse(options.body):undefined;}catch{assert.fail('Malformed UI request JSON');}
+    let body;try{body=typeof options.body==='string'?JSON.parse(options.body):options.body;}catch{assert.fail('Malformed UI request JSON');}
     const request={url,method,body};requests.push(request);
     const intercepted=await r.intercept?.(request);if(intercepted)return intercepted;
     const path=url.pathname;
@@ -63,6 +63,51 @@ async function reader(t,assets,initial={}){
   assert.equal(r.get('status').classList.contains('error'),false,r.get('status').textContent);
   return r;
 }
+
+function selectUpload(r,name){
+  const file=new r.window.File(['upload fixture'],name);
+  Object.defineProperty(r.get('upload'),'files',{value:[file],configurable:true});
+  r.get('upload').dispatchEvent(new r.window.Event('change',{bubbles:true}));
+}
+
+test('an older upload finishing last cannot take over the latest file selection',async t=>{
+  const assets=[],r=await reader(t,assets),old=asset('old','Old.mp3','audio'),latest=asset('new','New.mp3','audio');
+  const pending=deferred(),started=deferred();
+  r.intercept=async request=>{
+    if(request.url.pathname!=='/api/assets'||request.method!=='POST')return;
+    const item=request.body.name===old.name?old:latest;
+    if(item===old){started.resolve();await pending.promise;}
+    assets.push(item);return Response.json(item);
+  };
+  selectUpload(r,old.name);await started.promise;selectUpload(r,latest.name);
+  await r.wait(()=>r.get('status').textContent==='Import complete.');pending.resolve();await r.settle();
+  assert.equal(r.get('work-title').textContent,latest.name);
+  assert.equal(r.get('reading').querySelector('audio').getAttribute('src'),'/api/assets/new/bytes');
+  assert.equal(r.get('status').textContent,'Import complete.');
+  assert.equal(r.requests.some(request=>request.url.pathname==='/api/state/old'),false);
+  assert.equal(r.document.querySelectorAll('.work-card').length,2,'Both successful imports stay in the library');
+});
+
+test('selecting another upload invalidates the first import reader while the new upload is pending',async t=>{
+  const assets=[],r=await reader(t,assets),old=asset('old','Old.txt'),latest=asset('new','New.mp3','audio');
+  const oldRead=deferred(),readStarted=deferred(),newUpload=deferred(),uploadStarted=deferred();
+  r.intercept=async request=>{
+    if(request.url.pathname==='/api/assets'&&request.method==='POST'){
+      const item=request.body.name===old.name?old:latest;
+      if(item===latest){uploadStarted.resolve();await newUpload.promise;}
+      assets.push(item);return Response.json(item);
+    }
+    if(request.url.pathname==='/api/assets/old/read'){readStarted.resolve();return oldRead.promise;}
+  };
+  selectUpload(r,old.name);await readStarted.promise;selectUpload(r,latest.name);await uploadStarted.promise;
+  oldRead.resolve(Response.json(passage(old)));await r.settle();
+  assert.doesNotMatch(r.get('reading').textContent,/Text belonging to Old/);
+  assert.equal(r.get('reading').querySelector('.paper'),null);
+  assert.match(r.get('status').textContent,/Importing New\.mp3/);
+  newUpload.resolve();await r.wait(()=>r.get('status').textContent==='Import complete.');await r.settle();
+  assert.equal(r.get('work-title').textContent,latest.name);
+  assert.equal(r.get('reading').querySelector('audio').getAttribute('src'),'/api/assets/new/bytes');
+});
 
 test('a save uses its initiating asset and reader snapshot despite navigation',async t=>{
   const r=await reader(t,[asset('old','Old','audio'),asset('new','New')],{old:{page:7,font:23,note:'original'}});
