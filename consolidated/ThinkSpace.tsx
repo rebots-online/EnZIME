@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from "react";
-import { GRAPH_LIMITS, boundedFileText, validateEmbedding, readGraphFile, modelEndpoint, requireModelTrust, modelRequest, citedSources, isolatedGraphHtml, repulsionForce, applyLook, coastLook } from "./thinkspace-support.mjs";
+import { GRAPH_LIMITS, boundedFileText, validateEmbedding, readGraphFile, modelEndpoint, requireModelTrust, modelRequest, rankKnowledge, citedSources, isolatedGraphHtml, repulsionForce, applyLook, coastLook } from "./thinkspace-support.mjs";
 
 // ThinkSpace — 6DoF semantic concept navigator (mockup)
 // Controls: drag empty space = pivot/orbit about a vertical hinge out front.
@@ -61,7 +61,7 @@ function parseMd(name,text){
     const tm=fm[1].match(/title:\s*"?([^"\n]+)"?/); if(tm) title=tm[1].trim();
   }
   // text used for embedding = title + body, trimmed
-  return {title, tags, text:(title+"\n"+body).slice(0,8000), raw:body.slice(0,1200)};
+  return {title, tags, text:(title+"\n"+body).slice(0,8000), raw:body};
 }
 // Model calls use the explicit endpoint trust boundary below.
 const cosine=(a,b)=>{let d=0,na=0,nb=0;for(let i=0;i<a.length;i++){d+=a[i]*b[i];na+=a[i]*a[i];nb+=b[i]*b[i];}return d/((Math.sqrt(na)*Math.sqrt(nb))||1);};
@@ -187,6 +187,18 @@ export default function ThinkSpace(){
   const [models,setModels]=useState({embed:[],chat:[]});
   const [modelsBusy,setModelsBusy]=useState({embed:false,chat:false});
   const [modelsError,setModelsError]=useState({embed:"",chat:""});
+  const modelGeneration=useRef({embed:0,chat:0});
+  const changeConnection=(update)=>{
+    const previous=connRef.current, next={...(typeof update==="function"?update(previous):update)};
+    for(const kind of ["embed","chat"]){
+      if(["Host","Key","OAI"].some(field=>previous[kind+field]!==next[kind+field])) next[kind+"Trust"]="";
+      if(["Host","Key","OAI","Trust"].some(field=>previous[kind+field]!==next[kind+field])){
+        modelGeneration.current[kind]++;
+        setModels(s=>({...s,[kind]:[]}));setModelsBusy(s=>({...s,[kind]:false}));setModelsError(s=>({...s,[kind]:""}));
+      }
+    }
+    connRef.current=next;setConn(next);
+  };
   const [chat,setChat]=useState({open:false,busy:false,q:"",msgs:[]});
   const [readerId,setReaderId]=useState("entropy");
   const nodeVecs=useRef({});                        // id -> Float-ish[] for RAG retrieval
@@ -632,31 +644,30 @@ export default function ThinkSpace(){
   // ── pull model list from a host into the combo dropdown ──
   const fetchModels=async(kind)=>{
     const C={...connRef.current};
+    const generation=++modelGeneration.current[kind];
+    const current=()=>generation===modelGeneration.current[kind]&&["Host","Key","OAI","Trust"].every(field=>C[kind+field]===connRef.current[kind+field]);
     setModelsBusy(s=>({...s,[kind]:true})); setModelsError(s=>({...s,[kind]:""}));
     try{
       const list=await listModels(C[kind+"Host"],C[kind+"Key"],C[kind+"OAI"],C[kind+"Trust"]);
-      setModels(s=>({...s,[kind]:list}));
-    }catch(err){setModelsError(s=>({...s,[kind]:err.message}));}
-    finally{setModelsBusy(s=>({...s,[kind]:false}));}
+      if(current())setModels(s=>({...s,[kind]:list}));
+    }catch(err){if(current())setModelsError(s=>({...s,[kind]:err.message}));}
+    finally{if(current())setModelsBusy(s=>({...s,[kind]:false}));}
   };
 
   // ── RAG retrieval over the loaded nodes (vectors if dims match query, else lexical) ──
   const retrieveKB=async(query,k=6,C=connRef.current)=>{
     const ns=graph.current.nodes, vmap=nodeVecs.current;
     const sampleVec=ns.map(n=>vmap[n.id]).find(Boolean);
+    const vectorScores=new Map();
     if(sampleVec){
       try{
         const qv=await embedUnified(query,C.embedHost,C.embedModel,C.embedKey,C.embedOAI,C.embedTrust);
         if(qv.length===sampleVec.length){
-          const scored=ns.filter(n=>vmap[n.id]).map(n=>({n,score:cosine(qv,vmap[n.id])})).sort((a,b)=>b.score-a.score).slice(0,k);
-          if(scored.length) return scored.map(s=>({id:s.n.id,title:s.n.title,onto:s.n.onto,raw:s.n.raw,score:s.score}));
+          ns.filter(n=>vmap[n.id]?.length===qv.length).forEach(n=>vectorScores.set(n.id,cosine(qv,vmap[n.id])));
         }
       }catch{}
     }
-    const toks=query.toLowerCase().split(/\W+/).filter(w=>w.length>2);
-    const scored=ns.map(n=>{const hay=((n.title||"")+" "+(n.raw||"")).toLowerCase();let sc=0;toks.forEach(tk=>{if(hay.includes(tk))sc++;});return {n,score:sc};}).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,k);
-    const pick=scored;
-    return pick.map(s=>({id:s.n.id,title:s.n.title,onto:s.n.onto,raw:s.n.raw,score:s.score}));
+    return rankKnowledge(ns,query,k,vectorScores);
   };
 
   const sendChat=async(preset)=>{
@@ -668,7 +679,7 @@ export default function ThinkSpace(){
       requireModelTrust(C.chatHost,C.chatTrust,C.chatOAI?C.chatKey:"");
       const top=await retrieveKB(q,6,C);
       if(epoch!==graphEpoch.current) return;
-      const context=top.map(n=>"["+n.title+"]\n"+(n.raw||"").slice(0,1200));
+      const context=top.map(n=>"["+n.title+"]\n"+n.raw);
       const answer=await chatStream({host:C.chatHost,model:C.chatModel,key:C.chatKey,oai:C.chatOAI,trust:C.chatTrust,system:KB_SYSTEM,context,
         messages:[...history,{role:"user",content:q}],
         onToken:(tok)=>{if(epoch!==graphEpoch.current)return;setChat(c=>{const m=[...c.msgs];const last=m[m.length-1];if(!last)return c;m[m.length-1]={...last,content:(last.content||"")+tok};return {...c,msgs:m};});}});
@@ -733,8 +744,8 @@ export default function ThinkSpace(){
               Choose a trusted Ollama or OpenAI-compatible service for embeddings and chat. Approve each endpoint below before listing models or sending content. Blank embedding host uses a deterministic offline layout demo, not a semantic model. This bundled demo permits only same-origin requests.
             </p>
             <div style={{fontSize:10,letterSpacing:1,color:"#7ee8fa",textShadow:"0 0 8px #7ee8fa",margin:"0 0 8px"}}>CONNECTIONS</div>
-            <ConnFields kind="embed" conn={conn} setConn={setConn} models={models.embed} busy={modelsBusy.embed} error={modelsError.embed} onList={()=>fetchModels("embed")} title="embeddings" accent="#7cffc4" phHost="192.168.0.41:11434 (blank = demo)" phModel="qwen3-embedding:8b"/>
-            <ConnFields kind="chat" conn={conn} setConn={setConn} models={models.chat} busy={modelsBusy.chat} error={modelsError.chat} onList={()=>fetchModels("chat")} title="chat / inference" accent="#7ee8fa" phHost="192.168.0.41:11434 or OpenAI URL" phModel="gemma4:e2b"/>
+            <ConnFields kind="embed" conn={conn} setConn={changeConnection} models={models.embed} busy={modelsBusy.embed} error={modelsError.embed} onList={()=>fetchModels("embed")} title="embeddings" accent="#7cffc4" phHost="192.168.0.41:11434 (blank = demo)" phModel="qwen3-embedding:8b"/>
+            <ConnFields kind="chat" conn={conn} setConn={changeConnection} models={models.chat} busy={modelsBusy.chat} error={modelsError.chat} onList={()=>fetchModels("chat")} title="chat / inference" accent="#7ee8fa" phHost="192.168.0.41:11434 or OpenAI URL" phModel="gemma4:e2b"/>
             <div style={{fontSize:10,letterSpacing:1,color:"#5d6796",textAlign:"center",margin:"4px 0 10px"}}>— ingest / load —</div>
             <div style={{display:"flex",gap:8,marginBottom:8}}>
               <div style={{flex:1}}>
@@ -892,6 +903,7 @@ export default function ThinkSpace(){
 
         {diveInto&&(()=>{
           const dn=map[diveInto]; const col=ONTO[dn.onto].c; const links=graph.current.edges.filter(e=>e.from===diveInto||e.to===diveInto);
+          const nodeAnnos=annos.filter(a=>a.nodeId===diveInto);
           return (
             <div onClick={()=>setDiveInto(null)} style={{position:"absolute",inset:0,zIndex:5,background:"radial-gradient(ellipse at 50% 45%, rgba(10,14,40,0.7), rgba(4,6,16,0.94))",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",animation:"tsZoom 0.4s cubic-bezier(.2,.9,.3,1)"}}>
               <style>{`@keyframes tsZoom{from{opacity:0;transform:scale(1.25)}to{opacity:1;transform:scale(1)}}`}</style>
@@ -910,7 +922,7 @@ export default function ThinkSpace(){
                     const txt=s&&s.toString().trim();
                     if(txt&&txt.length>0){
                       const rect=ev.currentTarget.getBoundingClientRect();
-                      setSelMenu({x:ev.clientX-rect.left+20,y:ev.clientY-rect.top+96,text:txt});
+                      setSelMenu({nodeId:diveInto,x:ev.clientX-rect.left+20,y:ev.clientY-rect.top+96,text:txt});
                     } else setSelMenu(null);
                   }}>
                   <p style={{fontSize:13,lineHeight:1.7,color:"#c8d2f5",margin:"0 0 14px"}}>
@@ -919,15 +931,15 @@ export default function ThinkSpace(){
                   </p>
                   <div style={{fontSize:10,letterSpacing:1,color:"#7a86b8",margin:"16px 0 8px"}}>OUTBOUND VECTORS</div>
                   {links.map((e,i)=>{const other=e.from===diveInto?e.to:e.from;return (<div key={i} onClick={()=>{setSelMenu(null);setDiveInto(other);}} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",marginBottom:5,borderRadius:10,cursor:"pointer",background:"rgba(255,255,255,0.03)",border:`1px solid ${REL[e.rel].c}22`}}><span style={{width:7,height:7,borderRadius:7,background:REL[e.rel].c,boxShadow:`0 0 6px ${REL[e.rel].c}`}}/><span style={{fontSize:11,color:REL[e.rel].c,width:56}}>{REL[e.rel].label}</span><span style={{flex:1,fontSize:13,color:"#e6ecff"}}>{map[other].title}</span><span style={{fontSize:14,color:"#5d6796"}}>↳</span></div>);})}
-                  {annos.length>0&&<div style={{fontSize:10,letterSpacing:1,color:"#7a86b8",margin:"16px 0 8px"}}>YOUR MARKS ({annos.length})</div>}
-                  {annos.map((a,i)=>(<div key={i} style={{fontSize:11,color:"#9aa6d8",padding:"4px 0",borderLeft:`2px solid ${col}`,paddingLeft:8,marginBottom:4}}><span style={{color:col}}>{a.kind}</span> · "{a.text.slice(0,42)}{a.text.length>42?"…":""}"</div>))}
+                  {nodeAnnos.length>0&&<div style={{fontSize:10,letterSpacing:1,color:"#7a86b8",margin:"16px 0 8px"}}>YOUR MARKS ({nodeAnnos.length})</div>}
+                  {nodeAnnos.map((a,i)=>(<div key={i} style={{fontSize:11,color:"#9aa6d8",padding:"4px 0",borderLeft:`2px solid ${col}`,paddingLeft:8,marginBottom:4}}><span style={{color:col}}>{a.kind}</span> · "{a.text.slice(0,42)}{a.text.length>42?"…":""}"</div>))}
                 </div>
-                {selMenu&&(()=>{
+                {selMenu&&selMenu.nodeId===diveInto&&(()=>{
                   const items=[["✎","annotate"],["▤","highlight"],["⤴","share"],["🎙","voice note"],["✐","scribble"]];
                   return (
                     <div style={{position:"absolute",left:Math.min(selMenu.x,270),top:selMenu.y,zIndex:9,background:"rgba(12,16,38,0.96)",backdropFilter:"blur(14px)",border:`1px solid ${col}55`,borderRadius:12,boxShadow:`0 10px 40px #000a, 0 0 24px ${col}22`,overflow:"hidden",minWidth:150}}>
                       {items.map(([ic,label],i)=>(
-                        <div key={i} onClick={()=>{ setAnnos(a=>[...a,{kind:label,text:selMenu.text}]); setSelMenu(null); window.getSelection&&window.getSelection().removeAllRanges(); }}
+                        <div key={i} onClick={()=>{ setAnnos(a=>[...a,{nodeId:selMenu.nodeId,kind:label,text:selMenu.text}]); setSelMenu(null); window.getSelection&&window.getSelection().removeAllRanges(); }}
                           style={{display:"flex",alignItems:"center",gap:10,padding:"9px 14px",fontSize:12,color:"#dfe7ff",cursor:"pointer",borderBottom:i<items.length-1?"1px solid #1b2245":"none"}}
                           onMouseEnter={e=>e.currentTarget.style.background=`${col}18`} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
                           <span style={{width:16,textAlign:"center",color:col}}>{ic}</span>{label}
@@ -996,7 +1008,7 @@ export default function ThinkSpace(){
             sel={readerId}
             onSel={setReaderId}
             annos={annos}
-            addAnno={(kind,text)=>setAnnos(a=>[...a,{kind,text}])}
+            addAnno={(nodeId,kind,text)=>setAnnos(a=>[...a,{nodeId,kind,text}])}
             onSpatial={(id)=>{setSel(id);setReaderId(id);setTab("spatial");cam.current.vFwd+=5;interact.current=performance.now();}}
             onChat={(title)=>{setChat(c=>({...c,open:true}));sendChat("Tell me about "+title+".");}}
           />
@@ -1085,11 +1097,12 @@ function ReaderView({nodes,edges,sel,onSel,annos,addAnno,onSpatial,onChat}){
   const node=byId[sel]||nodes[0];
   if(!node) return <div style={{position:"absolute",inset:0,zIndex:8,display:"flex",alignItems:"center",justifyContent:"center",color:"#5d6796",fontSize:13,background:"#05060f"}}>no documents — load a graph or ingest a folder in ⊞ data</div>;
   const oc=ONTO[node.onto]||{c:"#7ee8fa",label:"node"};
+  const nodeAnnos=(annos||[]).filter(a=>a.nodeId===node.id);
   const bodyHtml=node.html?isolatedGraphHtml(node.html):mdToHtml(node.raw||node.title||"");
   const links=edges.filter(e=>e.from===node.id||e.to===node.id).map(e=>{const oid=e.from===node.id?e.to:e.from;return {oid,node:byId[oid],rel:e.rel};}).filter(x=>x.node);
   const resolve=(href)=>{ if(!href) return null; let h=String(href).trim(); if(/^https?:|^mailto:/i.test(h)) return {ext:h}; h=h.replace(/^#/,""); try{h=decodeURIComponent(h);}catch(e){} const low=h.toLowerCase(); const hit=nodes.find(n=>String(n.id).toLowerCase()===low)||nodes.find(n=>String(n.title||"").toLowerCase()===low)||nodes.find(n=>low.length>2&&String(n.title||"").toLowerCase().includes(low)); return hit?{id:hit.id}:null; };
   const onBodyClick=(e)=>{ const a=e.target.closest&&e.target.closest("a"); if(!a) return; e.preventDefault(); const r=resolve(a.getAttribute("href")); if(r&&r.id) onSel(r.id); else if(r&&r.ext){try{const url=new URL(r.ext);if(["http:","https:","mailto:"].includes(url.protocol)&&!url.username&&!url.password)window.open(url.href,"_blank","noopener,noreferrer");}catch{}} };
-  const onBodyUp=(e)=>{ const s=window.getSelection&&window.getSelection(); const text=s?String(s).trim():""; if(!text){setMenu(null);return;} const host=e.currentTarget.getBoundingClientRect(); let rect=host; try{rect=s.getRangeAt(0).getBoundingClientRect();}catch(err){} setMenu({x:rect.left-host.left+rect.width/2,y:rect.top-host.top,w:host.width,text}); };
+  const onBodyUp=(e)=>{ const s=window.getSelection&&window.getSelection(); const text=s?String(s).trim():""; if(!text){setMenu(null);return;} const host=e.currentTarget.getBoundingClientRect(); let rect=host; try{rect=s.getRangeAt(0).getBoundingClientRect();}catch(err){} setMenu({nodeId:node.id,x:rect.left-host.left+rect.width/2,y:rect.top-host.top,w:host.width,text}); };
   return (
     <div style={{position:"absolute",inset:0,zIndex:8,display:"flex",background:"radial-gradient(ellipse at 50% 0%, #0b1030 0%, #05060f 70%)"}}>
       <div style={{width:230,flexShrink:0,borderRight:"1px solid #161b38",display:"flex",flexDirection:"column",background:"rgba(8,11,28,0.6)"}}>
@@ -1135,14 +1148,14 @@ function ReaderView({nodes,edges,sel,onSel,annos,addAnno,onSpatial,onChat}){
               </div>
             </div>
           )}
-          {annos&&annos.length>0&&(
-            <div style={{marginTop:24,fontSize:10,color:"#5d6796"}}>{annos.length} annotation{annos.length>1?"s":""} saved this session</div>
+          {nodeAnnos.length>0&&(
+            <div style={{marginTop:24,fontSize:10,color:"#5d6796"}}>{nodeAnnos.length} annotation{nodeAnnos.length>1?"s":""} for this document</div>
           )}
         </div>
-        {menu&&(
+        {menu&&menu.nodeId===node.id&&(
           <div style={{position:"absolute",left:Math.max(8,Math.min(menu.x-94,menu.w-196)),top:Math.max(4,menu.y-46),display:"flex",gap:2,padding:4,borderRadius:10,background:"rgba(14,18,42,0.95)",backdropFilter:"blur(12px)",border:"1px solid #2a3a6a",boxShadow:"0 10px 30px #000a",zIndex:9}}>
             {[["✎","annotate"],["▤","highlight"],["⤴","share"],["🎙","voice note"],["✐","scribble"]].map(([ic,lab])=>(
-              <button key={lab} title={lab} onClick={()=>{addAnno(lab,menu.text);setMenu(null);if(window.getSelection)window.getSelection().removeAllRanges();}} style={{border:"none",background:"transparent",color:"#9ad8ff",cursor:"pointer",fontSize:14,padding:"4px 7px",borderRadius:7}}>{ic}</button>
+              <button key={lab} title={lab} onClick={()=>{addAnno(menu.nodeId,lab,menu.text);setMenu(null);if(window.getSelection)window.getSelection().removeAllRanges();}} style={{border:"none",background:"transparent",color:"#9ad8ff",cursor:"pointer",fontSize:14,padding:"4px 7px",borderRadius:7}}>{ic}</button>
             ))}
           </div>
         )}

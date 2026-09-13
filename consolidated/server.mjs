@@ -1,5 +1,5 @@
 import http from 'node:http';
-import {readFile,open} from 'node:fs/promises';
+import {readFile,open,realpath,stat} from 'node:fs/promises';
 import {pipeline} from 'node:stream/promises';
 import path from 'node:path';
 import os from 'node:os';
@@ -32,8 +32,11 @@ export async function createApp({root,checkout=null}={}){
  const file=await open(store.file(item.id),'r');res.writeHead(range?206:200,{'Content-Type':item.mime,'Content-Length':Math.max(0,end-start+1),'Accept-Ranges':'bytes','Content-Security-Policy':"default-src 'none'; sandbox"});if(!item.size){await file.close();return res.end();}await pipeline(file.createReadStream({start,end}),res);return;}
  if(req.method!=='GET')return json(405,{error:'Method not allowed'});
  const rel=url.pathname==='/'?'index.html':decodeURIComponent(url.pathname.slice(1));const target=path.resolve(here,'public',rel);if(!target.startsWith(path.join(here,'public')+path.sep))return json(403,{error:'Invalid path'});
+ const publicRoot=await realpath(path.join(here,'public')),actualTarget=await realpath(target);
+ if(!actualTarget.startsWith(publicRoot+path.sep))return json(403,{error:'Invalid path'});
+ if(!(await stat(actualTarget)).isFile())return json(404,{error:'Resource unavailable'});
  const ext=path.extname(target);const types={'.html':'text/html','.css':'text/css','.mjs':'text/javascript','.js':'text/javascript','.svg':'image/svg+xml','.wasm':'application/wasm'};
- const body=await readFile(target);res.writeHead(200,{'Content-Type':types[ext]||'application/octet-stream','Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; worker-src 'self' blob:; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'"});res.end(body);
+ const body=await readFile(actualTarget);res.writeHead(200,{'Content-Type':types[ext]||'application/octet-stream','Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; worker-src 'self' blob:; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'"});res.end(body);
  }catch(e){json(e.code==='ENOENT'?404:400,{error:e.code==='ENOENT'?'Resource unavailable':e.message});}
  });server.on('close',()=>store.close());return {server,store};
 }

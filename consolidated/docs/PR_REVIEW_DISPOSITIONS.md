@@ -38,3 +38,23 @@ Initial head: `0bea247`. Repairs are committed on `agent/consolidated-market-ske
 
 The loopback trust boundary and reference-runtime exceptions are detailed in `docs/RELEASE_CHECKLIST.md`. All native/commercial release gates remain intact. PR #3 is stacked and must retain these repairs when integrated onto master.
 
+
+## Additional PR2 review rounds
+
+These follow-up findings were raised while the original fixes were being reviewed. The dispositions below are merge requirements; the final verification receipt records completion.
+
+| Review issue | Evaluation | Required merge disposition |
+| --- | --- | --- |
+| [3999011144](https://github.com/rebots-online/EnZIME/pull/2#discussion_r3999011144): unsuccessful embedding responses | Valid: HTTP errors or invalid vectors must not produce a successful collapsed graph. | Reject unsuccessful responses and empty/nonfinite vectors; preserve actionable ingestion failure and retry. |
+| [3999011145](https://github.com/rebots-online/EnZIME/pull/2#discussion_r3999011145): overlapping pause and bookmark writes | Duplicate of atomic-state finding 3998998876. | Partial updates merged transactionally by the broker; regression covers overlapping note and media writes. Implemented in `4912bfd`. |
+| [3999011150](https://github.com/rebots-online/EnZIME/pull/2#discussion_r3999011150): fixed-prefix context omits relevant passages | Valid for long Markdown and HTML-only graph nodes. | Preserve readable full content and select bounded query-relevant passages rather than the first 1,200 characters. |
+| [3999056110](https://github.com/rebots-online/EnZIME/pull/2#discussion_r3999056110): mixed vector dimensions | Valid: invalid cosine scores undermine retrieval ordering. | Reject inconsistent imported embedding dimensions before replacing the graph. |
+| [3999056129](https://github.com/rebots-online/EnZIME/pull/2#discussion_r3999056129): stale endpoint model discovery | Valid asynchronous identity bug. | Invalidate model lists on connection changes and reject discovery completions for obsolete connection generations. |
+| [3999056143](https://github.com/rebots-online/EnZIME/pull/2#discussion_r3999056143): cross-document annotations | Valid provenance bug. | Bind marks to source node IDs and filter both reader and spatial views by the active node. |
+| [3999056171](https://github.com/rebots-online/EnZIME/pull/2#discussion_r3999056171): public symlink escape | Valid static-serving boundary gap. | Enforce resolved-path containment and regular-file checks before serving static bytes; retain the explicitly documented trusted-local-filesystem boundary. |
+
+### Final PR2 follow-up receipt (13 September 2026)
+
+All seven follow-up rows above are addressed. Embedding HTTP/vector rejection (3999011144) was already implemented in `070313e`; expanded tests confirm its failure/retry behavior. The other ThinkSpace follow-ups and resolved-path static serving are implemented in the final follow-up batch. The original 43 threads plus seven additional threads now have explicit dispositions.
+
+Observed worker runs on the final shared PR2 tree: `node --test test/thinkspace-review.test.mjs` passed 35/35; `npm test` passed 58/58 with zero failures; `npm run build` exited 0. These are dated results, not permanent test-count promises. Browser-engine, real-provider, device, frame-rate, and hostile-local-process qualification remain the explicit release limitations above.
