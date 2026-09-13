@@ -35,7 +35,7 @@ async function refreshStats(){
  $('budget-used').style.width=`${Math.min(100,s.managedBytes/(+$('budget').value*1024**3)*100)}%`;
  $('budget-info').textContent=`${bytes(s.managedBytes)} installed · ${bytes(x.freeBytes)} free on disk · 64 MiB safety reserve`;
 }
-async function savePlace(){if(!state.current)return;const id=state.current.id,place={page:state.page,key:state.key,font:state.font,scroll:$('reading').scrollTop};const prior=await api(`/api/state/${id}`);await api(`/api/state/${id}`,post({...prior,...place}));}
+async function savePlace(){if(!state.current)return;const id=state.current.id,place={page:state.page,key:state.key,font:state.font,scroll:$('reading').scrollTop},media=$('reading').querySelector('audio,video');if(media&&['audio','video'].includes(state.current.kind))place.time=media.currentTime;await api(`/api/state/${id}`,post(place));}
 async function openAsset(item,{key='',page,remember=true}={}){
  if(item.kind==='model'){show('settings');status('Model file linked. Select a running model, or start the configured local engine.');return;}
  if(item.storage==='missing')throw Error('This backup contains metadata only. Re-import the original file to restore reading.');
@@ -51,7 +51,7 @@ async function openAsset(item,{key='',page,remember=true}={}){
   function outlineNodes(items){return items.flatMap(i=>[el('button',{class:'entry',onclick:run(async()=>{let dest=i.dest;if(typeof dest==='string')dest=await pdf.getDestination(dest);if(!dest)return;state.page=(typeof dest[0]==='object'?await pdf.getPageIndex(dest[0]):dest[0])+1;await drawPdf();})},i.title),...(i.items?outlineNodes(i.items):[])]);}
   $('entry-list').replaceChildren(...(outline?.length?outlineNodes(outline):[el('p',{class:'muted'},'This PDF has no embedded outline. Use the page controls or find text.')]));
  }else if(['audio','video'].includes(item.kind)){
-  const media=el(item.kind,{controls:'',src:`/api/assets/${item.id}/bytes`});media.addEventListener('loadedmetadata',()=>media.currentTime=saved.time||0);media.addEventListener('pause',run(async()=>{const prior=await api(`/api/state/${item.id}`);await api(`/api/state/${item.id}`,post({...prior,time:media.currentTime}));}));$('reading').replaceChildren(media);
+  const media=el(item.kind,{controls:'',src:`/api/assets/${item.id}/bytes`});media.addEventListener('loadedmetadata',()=>media.currentTime=saved.time||0);media.addEventListener('pause',run(()=>api(`/api/state/${item.id}`,post({time:media.currentTime}))));$('reading').replaceChildren(media);
  }else{
   if(item.kind==='zim')await entries(true);
   const result=await api(`/api/assets/${item.id}/read?key=${encodeURIComponent(state.key)}`);if(ticket!==state.opening)return;await displayResult(result);
@@ -181,7 +181,8 @@ async function loadDownloads(){
  $('download-jobs').replaceChildren(...jobs.map(j=>{
   const received=(j.units||[]).reduce((n,u)=>n+(u.bytesReceived||0),0),total=(j.plan?.selected||[]).filter(u=>!u.installed).reduce((n,u)=>n+u.size,0);
   const action=j.type==='download'&&!['complete','released','cancelled'].includes(j.status)?el('button',{class:'outline small',onclick:run(async()=>{await api(`/api/dyndon/${j.active?'pause':'resume'}`,post({id:j.id}));status(j.active?'Transfer paused; received bytes are retained.':'Transfer resumed.');await loadDownloads();})},j.active?'Pause':'Resume'):null;
-  return el('article',{class:'note-card'},el('strong',{},`${j.manifest?.title||j.manifest?.id||j.type} · ${j.status}`),el('p',{class:'muted'},`${bytes(received)} / ${bytes(total)} · ${j.units?.length||0} units`),el('progress',{max:Math.max(total,1),value:received,'aria-label':'Downloaded bytes'}),j.error||j.adoptionError?el('p',{class:'error'},j.adoptionError||j.error):null,action);
+  const release=['failed','paused'].includes(j.status)&&!j.active?el('button',{class:'outline small',onclick:run(async()=>{await api(`/api/dyndon/jobs/${encodeURIComponent(j.id)}/release`,post({}));status('Job released. Its reservation is available again.');await loadDownloads();})},'Release'):null;
+  return el('article',{class:'note-card'},el('strong',{},`${j.manifest?.title||j.manifest?.id||j.type} · ${j.status}`),el('p',{class:'muted'},`${bytes(received)} / ${bytes(total)} · ${j.units?.length||0} units`),el('progress',{max:Math.max(total,1),value:received,'aria-label':'Downloaded bytes'}),j.error||j.adoptionError?el('p',{class:'error'},j.adoptionError||j.error):null,action,release);
  }));
  const snapshot=jobs.map(j=>`${j.id}:${j.status}:${j.adoptionStatus}`).join('|');if(snapshot!==downloadSnapshot){downloadSnapshot=snapshot;await refresh();}else await refreshStats();
  if(state.view==='downloads'&&jobs.some(j=>j.active))downloadTimer=setTimeout(()=>loadDownloads().catch(report),1000);

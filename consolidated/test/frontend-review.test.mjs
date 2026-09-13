@@ -18,17 +18,18 @@ const source = (assetId, key, kind='zim') => ({id:`${assetId}:${key}`, assetId, 
 const asset = (id, kind='zim') => ({id, name:id, kind, size:128, storage:'managed'});
 const draft = (id, sourceRefs=[]) => ({id, title:id, body:`Body of ${id}`, format:'markdown', sourceRefs});
 
-async function boot(t, {assets=[], drafts=[], chats=[]}={}) {
+async function boot(t, {assets=[], drafts=[], chats=[], jobs=[]}={}) {
   const problems=[], calls=[], opened=[], revisions=[], annotations=[], places=new Map();
   const draftStore=new Map(drafts.map(value => [value.id, structuredClone(value)]));
   const chatStore=new Map(chats.map(value => [value.id, structuredClone(value)]));
+  const jobStore=new Map(jobs.map(value => [value.id, structuredClone(value)]));
   const virtualConsole=new VirtualConsole();
   virtualConsole.on('jsdomError', error => problems.push(error.message));
   const dom=new JSDOM(html, {url:'http://localhost/', runScripts:'outside-only', pretendToBeVisual:true, virtualConsole});
   const {window}=dom, document=window.document;
   window.TextDecoder=TextDecoder;
   window.open=(...args) => {opened.push(args); return null;};
-  const ctx={window, document, calls, opened, revisions, annotations, places, draftStore, chatStore,
+  const ctx={window, document, calls, opened, revisions, annotations, places, draftStore, chatStore, jobStore,
     intercept:null, id:id => document.getElementById(id)};
   t.after(() => {window.close(); assert.deepEqual(problems, []);});
   window.fetch=async (input, options={}) => {
@@ -48,7 +49,7 @@ async function boot(t, {assets=[], drafts=[], chats=[]}={}) {
     }
     if(pathname.startsWith('/api/state/')) {
       const id=pathname.slice('/api/state/'.length);
-      if(method==='POST') places.set(id, body);
+      if(method==='POST') places.set(id, {...(places.get(id)||{}),...body});
       return Response.json(places.get(id)||{});
     }
     const read=pathname.match(/^\/api\/assets\/([^/]+)\/read$/);
@@ -66,6 +67,13 @@ async function boot(t, {assets=[], drafts=[], chats=[]}={}) {
     if(pathname==='/api/finalize') {revisions.push(structuredClone(draftStore.get(body.id))); return Response.json({id:body.id});}
     if(pathname==='/api/overlay') return Response.json(body);
     if(pathname==='/api/chats') return Response.json([...chatStore.values()]);
+    if(pathname==='/api/downloads') return Response.json([...jobStore.values()]);
+    const release=pathname.match(/^\/api\/dyndon\/jobs\/([^/]+)\/release$/);
+    if(release&&method==='POST') {
+      const job=jobStore.get(decodeURIComponent(release[1]));assert.ok(job);
+      job.status='released';job.active=false;job.reservationBytes=0;
+      return Response.json(job);
+    }
     if(pathname==='/api/chat') {
       const messages=[...body.messages,{role:'user',content:body.message},{role:'assistant',content:'Answer'}];
       chatStore.set(body.chatId,{id:body.chatId,title:messages[0].content,messages});
@@ -192,15 +200,20 @@ test('overlapping saves of a new draft keep one ID and preserve request order', 
 
 test('reading-position saves retain the original asset and locator across an async source switch', async t => {
   const c=await boot(t,{assets:[asset('first'),asset('second')]});await c.open('first');
+  const before=c.calls.length;
   const gate=deferred(),started=deferred();let delayed=true;
-  c.intercept=async call => {if(delayed&&call.url.pathname==='/api/state/first'&&call.method==='GET') {
+  c.intercept=async call => {if(delayed&&call.url.pathname==='/api/state/first'&&call.method==='POST') {
     delayed=false;started.resolve();await gate.promise;
   }};
   c.id('reading').scrollTop=73;c.id('reader-bookmark').click();await started.promise;
+  c.places.set('first',{...c.places.get('first'),note:'Concurrent note',time:22});
   await c.open('second');c.id('reading').scrollTop=999;gate.resolve();await c.settle();
   assert.equal(c.places.get('first').scroll,73);
-  const last=c.calls.filter(call=>call.url.pathname.startsWith('/api/state/')&&call.method==='POST').at(-1);
+  assert.equal(c.places.get('first').note,'Concurrent note');assert.equal(c.places.get('first').time,22);
+  assert.equal(c.calls.slice(before).some(call=>call.url.pathname==='/api/state/first'&&call.method==='GET'),false);
+  const last=c.calls.filter(call=>call.url.pathname==='/api/state/first'&&call.method==='POST').at(-1);
   assert.equal(last.url.pathname,'/api/state/first');assert.equal(last.body.key,'C/first');
+  assert.equal('note' in last.body,false);assert.equal('time' in last.body,false);
 });
 
 test('late correction text is discarded after switching its source', async t => {
@@ -209,6 +222,77 @@ test('late correction text is discarded after switching its source', async t => 
   c.intercept=async call => {if(call.url.pathname==='/api/assets/first/read') {started.resolve();await gate.promise;}};
   c.id('reader-correct').click();await started.promise;await c.open('second');gate.resolve();await c.settle();
   assert.equal(c.id('view-reader').classList.contains('active'),true);assert.equal(c.id('draft-body').value,'');
+});
+
+for(const kind of ['audio','video']) test(`${kind} bookmark snapshots playing time before a delayed POST and navigation without pausing`, async t => {
+  const c=await boot(t,{assets:[asset('media',kind),asset('other','final')]});
+  c.places.set('media',{time:5,volume:0.4});await c.open('media');
+  const media=c.id('reading').querySelector(kind);assert.ok(media);
+  // JSDOM has real media elements and currentTime but no decoder. Represent
+  // active playback without invoking its unimplemented play/pause methods.
+  Object.defineProperty(media,'paused',{value:false});media.currentTime=47.625;
+  let pauses=0;media.addEventListener('pause',()=>{pauses++;});
+  const before=c.calls.length;
+  const gate=deferred(),started=deferred();let delayed=true;
+  c.intercept=async call => {if(delayed&&call.url.pathname==='/api/state/media'&&call.method==='POST') {
+    delayed=false;started.resolve();await gate.promise;
+  }};
+  assert.equal(media.paused,false);c.id('reader-bookmark').click();await started.promise;
+  c.places.set('media',{...c.places.get('media'),note:'Concurrent media note',volume:0.8});
+  media.currentTime=91.25;await c.open('other');gate.resolve();await c.settle();
+  assert.equal(pauses,0,'Bookmark persistence must not depend on a pause event');
+  assert.equal(c.places.get('media').time,47.625,'Save the click-time snapshot, not later playback time');
+  assert.equal(c.places.get('media').volume,0.8,'Preserve concurrently changed settings');
+  assert.equal(c.places.get('media').note,'Concurrent media note');
+  assert.equal(c.places.get('other').time,undefined,'Do not attach the old playback time to the new work');
+  assert.equal(c.calls.slice(before).some(call=>call.url.pathname==='/api/state/media'&&call.method==='GET'),false);
+  const saved=c.calls.filter(call=>call.url.pathname==='/api/state/media'&&call.method==='POST');
+  assert.equal(saved.length,1);assert.equal(saved[0].body.time,47.625);
+  assert.equal('note' in saved[0].body,false);assert.equal('volume' in saved[0].body,false);
+  await c.open('media');const restored=c.id('reading').querySelector(kind);
+  restored.dispatchEvent(new c.window.Event('loadedmetadata'));
+  assert.equal(restored.currentTime,47.625,'The existing media restore consumes the saved time field');
+});
+
+test('media pause posts only captured time and preserves concurrent note and reading fields', async t => {
+  const c=await boot(t,{assets:[asset('media','audio'),asset('other','final')]});await c.open('media');
+  const media=c.id('reading').querySelector('audio'),before=c.calls.length;
+  const gate=deferred(),started=deferred();
+  c.intercept=async call=>{if(call.url.pathname==='/api/state/media'&&call.method==='POST') {started.resolve();await gate.promise;}};
+  media.currentTime=63.5;media.dispatchEvent(new c.window.Event('pause'));await started.promise;
+  c.places.set('media',{note:'A newer note',scroll:137,font:23});
+  media.currentTime=88;await c.open('other');gate.resolve();await c.settle();
+  assert.deepEqual(c.places.get('media'),{note:'A newer note',scroll:137,font:23,time:63.5});
+  const writes=c.calls.slice(before).filter(call=>call.url.pathname==='/api/state/media');
+  assert.equal(writes.length,1);assert.equal(writes[0].method,'POST');assert.deepEqual(writes[0].body,{time:63.5});
+});
+
+test('failed and paused DynDon jobs expose Release, refresh on success and retain retry after failure', async t => {
+  const jobs=[['failed-download','download','failed'],['paused-download','download','paused'],
+    ['failed-generation','generation','failed'],['paused-generation','generation','paused'],
+    ['running-download','download','running'],['complete-download','download','complete']]
+    .map(([id,type,status])=>({id,type,status,active:status==='running',manifest:{title:id},reservationBytes:4096}));
+  const c=await boot(t,{jobs});c.document.querySelector('[data-view="downloads"]').click();await c.settle();
+  const card=id=>[...c.id('download-jobs').querySelectorAll('.note-card')]
+    .find(node=>node.querySelector('strong').textContent.startsWith(`${id} `));
+  const release=id=>[...card(id).querySelectorAll('button')].find(button=>button.textContent==='Release');
+  const releasable=jobs.filter(job=>['failed','paused'].includes(job.status));
+  for(const job of releasable) assert.ok(release(job.id),`${job.type} ${job.status} can be released`);
+  assert.equal(release('running-download'),undefined);assert.equal(release('complete-download'),undefined);
+  c.intercept=call=>call.url.pathname==='/api/dyndon/jobs/failed-download/release'
+    ? Response.json({error:'Release temporarily unavailable'},{status:503}) : null;
+  release('failed-download').click();await c.wait(()=>c.id('status').textContent==='Release temporarily unavailable');
+  assert.equal(c.jobStore.get('failed-download').status,'failed');assert.ok(release('failed-download'));
+  c.intercept=null;
+  for(const job of releasable) {
+    const before=c.calls.filter(call=>call.url.pathname==='/api/downloads').length;
+    release(job.id).click();await c.wait(()=>card(job.id).querySelector('strong').textContent.endsWith('released'));await c.settle();
+    assert.equal(release(job.id),undefined);assert.equal(c.jobStore.get(job.id).reservationBytes,0);
+    assert.ok(c.calls.filter(call=>call.url.pathname==='/api/downloads').length>before,'Release refreshes job state');
+    const request=c.calls.filter(call=>call.url.pathname===`/api/dyndon/jobs/${job.id}/release`).at(-1);
+    assert.equal(request.method,'POST');assert.deepEqual(request.body,{});
+  }
+  assert.equal(c.id('status').textContent,'Job released. Its reservation is available again.');
 });
 
 for(const kind of ['zim','epub']) test(`quote anchors clear across ${kind} passages and asset changes`, async t => {
